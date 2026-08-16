@@ -1,0 +1,88 @@
+=== after ===
+[
+ {
+  "name": "preview_fixture.py",
+  "opened": true,
+  "title": "preview_fixture.py",
+  "description": "682 B · 35 lines",
+  "chars": 692,
+  "lines": 45,
+  "shikiLines": 183,
+  "codeBlock": true,
+  "audioPlayer": false,
+  "firstLines": [
+   "#!/usr/bin/env python3",
+   "\"\"\"Fixture for the attachment preview modal.",
+   ""
+  ]
+ },
+ {
+  "name": "preview_fixture.html",
+  "opened": true,
+  "title": "preview_fixture.html",
+  "description": "534 B · 20 lines · text extracted from HTML",
+  "chars": 152,
+  "lines": 20,
+  "shikiLines": 0,
+  "codeBlock": false,
+  "audioPlayer": false,
+  "firstLines": [
+   "Solar System Explorer",
+   "",
+   "Drag to rotate"
+  ]
+ },
+ {
+  "name": "preview_fixture.pdf",
+  "opened": true,
+  "title": "preview_fixture.pdf",
+  "description": "20 KB · 9 lines · text extracted from PDF",
+  "chars": 363,
+  "lines": 9,
+  "shikiLines": 0,
+  "codeBlock": false,
+  "audioPlayer": false,
+  "firstLines": [
+   "UNSLOTH UNIVERSITY",
+   "Department of Going Brrr Faster",
+   "Final Examination: Triton Kernels, QLoRA, torch.compile"
+  ]
+ },
+ {
+  "name": "preview_fixture.docx",
+  "opened": true,
+  "title": "preview_fixture.docx",
+  "description": "1.3 KB · 9 lines · text extracted from DOCX",
+  "chars": 213,
+  "lines": 9,
+  "shikiLines": 0,
+  "codeBlock": false,
+  "audioPlayer": false,
+  "firstLines": [
+   "Attachment preview fixture",
+   "",
+   "This DOCX is produced by the test harness, not by Word."
+  ]
+ },
+ {
+  "name": "preview_fixture.txt",
+  "opened": true,
+  "title": "preview_fixture.txt",
+  "description": "70 B · 4 lines",
+  "chars": 70,
+  "lines": 4,
+  "shikiLines": 0,
+  "codeBlock": false,
+  "audioPlayer": false,
+  "firstLines": [
+   "Attachment preview fixture.",
+   "Second line of the text file.",
+   "Third line."
+  ]
+ },
+ {
+  "name": "preview_fixture.wav",
+  "opened": false,
+  "why": "no tile"
+ }
+]

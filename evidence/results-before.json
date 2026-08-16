@@ -1,0 +1,84 @@
+=== before ===
+[
+ {
+  "name": "preview_fixture.py",
+  "opened": true,
+  "title": "preview_fixture.py",
+  "description": "682 B · 35 lines",
+  "chars": 682,
+  "lines": 35,
+  "shikiLines": 0,
+  "codeBlock": false,
+  "audioPlayer": false,
+  "firstLines": [
+   "#!/usr/bin/env python3",
+   "\"\"\"Fixture for the attachment preview modal.",
+   ""
+  ]
+ },
+ {
+  "name": "preview_fixture.html",
+  "opened": true,
+  "title": "preview_fixture.html",
+  "description": "534 B · 1 line · text extracted from HTML",
+  "chars": 142,
+  "lines": 1,
+  "shikiLines": 0,
+  "codeBlock": false,
+  "audioPlayer": false,
+  "firstLines": [
+   "Solar System Explorer Drag to rotateScroll to zoom Click a planet to focus Sun Mercury Venus Earth Mars Time Speed: 1x Hover a planet for info"
+  ]
+ },
+ {
+  "name": "preview_fixture.pdf",
+  "opened": true,
+  "title": "preview_fixture.pdf",
+  "description": "20 KB · 1 line · text extracted from PDF",
+  "chars": 363,
+  "lines": 1,
+  "shikiLines": 0,
+  "codeBlock": false,
+  "audioPlayer": false,
+  "firstLines": [
+   "UNSLOTH UNIVERSITY Department of Going Brrr Faster Final Examination: Triton Kernels, QLoRA, torch.compile Section A - Triton Kernel Mechanics 1. Why is BLOCK_SIZE forced to a power of two? 2. These kernels assign one program per row. 3. What hard limit does MAX_FUSED_SIZE enforce? Section B - Masking and cross entropy Exit codes: 0 = no findings; 1 = findings."
+  ]
+ },
+ {
+  "name": "preview_fixture.docx",
+  "opened": true,
+  "title": "preview_fixture.docx",
+  "description": "1.3 KB · 9 lines · text extracted from DOCX",
+  "chars": 213,
+  "lines": 9,
+  "shikiLines": 0,
+  "codeBlock": false,
+  "audioPlayer": false,
+  "firstLines": [
+   "Attachment preview fixture",
+   "",
+   "This DOCX is produced by the test harness, not by Word."
+  ]
+ },
+ {
+  "name": "preview_fixture.txt",
+  "opened": true,
+  "title": "preview_fixture.txt",
+  "description": "70 B · 4 lines",
+  "chars": 70,
+  "lines": 4,
+  "shikiLines": 0,
+  "codeBlock": false,
+  "audioPlayer": false,
+  "firstLines": [
+   "Attachment preview fixture.",
+   "Second line of the text file.",
+   "Third line."
+  ]
+ },
+ {
+  "name": "preview_fixture.wav",
+  "opened": false,
+  "why": "no tile"
+ }
+]
