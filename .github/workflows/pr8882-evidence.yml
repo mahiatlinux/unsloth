@@ -1,0 +1,68 @@
+# Disposable repro workflow. Delete after validation.
+
+name: "PR 8882 Evidence Artifact"
+
+on:
+  push:
+    branches:
+      - "pr-8882-evidence-ci"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repro:
+    name: "Targeted repro"
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+
+      - name: "Confirm the evidence files arrived intact"
+        shell: bash
+        run: |
+          set -euo pipefail
+          ls -l pr8882-header-before-after.png pr8882-full-before-after.png
+          file pr8882-header-before-after.png pr8882-full-before-after.png
+          python3 <<'EOF'
+          import struct
+          for p in ("pr8882-header-before-after.png", "pr8882-full-before-after.png"):
+              raw = open(p, "rb").read()
+              assert raw[:8] == b"\x89PNG\r\n\x1a\n", f"{p} is not a PNG"
+              width, height = struct.unpack(">II", raw[16:24])
+              print(f"{p}  {width}x{height}  {len(raw)} bytes")
+          EOF
+
+      - name: "Write the manifest that ships inside the artifact"
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo 'PR 8882 before/after UI evidence'
+            echo 'unslothai/unsloth#8882 -- show the local model context window before the first token count'
+            echo "base 203007d19051dcd2ae33876786d117c99f6b0368 (merge base)"
+            echo "head 23b3dd6a6ce14aa0b405c9765d30453c497581fb"
+            echo "built by run $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "from commit $GITHUB_SHA"
+            echo
+            echo 'pr8882-header-before-after.png  chat header clip, BEFORE | AFTER'
+            echo 'pr8882-full-before-after.png    full window, BEFORE | AFTER (control: same model, armed Deep research pill)'
+            echo 'pr8882-evidence-manifest.txt    this file'
+            echo
+            echo 'sha256:'
+            sha256sum pr8882-header-before-after.png pr8882-full-before-after.png
+          } | tee pr8882-evidence-manifest.txt
+
+      - name: "Upload the downloadable evidence bundle"
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: pr8882-evidence
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            pr8882-header-before-after.png
+            pr8882-full-before-after.png
+            pr8882-evidence-manifest.txt
