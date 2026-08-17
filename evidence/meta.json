@@ -1,0 +1,103 @@
+{
+  "pr": 8514,
+  "head_ref": "fix/studio-chat-search-animation",
+  "base_sha": "34a11976480637088628eb37716cdefe6edc639f",
+  "head_sha": "aa40cace374d1a01249a8c813c9638c70a731356",
+  "scene": "chat_search_open_stability",
+  "expect": "three pairs, all showing the same thing: the surface holds one size on AFTER and changes size on BEFORE. (01_open_loading) first open with the index still resolving: BEFORE is a collapsed dialog, list ~40-50 px, just the search row and 'Loading...'; AFTER is already the full 420 px box with 'Loading...' inside it. (02_filtered) query 'quantile calibration', 2 of 60 chats match: BEFORE shrinks to roughly two rows (~90 px), AFTER stays 420 px with the two rows at the top. (03_reopen) closed and reopened: BEFORE flashes 'Loading...' in a collapsed box again, AFTER paints the cached rows at once at full height. FACTS: open_list_h_changes >=1 -> 0 and open_list_h_jump_px ~ +375 -> 0 (the list never resizes across the open on AFTER); open_surface_top_travel_px ~190 -> only the zoom's few px, since a centred dialog re-centres on BEFORE when the rows land; shot1_list_h_px ~45 -> 420; shot2_list_h_px ~90 -> 420; shot3_loading True -> False with shot3_rows 0 -> >0 (the module-level cachedIndex). seeded_thread_count must be 60 on BOTH sides: a difference there means the two sides indexed different histories and nothing else in the pair counts. Host load is written to <side>/host_load.json and deliberately kept OUT of facts, so it cannot satisfy the driver's 'some fact moved' guard on its own.",
+  "facts": {
+    "BEFORE": {
+      "seeded_thread_count": 60,
+      "shot1_loading": true,
+      "shot1_list_h_px": 71,
+      "shot1_surface_h_px": 120,
+      "shot1_rows": 0,
+      "settled_list_h_px": 420,
+      "settled_rows": 60,
+      "open_frames": 117,
+      "open_list_h_first_px": 71,
+      "open_list_h_last_px": 420,
+      "open_list_h_jump_px": 349,
+      "open_list_h_distinct": 2,
+      "open_list_h_changes": 1,
+      "open_list_h_series": [
+        71,
+        420
+      ],
+      "open_last_resize_at_ms": 1135,
+      "open_surface_top_first_px": 393,
+      "open_surface_top_last_px": 216,
+      "open_surface_top_travel_px": 177,
+      "shot2_query": "quantile calibration",
+      "shot2_list_h_px": 83,
+      "shot2_surface_h_px": 132,
+      "shot2_rows": 2,
+      "shot3_loading": true,
+      "shot3_list_h_px": 71,
+      "shot3_surface_h_px": 120,
+      "shot3_rows": 0,
+      "reopen_frames": 24,
+      "reopen_list_h_first_px": 71,
+      "reopen_list_h_last_px": 71,
+      "reopen_list_h_jump_px": 0,
+      "reopen_list_h_distinct": 1,
+      "reopen_list_h_changes": 0,
+      "reopen_list_h_series": [
+        71
+      ],
+      "reopen_last_resize_at_ms": 0,
+      "reopen_surface_top_first_px": 393,
+      "reopen_surface_top_last_px": 390,
+      "reopen_surface_top_travel_px": 3
+    },
+    "AFTER": {
+      "seeded_thread_count": 60,
+      "shot1_loading": true,
+      "shot1_list_h_px": 420,
+      "shot1_surface_h_px": 469,
+      "shot1_rows": 0,
+      "settled_list_h_px": 420,
+      "settled_rows": 60,
+      "open_frames": 117,
+      "open_list_h_first_px": 420,
+      "open_list_h_last_px": 420,
+      "open_list_h_jump_px": 0,
+      "open_list_h_distinct": 1,
+      "open_list_h_changes": 0,
+      "open_list_h_series": [
+        420
+      ],
+      "open_last_resize_at_ms": 0,
+      "open_surface_top_first_px": 227,
+      "open_surface_top_last_px": 216,
+      "open_surface_top_travel_px": 11,
+      "shot2_query": "quantile calibration",
+      "shot2_list_h_px": 420,
+      "shot2_surface_h_px": 469,
+      "shot2_rows": 2,
+      "shot3_loading": false,
+      "shot3_list_h_px": 420,
+      "shot3_surface_h_px": 469,
+      "shot3_rows": 60,
+      "reopen_frames": 24,
+      "reopen_list_h_first_px": 420,
+      "reopen_list_h_last_px": 420,
+      "reopen_list_h_jump_px": 0,
+      "reopen_list_h_distinct": 1,
+      "reopen_list_h_changes": 0,
+      "reopen_list_h_series": [
+        420
+      ],
+      "reopen_last_resize_at_ms": 0,
+      "reopen_surface_top_first_px": 227,
+      "reopen_surface_top_last_px": 216,
+      "reopen_surface_top_travel_px": 11
+    }
+  },
+  "studio_env": {},
+  "pairs": [
+    "/home/masher/unsloth-review/pr_ui/outputs/ui_diff_8514/combined/pr8514_pair_00.png",
+    "/home/masher/unsloth-review/pr_ui/outputs/ui_diff_8514/combined/pr8514_pair_01.png",
+    "/home/masher/unsloth-review/pr_ui/outputs/ui_diff_8514/combined/pr8514_pair_02.png"
+  ]
+}
