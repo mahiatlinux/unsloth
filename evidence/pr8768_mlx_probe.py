@@ -65,6 +65,40 @@ try:
 except Exception as exc:  # noqa: BLE001
     out["error"] = f"{type(exc).__name__}: {exc}"
 
+# When the head withholds the row, say WHICH gate withheld it. `_local_weights_entry`
+# swallows every exception into None, so a missing dependency in this probe's own
+# environment is indistinguishable from a real refusal until the gates are read one by
+# one.
+if out.get("servable") is False:
+    from pathlib import Path as _Path
+    try:
+        import core.inference.local_model_resolver as r
+        snap = _Path(SNAPSHOT)
+        cfg = r._read_json(snap / "config.json") if hasattr(r, "_read_json") else None
+        checks = {
+            "host_serves_mlx": lambda: r._host_serves_mlx(),
+            "host_has_a_non_gguf_backend": lambda: r._host_has_a_non_gguf_backend(),
+            "weight_assets_are_complete": lambda: r._weight_assets_are_complete(snap),
+            "has_tokenizer_vocabulary": lambda: r._has_tokenizer_vocabulary(snap),
+            "is_generative_chat_config": lambda: r._is_generative_chat_config(cfg),
+            "quantization_suits_host": lambda: r._quantization_suits_host(cfg),
+            "loader_implements_architecture": lambda: r._loader_implements_architecture(cfg),
+            "has_a_chat_template": lambda: r._has_a_chat_template(snap, REPO),
+            "config_is_servable_here": lambda: r._config_is_servable_here(snap, cfg),
+            "local_weights_entry": lambda: r._local_weights_entry(REPO, info) is not None,
+        }
+        gate_results = {}
+        for name, fn in checks.items():
+            if not hasattr(r, f"_{name}") and name != "local_weights_entry":
+                continue
+            try:
+                gate_results[name] = fn()
+            except Exception as exc:  # noqa: BLE001
+                gate_results[name] = f"EXC {type(exc).__name__}: {exc}"
+        out["gates"] = gate_results
+    except Exception as exc:  # noqa: BLE001
+        out["gates"] = f"unavailable: {type(exc).__name__}: {exc}"
+
 payload = json.dumps(out)
 print(payload)
 # Written to a file as well: hardware detection prints its own verdict line to stdout,
