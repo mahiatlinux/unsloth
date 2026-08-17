@@ -1,0 +1,116 @@
+name: PR 8768 evidence
+
+# Disposable, branch-scoped. Two jobs: one packages the before/after composites shot on a
+# CUDA Linux box into a downloadable artifact, the other runs the same PR's resolver gate
+# on an Apple Silicon runner, which is the only place the MLX half of this PR is reachable.
+
+on:
+  push:
+    branches: [pr-8768-evidence-ci]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  package-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inventory
+        run: |
+          ls -l evidence
+          sha256sum evidence/*
+          python3 -c "import json;d=json.load(open('evidence/pr8768_facts.json'));print(json.dumps(d['facts'],indent=2)[:1200])"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr8768-evidence
+          path: evidence/
+          if-no-files-found: error
+
+  mlx-catalog:
+    runs-on: macos-latest
+    # Non-blocking: an Apple Silicon runner is the honest place to test the MLX leg, but
+    # the packaged evidence above must not go red if this stack cannot be stood up.
+    continue-on-error: true
+    env:
+      REPO_ID: mlx-community/Qwen3-0.6B-4bit
+      PROBE_HF: ${{ github.workspace }}/hfcache
+      UNSLOTH_STUDIO_HOME: ${{ github.workspace }}/studio_home
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: ci
+      - name: Check out the merge base
+        uses: actions/checkout@v4
+        with:
+          repository: unslothai/unsloth
+          ref: fd6ab9acac2bc5e022377da2286dc9a806904270
+          path: base
+          fetch-depth: 1
+      - name: Check out the PR head
+        uses: actions/checkout@v4
+        with:
+          repository: mahiatlinux/unsloth
+          ref: d727e38e2d8d3e1d6d8a0e2713c2379a2616f56b
+          path: head
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install probe dependencies
+        run: |
+          python -m pip install -q --upgrade pip
+          python -m pip install -q fastapi pydantic huggingface_hub safetensors numpy \
+            pyyaml psutil structlog mlx mlx-lm
+      - name: Report the host
+        run: |
+          uname -sm
+          python -c "import mlx.core as mx; print('mlx', mx.__version__)"
+          python -c "from importlib.util import find_spec; print('mlx_lm.models.qwen3', find_spec('mlx_lm.models.qwen3') is not None)"
+      - name: Seed the MLX checkpoint
+        run: |
+          mkdir -p "$PROBE_HF" "$UNSLOTH_STUDIO_HOME"
+          python - <<'PY'
+          import os
+          from huggingface_hub import snapshot_download
+          path = snapshot_download(
+              os.environ["REPO_ID"], cache_dir=os.environ["PROBE_HF"],
+              allow_patterns=["config.json", "model.safetensors",
+                              "model.safetensors.index.json", "tokenizer.json",
+                              "tokenizer_config.json", "special_tokens_map.json",
+                              "added_tokens.json", "vocab.json", "merges.txt",
+                              "chat_template.jinja"])
+          print("snapshot", path)
+          with open(os.environ["GITHUB_ENV"], "a") as fh:
+              fh.write(f"PROBE_SNAPSHOT={path}\n")
+          PY
+      - name: Resolver A/B on Apple Silicon
+        run: |
+          mkdir -p out
+          for side in base head; do
+            PROBE_SIDE="$side" PROBE_REPO="$REPO_ID" \
+            PYTHONPATH="$PWD/$side/studio/backend" \
+            HF_HOME="$PROBE_HF" HF_HUB_CACHE="$PROBE_HF" \
+              python ci/evidence/mlx_probe.py | tee "out/$side.json"
+          done
+      - name: Assert the A/B
+        run: |
+          python - <<'PY'
+          import json
+          base = json.load(open("out/base.json"))
+          head = json.load(open("out/head.json"))
+          print(json.dumps({"base": base, "head": head}, indent=2))
+          assert head["device"] == "mlx", f"runner is not an MLX host: {head}"
+          assert base["servable"] is False, f"merge base already serves it: {base}"
+          assert head["servable"] is True, f"head does not serve it: {head}"
+          assert head["verdict"] == {"is_gguf": False, "quants": []}, head
+          print("PASS: the MLX checkpoint is withheld at the merge base and servable at "
+                "the head, on an Apple Silicon host")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pr8768-mlx-catalog
+          path: out/
+          if-no-files-found: error
