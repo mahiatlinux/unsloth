@@ -1,0 +1,40 @@
+name: pr8739 evidence
+
+# Disposable and branch-scoped. This branch is an ORPHAN commit holding only the
+# evidence for unslothai/unsloth#8739 plus this file, so creating the ref runs this
+# job and nothing else the fork carries on main.
+on:
+  push:
+    branches: [pr-8739-evidence-ci]
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Not a smoke test. This re-derives every number and every sentence quoted in
+      # the PR comment from unslothai/unsloth at the two commits the pair was shot
+      # at, and fails if the screenshots, meta.json and manifest.json disagree with
+      # the source. A green tick here is the claim being checked, not just built.
+      - name: Re-derive the numbers quoted on unslothai/unsloth#8739
+        run: python3 evidence/verify_pr8739_evidence.py --evidence-dir evidence
+
+      - name: List what is being uploaded
+        run: |
+          ls -l evidence
+          sha256sum evidence/*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr8739-evidence
+          path: evidence/
+          if-no-files-found: error

@@ -1,0 +1,81 @@
+{
+  "pr": 8739,
+  "head_ref": "mcp-fixes",
+  "base_sha": "8bfc61c1f51c4d7600c360151a6768ae56f814a2",
+  "head_sha": "f106b3ba0dc2e80f463c0a0cd570eafe107a3aff",
+  "scene": "mcp_stdio_gate_message",
+  "expect": "Both sides launched `unsloth studio -p <port> --disable-tools` on loopback, so the loopback auto-default set UNSLOTH_STUDIO_ALLOW_STDIO_MCP=1 and the CLI tool policy is what closes the stdio gate. Typing the placeholder command `npx -y @modelcontextprotocol/server-filesystem /tmp` and pressing Test connection must raise a 400 whose detail reaches the toast description verbatim (mcp-servers-api.ts parseErrorText -> toast.error description). BEFORE: 'Local commands aren't enabled on this server. To allow them, set UNSLOTH_STUDIO_ALLOW_STDIO_MCP=1 and restart Unsloth, or use an http:// or https:// URL instead.' -- advice that cannot work here, the var is ALREADY 1. AFTER: 'Local commands are disabled because tools are disabled for this server. Restart without --disable-tools, or use an http:// or https:// URL instead.' FACTS: toast_description and the /api/mcp/servers/test + create details move from the env-var hint to the tool-policy reason, gate_advice_mentions_env_var true -> false, gate_advice_names_real_cause false -> true, and model_facing_mcp_tool_count 4 -> 2 on the MCP Apps fixture tool list (poll_dashboard via nested _meta.ui.visibility and render_dashboard_widget via the flat _meta['ui/visibility'] are dropped; get_system_metrics and open_dashboard, which lists 'model', survive), read out of each home's OWN installed studio/backend/core/inference/tools.py. CONTROLS that must MATCH: discovered_tool_count 4 on both (the dialog's own 'Connected (N tools)' count is unfiltered and this PR does not change it), toast_title 'Connection test failed', stdio_gate_test_status 400. THE TRAP: the tool filter has no UI surface of its own. Nothing in the app lists the model-facing MCP tool set -- the only paths are the prompt itself and /api/inference/chat/count_tokens, which needs a loaded GGUF -- so the counts are a measurement beside the picture, not something the screenshot shows.",
+  "facts": {
+    "BEFORE": {
+      "stdio_gate_test_status": 400,
+      "stdio_gate_test_detail": "Local commands aren't enabled on this server. To allow them, set UNSLOTH_STUDIO_ALLOW_STDIO_MCP=1 and restart Unsloth, or use an http:// or https:// URL instead.",
+      "stdio_gate_create_status": 400,
+      "stdio_gate_create_detail": "Local commands aren't enabled on this server. To allow them, set UNSLOTH_STUDIO_ALLOW_STDIO_MCP=1 and restart Unsloth, or use an http:// or https:// URL instead.",
+      "control_status": 400,
+      "control_detail": "MCP server address must start with http:// or https:// (for example https://example.com/mcp).",
+      "gate_advice_mentions_env_var": true,
+      "gate_advice_names_real_cause": false,
+      "gate_advice_names_remote_access": false,
+      "server_rows": 0,
+      "tools_py": "/home/masher/unsloth-review/pr_ui/temp/uidiff8739_before/studio/backend/core/inference/tools.py",
+      "discovered_tool_count": 4,
+      "model_facing_mcp_tool_count": 4,
+      "model_facing_mcp_tool_names": [
+        "get_system_metrics",
+        "poll_dashboard",
+        "render_dashboard_widget",
+        "open_dashboard"
+      ],
+      "has_visibility_filter": false,
+      "dialog_title": "MCP Servers",
+      "dialog_empty_state": false,
+      "command_typed": "npx -y @modelcontextprotocol/server-filesystem /tmp",
+      "toast_count": 1,
+      "toast_title": "Connection test failed",
+      "toast_description": "Local commands aren't enabled on this server. To allow them, set UNSLOTH_STUDIO_ALLOW_STDIO_MCP=1 and restart Unsloth, or use an http:// or https:// URL instead.",
+      "toast_box": {
+        "x": 912,
+        "y": 52,
+        "width": 356,
+        "height": 132
+      }
+    },
+    "AFTER": {
+      "stdio_gate_test_status": 400,
+      "stdio_gate_test_detail": "Local commands are disabled because tools are disabled for this server. Restart without --disable-tools, or use an http:// or https:// URL instead.",
+      "stdio_gate_create_status": 400,
+      "stdio_gate_create_detail": "Local commands are disabled because tools are disabled for this server. Restart without --disable-tools, or use an http:// or https:// URL instead.",
+      "control_status": 400,
+      "control_detail": "MCP server address must start with http:// or https:// (for example https://example.com/mcp).",
+      "gate_advice_mentions_env_var": false,
+      "gate_advice_names_real_cause": true,
+      "gate_advice_names_remote_access": false,
+      "server_rows": 0,
+      "tools_py": "/home/masher/unsloth-review/pr_ui/temp/uidiff8739_after/studio/backend/core/inference/tools.py",
+      "discovered_tool_count": 4,
+      "model_facing_mcp_tool_count": 2,
+      "model_facing_mcp_tool_names": [
+        "get_system_metrics",
+        "open_dashboard"
+      ],
+      "has_visibility_filter": true,
+      "dialog_title": "MCP Servers",
+      "dialog_empty_state": false,
+      "command_typed": "npx -y @modelcontextprotocol/server-filesystem /tmp",
+      "toast_count": 1,
+      "toast_title": "Connection test failed",
+      "toast_description": "Local commands are disabled because tools are disabled for this server. Restart without --disable-tools, or use an http:// or https:// URL instead.",
+      "toast_box": {
+        "x": 912,
+        "y": 52,
+        "width": 356,
+        "height": 115
+      }
+    }
+  },
+  "studio_env": {},
+  "pairs": [
+    "/home/masher/unsloth-review/pr_ui/outputs/ui_diff_8739/combined/pr8739_pair_00.png",
+    "/home/masher/unsloth-review/pr_ui/outputs/ui_diff_8739/combined/pr8739_pair_01.png"
+  ]
+}

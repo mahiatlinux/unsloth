@@ -1,0 +1,47 @@
+{
+  "pr": 8739,
+  "base_sha": "8bfc61c1f51c4d7600c360151a6768ae56f814a2",
+  "head_sha": "f106b3ba0dc2e80f463c0a0cd570eafe107a3aff",
+  "scene": "mcp_stdio_gate_message",
+  "shot_on": {
+    "BEFORE": {
+      "port": 9310,
+      "home": "home_before",
+      "launch": "unsloth studio -p 9310 --disable-tools"
+    },
+    "AFTER": {
+      "port": 9311,
+      "home": "home_after",
+      "launch": "unsloth studio -p 9311 --disable-tools"
+    }
+  },
+  "claims": {
+    "before_toast_description": "Local commands aren't enabled on this server. To allow them, set UNSLOTH_STUDIO_ALLOW_STDIO_MCP=1 and restart Unsloth, or use an http:// or https:// URL instead.",
+    "after_toast_description": "Local commands are disabled because tools are disabled for this server. Restart without --disable-tools, or use an http:// or https:// URL instead.",
+    "remote_access_message": "Local commands are disabled while Remote Access is on, because the server is reachable from outside this machine. Turn off Remote Access to use local MCP servers, or use an http:// or https:// URL instead.",
+    "before_model_facing_count": 4,
+    "after_model_facing_count": 2,
+    "before_model_facing_names": [
+      "get_system_metrics",
+      "poll_dashboard",
+      "render_dashboard_widget",
+      "open_dashboard"
+    ],
+    "after_model_facing_names": [
+      "get_system_metrics",
+      "open_dashboard"
+    ],
+    "dropped_tool_names": [
+      "poll_dashboard",
+      "render_dashboard_widget"
+    ],
+    "discovered_tool_count": 4
+  },
+  "files": {
+    "mcp_stdio_gate_message.py": "50a587cefa7c00b5d643bed4e90e37a7e4e0bd5ae8213c7e92a30321ba084885",
+    "meta.json": "5edd8af4a6c13707467397c794c6b0ed43a6085b36b54ae10538ec035e059e61",
+    "pr8739_before_after_dialog.png": "be385221cd8aa8789c4eb6bc15ffeea0b43ec67c40f2928aa0bcf9bfb1822a66",
+    "pr8739_before_after_toast.png": "14f913f16fc63f68e3fb5fe0ced83fb8c5137dea0c95097d3269078ced0bc2d2",
+    "verify_pr8739_evidence.py": "88705f83801ca695b0620f926147fd6180b193bc160e40449c57183e5f2618e4"
+  }
+}
