@@ -1,0 +1,86 @@
+{
+  "pr": 8951,
+  "head_ref": "feat/studio-lan-access",
+  "base_sha": "6f443b5ccd3f54762aa1b347c874cf3e307951ed",
+  "head_sha": "b8f1d669c3048e21076fdd81162223cccbae23ec",
+  "scene": "lan_access_settings",
+  "expect": "a 'LAN access' section appears in Settings > API keys directly under 'Remote access', with a Wi-Fi glyph, an Off status dot, the copy 'Use Unsloth and its APIs from other devices on your Wi-Fi or wired network', a Start button and a 'Start automatically' switch. On BEFORE that whole block is absent and 'Model auto-switch' follows 'Remote access' directly. GET /api/settings/lan-access: 404 -> a status object reading state=off, can_start=true, block_reason=null. After the Start button is clicked, AFTER goes to 'Online \u00b7 Settings managed' and lists http://<lan-ip>:<port>; on BEFORE there is no button to click, so nothing changes. MEASUREMENT, the same probe on both sides: this host's default-route address on the Studio port refuses the connection before Start on both halves, answers /healthz 200 on AFTER only, and refuses again once Stop is issued -- so loopback-only really was loopback-only. CONTROL: the 'Remote access' section above must be present and identical on both halves; if it is not, the panel failed to load and the pair says nothing.",
+  "facts": {
+    "BEFORE": {
+      "probe_address": "192.168.4.70",
+      "probe_url": "http://192.168.4.70:8990/healthz",
+      "lan_status_initial": "http 404",
+      "lan_probe_before_start": "connection refused",
+      "control_section_present": 1,
+      "control_heading": "Remote access",
+      "lan_section_present": 0,
+      "lan_section_text": null,
+      "lan_state_label": null,
+      "lan_action_label": null,
+      "lan_probe_after_start": "connection refused",
+      "lan_status_after_start": "http 404",
+      "lan_status_after_stop": "http 405",
+      "lan_probe_after_stop": "connection refused"
+    },
+    "AFTER": {
+      "probe_address": "192.168.4.70",
+      "probe_url": "http://192.168.4.70:8998/healthz",
+      "lan_status_initial": {
+        "state": "off",
+        "urls": [],
+        "public_urls": [],
+        "error": null,
+        "auto_start": false,
+        "managed_by": null,
+        "can_start": true,
+        "can_stop": false,
+        "block_reason": null,
+        "serves_web_ui": true
+      },
+      "lan_probe_before_start": "connection refused",
+      "control_section_present": 1,
+      "control_heading": "Remote access",
+      "lan_section_present": 1,
+      "lan_section_text": "LAN access Off Use Unsloth and its APIs from other devices on your Wi-Fi or wired network. Start Start automatically Put Unsloth on the network each time it starts. Stopping LAN access now won\u2019t turn this off.",
+      "lan_state_label": "Off",
+      "lan_action_label": "Start",
+      "lan_action_enabled": true,
+      "lan_auto_start_switch_present": 1,
+      "lan_auto_start_checked": "false",
+      "lan_state_label_after_start": "Online \u00b7 Settings managed",
+      "lan_section_text_after_start": "LAN access Online \u00b7 Settings managed Use Unsloth and its APIs from other devices on your Wi-Fi or wired network. Stop Network address QR http://192.168.4.70:8998 Copy Anyone on this network who has the password or an API key can sign in and run code on this machine. Start automatically Put Unsloth on the network each time it starts. Stopping LAN access now won\u2019t turn this off.",
+      "lan_urls_shown": [
+        "http://192.168.4.70:8998"
+      ],
+      "lan_probe_after_start": "http 200",
+      "lan_status_after_start": {
+        "state": "online",
+        "urls": [
+          "http://192.168.4.70:8998"
+        ],
+        "public_urls": [],
+        "error": null,
+        "auto_start": false,
+        "managed_by": "settings",
+        "can_start": false,
+        "can_stop": true,
+        "block_reason": null,
+        "serves_web_ui": true
+      },
+      "lan_status_after_stop": {
+        "state": "off",
+        "urls": [],
+        "public_urls": [],
+        "error": null,
+        "auto_start": false,
+        "managed_by": null,
+        "can_start": true,
+        "can_stop": false,
+        "block_reason": null,
+        "serves_web_ui": true
+      },
+      "lan_probe_after_stop": "connection refused"
+    }
+  },
+  "note": "produced by scripts/pr_ui_diff.py --pr 8951; two isolated Studio installs, one at the merge base and one at the PR head, driven through the same scene. Local filesystem paths have been removed."
+}

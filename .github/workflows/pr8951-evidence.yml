@@ -1,0 +1,35 @@
+name: PR 8951 evidence
+
+# Disposable. This branch carries nothing but the before/after UI evidence for
+# unslothai/unsloth#8951 and this workflow, which checks the bundle and publishes it
+# as a downloadable artifact. Delete the branch once the PR is closed.
+
+on:
+  push:
+    branches: [pr-8951-evidence-ci]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify every file is what it claims to be
+        run: python3 verify_evidence.py
+
+      - name: Checksum the bundle
+        run: |
+          set -euo pipefail
+          cd evidence
+          sha256sum *.png facts.json > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr8951-evidence
+          path: evidence/
+          if-no-files-found: error
