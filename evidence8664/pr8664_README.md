@@ -57,9 +57,11 @@ life of the tab.
 - `pr8664_toast_corner_before_after.png` - the toast corner, 1:1
 - `pr8664_audio_page_before_after.png` - the whole page, both halves
 - `pr8664_before.webm`, `pr8664_after.webm` - the Playwright recordings the GIFs come from
-- `pr8664_before.gif`, `pr8664_after.gif`, `pr8664_before_after.gif` - built in CI, since
-  the recording box has no ffmpeg. Trimmed to the window in the timelines below and
-  stacked; every frame is from the recordings.
+- `pr8664_before.gif`, `pr8664_after.gif` - built in CI, since the recording box has no
+  system ffmpeg (Chromium records the webms with the one Playwright ships). Whole
+  recordings, one GIF per side, not stacked into a single loop: the two runs are
+  separate sessions and a shared frame would imply a synchronisation nothing here
+  establishes.
 - `pr8664_before_timeline.json`, `pr8664_after_timeline.json` - elapsed seconds for each
-  step of the run, which is what the trim is anchored to
+  step of each run, from the recording's own clock
 - `pr8664_meta.json` - commits, scene, and the full fact sets
