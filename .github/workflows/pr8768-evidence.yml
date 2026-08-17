@@ -107,8 +107,12 @@ jobs:
           print(json.dumps({"base": base, "head": head}, indent=2))
           assert head["device"] == "mlx", f"runner is not an MLX host: {head}"
           assert base["servable"] is False, f"merge base already serves it: {base}"
+          assert base["resolves"] is False, f"merge base already resolves it: {base}"
           assert head["servable"] is True, f"head does not serve it: {head}"
           assert head["verdict"] == {"is_gguf": False, "quants": []}, head
+          assert head["resolves"] is True, f"head index does not resolve it: {head}"
+          assert head["resolved_variant"] is None, head
+          assert head["resolved_loader_id"] == "mlx-community/Qwen3-0.6B-4bit", head
           print("PASS: the MLX checkpoint is withheld at the merge base and servable at "
                 "the head, on an Apple Silicon host")
           PY

@@ -49,6 +49,12 @@ except Exception as exc:  # noqa: BLE001
 info = SimpleNamespace(id=REPO, model_id=REPO, path=SNAPSHOT, partial=False,
                        display_name=REPO.split("/")[-1])
 try:
+    # routes.models imports core.inference, and the resolver imports routes.models back
+    # at CALL time to break that cycle. Reaching the resolver first leaves the cycle to
+    # be resolved inside the gate, where `_local_weights_entry` swallows the resulting
+    # ImportError into None: the first call answered "not servable" while every gate
+    # under it was true. The app imports the routers at startup, so mirror that.
+    import routes.models  # noqa: F401
     import core.inference.local_model_resolver as r
     if hasattr(r, "local_servable_model"):
         verdict = r.local_servable_model(info)
@@ -61,7 +67,13 @@ try:
         out["api"] = "info_has_local_gguf"
         out["servable"] = bool(r.info_has_local_gguf(info))
         out["verdict"] = {"local_gguf_quants": list(r.local_gguf_quants(info) or ())}
-    out["resolves"] = r.resolve_local_gguf(REPO, allow_scan=True) is not None
+    # The full index scan, i.e. what /v1/models and the switch resolver actually call.
+    resolved = r.resolve_local_gguf(REPO, allow_scan=True)
+    out["resolves"] = resolved is not None
+    if resolved is not None:
+        _load_path, variant, loader_id = resolved
+        out["resolved_variant"] = variant
+        out["resolved_loader_id"] = loader_id
 except Exception as exc:  # noqa: BLE001
     out["error"] = f"{type(exc).__name__}: {exc}"
 
