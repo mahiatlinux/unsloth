@@ -1,0 +1,88 @@
+diff --git a/studio/frontend/src/features/hub/catalog/model-inspector.tsx b/studio/frontend/src/features/hub/catalog/model-inspector.tsx
+index 30fb9b99a..c75931198 100644
+--- a/studio/frontend/src/features/hub/catalog/model-inspector.tsx
++++ b/studio/frontend/src/features/hub/catalog/model-inspector.tsx
+@@ -52,6 +52,9 @@ import {
+ import { confirmExternalLink } from "../stores/external-link-confirm";
+ import type { SelectedModelView } from "../types";
+ import { DatasetDownloadSection } from "./dataset-download-section";
++import { taskForMediaPick } from "@/features/model-picker/components/model-selector/audio-picker-policy";
++import { routableToMediaPage } from "../lib/local-path";
++import { studioPageForTask } from "../lib/unsloth-support";
+ import { DownloadSection } from "./download-section";
+ import { LocalDatasetCard } from "./local-dataset-card";
+ import { LocalOnDeviceCard } from "./local-on-device-card";
+@@ -570,13 +573,24 @@ export const ModelInspector = memo(function ModelInspector({
+           c.key === "vision" ||
+           c.key === "audio",
+       ));
++  // An image / video model runs on its own page, which onLoad already routes to;
++  // the chat gates below would leave it greyed out as if it were unusable. Only when the
++  // row is one onLoad can actually route there: those pages resolve a routed `model` as a
++  // Hub id, so a filesystem row fails routableToMediaPage and the click falls through to
++  // the chat loader, which unloads the resident model for a load that can only fail.
++  const runsOnMediaPage =
++    studioPageForTask(
++      taskForMediaPick(model.pipelineTag, model.task) ?? undefined,
++    ) !== undefined &&
++    routableToMediaPage(model.kind, model.localSource);
+   // Chat-only hosts (no supported GPU / usable MLX) run inference only through
+   // llama.cpp, so only GGUF is loadable.
+   const canRunModel =
+     !isDataset &&
+-    (model.runtimeCapabilities?.canChat ?? true) &&
+-    !isEmbeddingOnly &&
+-    (model.isGguf || (!chatOnly && unslothSupported));
++    (runsOnMediaPage ||
++      ((model.runtimeCapabilities?.canChat ?? true) &&
++        !isEmbeddingOnly &&
++        (model.isGguf || (!chatOnly && unslothSupported))));
+   const canTrainModel =
+     !isDataset &&
+     (model.runtimeCapabilities?.canTrain ?? false) &&
+diff --git a/studio/frontend/tests/hub-media-run-gate.test.ts b/studio/frontend/tests/hub-media-run-gate.test.ts
+new file mode 100644
+index 000000000..25373ed3d
+--- /dev/null
++++ b/studio/frontend/tests/hub-media-run-gate.test.ts
+@@ -0,0 +1,40 @@
++// SPDX-License-Identifier: AGPL-3.0-only
++// Copyright 2026-present the Unsloth AI Inc. team. All rights reserved. See /studio/LICENSE.AGPL-3.0
++
++import assert from "node:assert/strict";
++import test from "node:test";
++
++import { routableToMediaPage } from "../src/features/hub/lib/local-path.ts";
++import { studioPageForTask } from "../src/features/hub/lib/unsloth-support.ts";
++
++// What the inspector must decide before enabling Run, and what runSelectedModel requires
++// before navigating. They have to agree: the handler falls through to the chat loader for a
++// row it cannot route, and that unloads the resident model for a load that can only fail.
++const runsOnMediaPage = (
++  task: string | null | undefined,
++  kind: "discover" | "cache" | "local",
++  localSource?: string | null,
++) => studioPageForTask(task) !== undefined && routableToMediaPage(kind, localSource);
++
++// The backend tags a local non-GGUF diffusers checkpoint text-to-image (_local_model_task),
++// and it does that for every local row whatever its source, so these rows are real.
++test("a filesystem diffusion row never counts as running on a media page", () => {
++  assert.equal(runsOnMediaPage("text-to-image", "local", "models_dir"), false);
++  assert.equal(runsOnMediaPage("text-to-image", "local", "lmstudio"), false);
++  assert.equal(runsOnMediaPage("text-to-image", "local", "ollama"), false);
++  assert.equal(runsOnMediaPage("text-to-video", "local", "custom"), false);
++  assert.equal(runsOnMediaPage("text-to-image", "local", undefined), false);
++});
++
++test("hub-backed diffusion rows stay runnable on their page", () => {
++  // An hf_cache row is a complete Hub snapshot, so it routes like a cached repo.
++  assert.equal(runsOnMediaPage("text-to-image", "local", "hf_cache"), true);
++  assert.equal(runsOnMediaPage("text-to-image", "cache"), true);
++  assert.equal(runsOnMediaPage("image-text-to-video", "discover"), true);
++});
++
++test("a chat task is unaffected by the media gate", () => {
++  assert.equal(runsOnMediaPage("text-generation", "cache"), false);
++  assert.equal(runsOnMediaPage(null, "discover"), false);
++  assert.equal(runsOnMediaPage("text-generation", "local", "hf_cache"), false);
++});

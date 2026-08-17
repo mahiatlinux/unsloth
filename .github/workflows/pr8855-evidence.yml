@@ -1,0 +1,169 @@
+# Disposable evidence workflow for unslothai/unsloth#8855. Delete after validation.
+# Orphan branch: this tree carries nothing but the evidence, its four source files and this
+# file, so the push that created the ref fires exactly this job and none of the fork's own.
+
+name: "PR 8855 Evidence Artifact"
+
+on:
+  push:
+    branches:
+      - "pr-8855-evidence-ci"
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    name: "Re-assert the quoted values and upload the bundle"
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903  # v6.0.0
+        with:
+          node-version: "22.x"
+
+      - name: "The composites are real PNGs whose two halves are equal-sized and different"
+        shell: bash
+        run: |
+          set -euo pipefail
+          ls -l pr8855-run-gate-before-after.png pr8855-inspector-before-after.png
+          python3 -m pip install --quiet pillow
+          python3 - <<'PY'
+          import struct, zlib
+          from PIL import Image, ImageChops
+          # hstack_images lays BEFORE and AFTER side by side with a 24 px gap under a 56 px
+          # label band, and it equalises heights by SCALING, so equal half widths are also
+          # the proof that neither half was resized. Halves that come out identical prove
+          # nothing at all; pr_ui_diff.py refuses that, and this re-checks it on the file
+          # that actually shipped.
+          for name in ('pr8855-run-gate-before-after.png', 'pr8855-inspector-before-after.png'):
+              raw = open(name, "rb").read()
+              assert raw[:8] == b"\x89PNG\r\n\x1a\n", name
+              width, height = struct.unpack(">II", raw[16:24])
+              print(f"{name}  {width}x{height}  {len(raw)} bytes  crc32={zlib.crc32(raw):08x}")
+              im = Image.open(name).convert("RGB")
+              half = (im.width - 24) // 2
+              left = im.crop((0, 56, half, im.height))
+              right = im.crop((half + 24, 56, half + 24 + half, im.height))
+              assert left.size == right.size, f"{name}: halves {left.size} vs {right.size}"
+              assert ImageChops.difference(left, right).getbbox() is not None, (
+                  f"{name}: the two halves are identical, so the pair proves nothing"
+              )
+              print(f"    halves {left.size} each, and they differ")
+          PY
+
+      - name: "Re-assert every value the PR comment quotes"
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          d = json.load(open("pr8855-facts.json"))
+          q, f = d["quoted"], d["facts"]
+          b, a = f["BEFORE"], f["AFTER"]
+
+          def eq(label, got, want):
+              assert got == want, f"{label}: {got!r} != {want!r}"
+              print(f"ok  {label} = {got!r}")
+
+          # The gate itself: the one thing the screenshots claim.
+          eq("BEFORE run_action_label", b["run_action_label"], 'Unavailable')
+          eq("BEFORE run_action_disabled", b["run_action_disabled"], True)
+          eq("AFTER  run_action_label", a["run_action_label"], 'Run')
+          eq("AFTER  run_action_disabled", a["run_action_disabled"], False)
+          eq("BEFORE run_action_class", b["run_action_class"], 'hub-action-btn w-28 opacity-70')
+          eq("AFTER  run_action_class", a["run_action_class"], 'hub-run-action-btn w-24')
+
+          # The row photographed is the same row on both sides, and it is on device: the
+          # gate only renders past isDownloaded, so a missing cache row would have been a
+          # Download button on both halves.
+          for side, v in (("BEFORE", b), ("AFTER", a)):
+              row = v["cached_row"]
+              rid = row.get("repoId") or row.get("repo_id")
+              eq(f"{side} cached repo", rid, 'segmind/tiny-sd')
+              assert not row.get("partial"), f"{side} cache row is partial"
+              # Non-GGUF is the whole scope of this PR: a gguf row would be gated elsewhere.
+              eq(f"{side} model_format", row.get("model_format") or row.get("modelFormat"),
+                 "checkpoint")
+              eq(f"{side} card text", v.get("card_text"), {'BEFORE': 'On device Checkpoint 246 MB Unavailable', 'AFTER': 'On device Checkpoint 246 MB Run'}[side])
+              eq(f"{side} format filter", v.get("format_filter"), "All formats")
+              assert v.get("hidden_by_filters") is False, (
+                  f"{side}: the inspector said the selection was hidden by the filters"
+              )
+
+          # Two isolated installs, proven without trusting a login: both sides share one
+          # password, so the home and the served bundle are what separate them.
+          eq("BEFORE home .uidiff_sha", b["home_uidiff_sha"], d["base_sha"])
+          eq("AFTER  home .uidiff_sha", a["home_uidiff_sha"], d["head_sha"])
+          assert b["studio_home"] != a["studio_home"], "both sides used ONE Studio home"
+          assert b["frontend_bundle"] != a["frontend_bundle"], (
+              "both sides served the SAME frontend bundle, so one home was never rebuilt: "
+              f"{b['frontend_bundle']}"
+          )
+          print("ok  bundles differ:", b["frontend_bundle"], "->", a["frontend_bundle"])
+          # The kernel's answer for who owned each port, not the login's.
+          for side, v in (("BEFORE", b), ("AFTER", a)):
+              assert v["studio_home"] in v["listener"]["homes"], (
+                  f"{side}: the process on :{v['listener']['port']} was not that home"
+              )
+              print(f"ok  {side} port {v['listener']['port']} owned by {v['studio_home']}")
+
+          eq("base sha", d["base_sha"], '203007d19051dcd2ae33876786d117c99f6b0368')
+          eq("head sha", d["head_sha"], '276b3de59c23645b40ccfc29c7f0f1c5303eebce')
+
+          # The quoted block is what the comment was written from; it must still agree with
+          # the raw per-side facts beside it.
+          for side, raw in (("before", b), ("after", a)):
+              for key, value in q[side].items():
+                  eq(f"quoted {side}.{key}", value, raw[key])
+          PY
+
+      - name: "The predicate the shots rest on, from the PR's own test"
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum pr8855-net-diff.patch
+          grep -q "runsOnMediaPage" pr8855-net-diff.patch
+          cd studio/frontend
+          node --experimental-strip-types --test tests/hub-media-run-gate.test.ts
+
+      - name: "Write the manifest that ships inside the artifact"
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo 'PR 8855 before/after UI evidence'
+            echo 'unslothai/unsloth#8855 -- Studio: let the hub run non-GGUF image and video models'
+            echo 'base 203007d19051dcd2ae33876786d117c99f6b0368 (merge base)'
+            echo 'head 276b3de59c23645b40ccfc29c7f0f1c5303eebce'
+            echo 'scene hub_media_run_gate, row segmind/tiny-sd (diffusers, text-to-image, seeded HF cache, card reports 246 MB)'
+            echo 'gate: Unavailable disabled=True -> Run disabled=False'
+            echo "built by run $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "from commit $GITHUB_SHA"
+            echo
+            echo 'pr8855-run-gate-before-after.png   download-card clip, BEFORE | AFTER'
+            echo 'pr8855-inspector-before-after.png   full 1600x1000 inspector, BEFORE | AFTER'
+            echo 'pr8855-facts.json                   per-side scene facts, install identity, quoted values'
+            echo 'pr8855-net-diff.patch               git diff <merge-base> <head>, the net diff'
+            echo 'pr8855-evidence-manifest.txt        this file'
+            echo
+            echo 'sha256:'
+            sha256sum pr8855-run-gate-before-after.png pr8855-inspector-before-after.png pr8855-facts.json pr8855-net-diff.patch
+          } | tee pr8855-evidence-manifest.txt
+
+      - name: "Upload the downloadable evidence bundle"
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: pr8855-evidence
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            pr8855-run-gate-before-after.png
+            pr8855-inspector-before-after.png
+            pr8855-facts.json
+            pr8855-net-diff.patch
+            pr8855-evidence-manifest.txt

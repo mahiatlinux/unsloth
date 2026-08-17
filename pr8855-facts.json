@@ -1,0 +1,152 @@
+{
+  "pr": 8855,
+  "upstream": "unslothai/unsloth#8855",
+  "title": "Studio: let the hub run non-GGUF image and video models",
+  "base_sha": "203007d19051dcd2ae33876786d117c99f6b0368",
+  "head_sha": "276b3de59c23645b40ccfc29c7f0f1c5303eebce",
+  "scene": "hub_media_run_gate",
+  "expect": "the toolbar Format filter moved off its GGUF default to 'All formats' (with GGUF selected the row is not in the results at all and the inspector prints 'Current selection is hidden by the active filters or search'), then segmind/tiny-sd selected from Discover (library diffusers, pipeline_tag text-to-image, no quantization_config, in the seeded cache, so the row resolves On device and the card is past isDownloaded): the card reads 'On device Checkpoint 246 MB Unavailable' BEFORE and 'On device Checkpoint 246 MB Run' AFTER, and the action button goes from disabled to enabled. BEFORE takes SafetensorsDownloadCard's showUnavailableAction branch because canRun is false (classifyUnslothSupport returns unsupported, reason 'Pipeline task: text-to-image.', supportedIn 'images') and canTrainModel fails on the same term so onTrain is undefined; AFTER the new runsOnMediaPage term short-circuits the chat gates and the card takes showActionPair. Facts: run_action_label 'Unavailable' -> 'Run', run_action_disabled true -> false, run_action_class 'hub-action-btn w-28 opacity-70' -> 'hub-run-action-btn w-24'. Everything else on the panel must be IDENTICAL -- title, the On device and Checkpoint tags, the 246 MB size, the format filter reading 'All formats'; a pair where those move has changed something other than the gate",
+  "studio_env": {
+    "HF_HOME": "<workspace>/outputs/ui_diff_8855/hf_cache",
+    "HF_HUB_CACHE": "<workspace>/outputs/ui_diff_8855/hf_cache/hub",
+    "HF_XET_CACHE": "<workspace>/outputs/ui_diff_8855/hf_cache/xet",
+    "XDG_CACHE_HOME": "<workspace>/outputs/ui_diff_8855/hf_cache/xdg"
+  },
+  "quoted": {
+    "base_sha": "203007d19051dcd2ae33876786d117c99f6b0368",
+    "head_sha": "276b3de59c23645b40ccfc29c7f0f1c5303eebce",
+    "repo": "segmind/tiny-sd",
+    "before": {
+      "run_action_label": "Unavailable",
+      "run_action_disabled": true,
+      "run_action_class": "hub-action-btn w-28 opacity-70",
+      "frontend_bundle": "index-CYeUjhQq.js",
+      "studio_home": "<workspace>/outputs/ui_diff_8855/home_before",
+      "home_uidiff_sha": "203007d19051dcd2ae33876786d117c99f6b0368",
+      "card_text": "On device Checkpoint 246 MB Unavailable"
+    },
+    "after": {
+      "run_action_label": "Run",
+      "run_action_disabled": false,
+      "run_action_class": "hub-run-action-btn w-24",
+      "frontend_bundle": "index-Cvm3h6gy.js",
+      "studio_home": "<workspace>/outputs/ui_diff_8855/home_after",
+      "home_uidiff_sha": "276b3de59c23645b40ccfc29c7f0f1c5303eebce",
+      "card_text": "On device Checkpoint 246 MB Run"
+    }
+  },
+  "facts": {
+    "BEFORE": {
+      "studio_home": "<workspace>/outputs/ui_diff_8855/home_before",
+      "home_uidiff_sha": "203007d19051dcd2ae33876786d117c99f6b0368",
+      "frontend_bundle": "index-CYeUjhQq.js",
+      "listener": {
+        "port": 9340,
+        "pids": [
+          181219
+        ],
+        "homes": [
+          "<workspace>/outputs/ui_diff_8855/home_before"
+        ]
+      },
+      "cached_row": {
+        "repoId": null,
+        "repo_id": "segmind/tiny-sd",
+        "modelFormat": null,
+        "model_format": "checkpoint",
+        "isGguf": null,
+        "is_gguf": null,
+        "partial": false,
+        "task": null,
+        "pipelineTag": null,
+        "pipeline_tag": null,
+        "quantMethod": null,
+        "bytes": null,
+        "capabilities": {
+          "can_train": true,
+          "can_chat": true,
+          "can_delete": true,
+          "can_download": false,
+          "requires_variant": false,
+          "supports_lora": true,
+          "supports_vision": false
+        }
+      },
+      "format_filter": "All formats",
+      "hidden_by_filters": false,
+      "on_device_tags": [
+        "Checkpoint",
+        "On device"
+      ],
+      "support_chip": false,
+      "task_stat": null,
+      "card_text": "On device Checkpoint 246 MB Unavailable",
+      "action_button_count": 1,
+      "run_action_label": "Unavailable",
+      "run_action_disabled": true,
+      "run_action_class": "hub-action-btn w-28 opacity-70",
+      "card_box": {
+        "x": 800,
+        "y": 297,
+        "width": 680,
+        "height": 54
+      }
+    },
+    "AFTER": {
+      "studio_home": "<workspace>/outputs/ui_diff_8855/home_after",
+      "home_uidiff_sha": "276b3de59c23645b40ccfc29c7f0f1c5303eebce",
+      "frontend_bundle": "index-Cvm3h6gy.js",
+      "listener": {
+        "port": 9341,
+        "pids": [
+          184706
+        ],
+        "homes": [
+          "<workspace>/outputs/ui_diff_8855/home_after"
+        ]
+      },
+      "cached_row": {
+        "repoId": null,
+        "repo_id": "segmind/tiny-sd",
+        "modelFormat": null,
+        "model_format": "checkpoint",
+        "isGguf": null,
+        "is_gguf": null,
+        "partial": false,
+        "task": null,
+        "pipelineTag": null,
+        "pipeline_tag": null,
+        "quantMethod": null,
+        "bytes": null,
+        "capabilities": {
+          "can_train": true,
+          "can_chat": true,
+          "can_delete": true,
+          "can_download": false,
+          "requires_variant": false,
+          "supports_lora": true,
+          "supports_vision": false
+        }
+      },
+      "format_filter": "All formats",
+      "hidden_by_filters": false,
+      "on_device_tags": [
+        "Checkpoint",
+        "On device"
+      ],
+      "support_chip": false,
+      "task_stat": null,
+      "card_text": "On device Checkpoint 246 MB Run",
+      "action_button_count": 1,
+      "run_action_label": "Run",
+      "run_action_disabled": false,
+      "run_action_class": "hub-run-action-btn w-24",
+      "card_box": {
+        "x": 800,
+        "y": 297,
+        "width": 680,
+        "height": 54
+      }
+    }
+  }
+}
