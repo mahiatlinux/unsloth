@@ -1,0 +1,101 @@
+name: PR 8664 evidence
+
+# Disposable. Packages the before/after evidence recorded locally for
+# unslothai/unsloth#8664 into one downloadable artifact, and converts the two
+# Playwright recordings to GIF here because the recording box has no ffmpeg.
+# Every frame in the GIFs comes from those recordings; the only edits are a trim
+# to the window the run's own timeline.json recorded and a side-by-side stack.
+
+on:
+  push:
+    branches:
+      - pr-8664-evidence-ci
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          ffmpeg -version | head -1
+
+      - name: Verify the inputs are 8664's, before anything is built from them
+        run: |
+          set -euo pipefail
+          cd evidence8664
+          test "$(python3 -c 'import json;print(json.load(open("pr8664_meta.json"))["pr"])')" = "8664"
+          python3 - <<'PY'
+          import json
+          m = json.load(open("pr8664_meta.json"))
+          assert m["base_sha"].startswith("b3376300e"), m["base_sha"]
+          assert m["head_sha"].startswith("df4140a8f"), m["head_sha"]
+          b = m["facts"]["BEFORE"]; a = m["facts"]["AFTER"]
+          assert b["stuck_toast_present"] is True and a["stuck_toast_present"] is False
+          assert b["selection_after_reconcile"] == a["selection_after_reconcile"]
+          print("meta ok:", m["scene"], m["head_ref"])
+          PY
+          for f in pr8664_before.webm pr8664_after.webm \
+                   pr8664_toast_corner_before_after.png \
+                   pr8664_audio_page_before_after.png; do
+            test -s "$f"
+          done
+          sha256sum *
+
+      - name: Convert the recordings to GIF, trimmed by their own timelines
+        run: |
+          set -euo pipefail
+          cd evidence8664
+          # One window for both sides, from the marks each side recorded: a second
+          # before the spinner appears to a few seconds after the load lands.
+          read START DUR < <(python3 - <<'PY'
+          import json
+          marks = [json.load(open(f"pr8664_{s}_timeline.json"))["marks_s"]
+                   for s in ("before", "after")]
+          start = min(m["spinner_up"] for m in marks) - 1.0
+          stop = max(m["shot_toast_corner"] for m in marks) + 3.0
+          print(f"{max(start, 0):.2f} {stop - start:.2f}")
+          PY
+          )
+          echo "trim start=${START}s duration=${DUR}s"
+          FONT=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf
+          test -f "$FONT"
+          # -filter_complex, not -vf: the palettegen/paletteuse pass forks the stream,
+          # and a simple filtergraph takes one input to one output only.
+          for side in before after; do
+            LABEL=$(echo "$side" | tr '[:lower:]' '[:upper:]')
+            ffmpeg -nostdin -loglevel error -y -ss "$START" -t "$DUR" \
+              -i "pr8664_${side}.webm" \
+              -filter_complex "[0:v]fps=8,scale=560:-1:flags=lanczos,drawtext=fontfile=${FONT}:text='${LABEL}':x=12:y=10:fontsize=26:fontcolor=black:box=1:boxcolor=white@0.85:boxborderw=6,split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer" \
+              "pr8664_${side}.gif"
+          done
+          # Side by side, the pair as it actually played.
+          ffmpeg -nostdin -loglevel error -y \
+            -ss "$START" -t "$DUR" -i pr8664_before.webm \
+            -ss "$START" -t "$DUR" -i pr8664_after.webm \
+            -filter_complex "[0:v]fps=8,scale=560:-1:flags=lanczos,drawtext=fontfile=${FONT}:text='BEFORE':x=12:y=10:fontsize=26:fontcolor=black:box=1:boxcolor=white@0.85:boxborderw=6[l];[1:v]fps=8,scale=560:-1:flags=lanczos,drawtext=fontfile=${FONT}:text='AFTER':x=12:y=10:fontsize=26:fontcolor=black:box=1:boxcolor=white@0.85:boxborderw=6[r];[l][r]hstack=inputs=2,split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer" \
+            pr8664_before_after.gif
+          ls -l *.gif
+          # A GIF that came out empty would still upload and still look like a result.
+          for g in pr8664_before.gif pr8664_after.gif pr8664_before_after.gif; do
+            test "$(stat -c%s "$g")" -gt 20000
+          done
+
+      - name: What is in the artifact
+        run: |
+          cd evidence8664
+          ls -l
+          sha256sum *.gif
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr8664-evidence
+          path: evidence8664/*
+          if-no-files-found: error
+          retention-days: 30

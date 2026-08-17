@@ -1,0 +1,23 @@
+{
+  "label": "BEFORE",
+  "viewport": [
+    1280,
+    860
+  ],
+  "clip": {
+    "x": 892,
+    "y": 0,
+    "width": 388,
+    "height": 80
+  },
+  "marks_s": {
+    "picker_opened": 5.97,
+    "picked": 10.19,
+    "spinner_up": 10.2,
+    "ownership_lost": 12.8,
+    "load_released": 14.8,
+    "shot_toast_corner": 19.85,
+    "end": 34.94
+  },
+  "video_webm": "pr8664_before.webm"
+}

@@ -1,0 +1,51 @@
+{
+  "pr": 8664,
+  "head_ref": "fix/studio-audio-page",
+  "base_sha": "b3376300e5a5470b658ea918c854f244152a7804",
+  "head_sha": "df4140a8ff50eb3bf04af4e600fc2342dacdbec6",
+  "scene": "audio_load_spinner",
+  "expect": "ONE loading toast, present on BEFORE and gone on AFTER, with the rest of the page identical. Scene: pick unsloth/whisper-tiny in Transcribe with POST /audio/stt/load held open, then make the page lose ownership WITHOUT touching its load generation -- the app's own unsloth:model-lifecycle stt event drives refreshSttStatus against a status whose transformers.loaded_model reads `small`, so reconcileSttSelection repoints the picker at unsloth/whisper-small and isCurrent() goes false on the selection ref. Then release the load 200. BEFORE: 'Preparing tiny\u2026' with its arc spinner still in the top-right corner, and it never expires (sonner arms no timer for a `loading` toast), so it sits there for the life of the tab claiming a load is still running. AFTER: that corner is empty. FACTS: stuck_toast_present true -> false, toast_count 1 -> 0, toast_texts ['Preparing tiny\u2026'] -> [], stuck_toast_after_20s true -> false. CONTROLS that must MATCH on both halves or the pair means nothing: stt_resident_at_start null (this box has no dictation model loaded, so the reconcile is the routed field talking and not local state), load_requests 1, mode_tab_selected true, selection_after_pick 'Whisper Tiny', and above all selection_after_reconcile 'Whisper Small' -- if the reconcile fails to land, the attempt is still current, BOTH sides raise 'Transcription model ready' and the pair proves nothing. THE TRAP: the obvious reproduction, leaving the Audio tab mid-load, is the one exit path the old code already handled -- the deactivation effect nulls sttLoadingGeneration, so the old finally's `else` branch dismisses and both halves come out clean.",
+  "facts": {
+    "BEFORE": {
+      "stt_resident_at_start": null,
+      "mode_tab_selected": "true",
+      "picker_rows_matched": 1,
+      "selection_after_pick": "Whisper Tiny Speech-to-text - Safetensors",
+      "preparing_toast": "Preparing tiny\u2026",
+      "load_requests": 1,
+      "selection_after_reconcile": "Whisper Small Speech-to-text - Safetensors",
+      "status_reads": 2,
+      "toasts_before_release": [
+        "Preparing tiny\u2026"
+      ],
+      "toast_texts": [
+        "Preparing tiny\u2026"
+      ],
+      "toast_count": 1,
+      "stuck_toast_present": true,
+      "stuck_toast_after_20s": true
+    },
+    "AFTER": {
+      "stt_resident_at_start": null,
+      "mode_tab_selected": "true",
+      "picker_rows_matched": 1,
+      "selection_after_pick": "Whisper Tiny Speech-to-text - Safetensors",
+      "preparing_toast": "Preparing tiny\u2026",
+      "load_requests": 1,
+      "selection_after_reconcile": "Whisper Small Speech-to-text - Safetensors",
+      "status_reads": 2,
+      "toasts_before_release": [
+        "Preparing tiny\u2026"
+      ],
+      "toast_texts": [],
+      "toast_count": 0,
+      "stuck_toast_present": false,
+      "stuck_toast_after_20s": false
+    }
+  },
+  "studio_env": {},
+  "pairs": [
+    "pr8664_toast_corner_before_after.png",
+    "pr8664_audio_page_before_after.png"
+  ]
+}

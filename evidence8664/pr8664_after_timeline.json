@@ -1,0 +1,23 @@
+{
+  "label": "AFTER",
+  "viewport": [
+    1280,
+    860
+  ],
+  "clip": {
+    "x": 892,
+    "y": 0,
+    "width": 388,
+    "height": 80
+  },
+  "marks_s": {
+    "picker_opened": 6.37,
+    "picked": 10.6,
+    "spinner_up": 10.61,
+    "ownership_lost": 13.15,
+    "load_released": 15.16,
+    "shot_toast_corner": 20.2,
+    "end": 35.28
+  },
+  "video_webm": "pr8664_after.webm"
+}
