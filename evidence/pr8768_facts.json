@@ -1,0 +1,58 @@
+{
+  "pr": 8768,
+  "head_ref": "fix/studio-mlx-api-model-discovery",
+  "base_sha": "fd6ab9acac2bc5e022377da2286dc9a806904270",
+  "head_sha": "d727e38e2d8d3e1d6d8a0e2713c2379a2616f56b",
+  "scene": "openai_api_model_catalog",
+  "expect": "two differences on one tab, plus the API reading beside them. (0) the toggle description under 'Switch model by request': 'Load a downloaded GGUF named in an API request before serving.' -> 'Load a downloaded model named in an API request before serving.' (the twelve-locale i18n change; en shown). (1) Usage examples: BEFORE has nothing to name and shows 'Load or download a model to see runnable examples. This server has no model to name yet.', AFTER shows a runnable curl/Python snippet whose model field reads unsloth/Qwen3-0.6B. That block is fed by GET /v1/models, so it moves only because the backend catalog did. API: /v1/models data [] -> exactly one row, id unsloth/Qwen3-0.6B, loaded false, NO quant key (its quantization is baked into the weights). POST /v1/chat/completions naming that id: 404 model_not_found 'is not downloaded on this server' -> 200 with the same id echoed in the response's model field, loaded on demand through the orchestrator. CONTROL, and the honest limit of this host: mlx-community/Qwen3-0.6B-4bit sits in the same cache and must be ABSENT from /v1/models on BOTH sides. This box is CUDA (RTX 3080), so _quantization_suits_host withholds an MLX group_size checkpoint from the Transformers backend by design. The pair therefore proves the non-GGUF catalog + auto-switch path the PR adds, exercised through the orchestrator on CUDA; the MLX backend leg (mlx-lm load, the max_seq_length clamp in mlx_inference.py) is Apple-silicon only and cannot be photographed here. Say that in the comment. ISOLATION, learned the hard way on the first probe run: HOME must be overridden for the launched Studios as well as HF_HOME, since _build_index also scans hf_default_cache_dir()/legacy_hf_cache_dir(), which come off HOME. With HF_HOME alone this box's ambient ~/.cache/huggingface put EIGHT models in /v1/models, GGUFs included, so BEFORE had something to name and the usage-examples half of the pair would have gone identical for a reason unrelated to the PR.",
+  "facts": {
+    "BEFORE": {
+      "gpu_free_mib_start": 7593,
+      "auto_switch_put": 200,
+      "auto_switch_enabled": true,
+      "v1_models_status": 200,
+      "v1_model_ids": [],
+      "v1_row_count": 0,
+      "target_listed": false,
+      "target_row": null,
+      "mlx_listed": false,
+      "switch_description": "Load a downloaded GGUF named in an API request before serving. Off by default.",
+      "usage_no_model_shown": true,
+      "usage_snippet_model": null,
+      "usage_snippet_head": null,
+      "chat_status": 404,
+      "chat_model_field": null,
+      "gpu_free_mib_end": 7593
+    },
+    "AFTER": {
+      "gpu_free_mib_start": 7592,
+      "auto_switch_put": 200,
+      "auto_switch_enabled": true,
+      "v1_models_status": 200,
+      "v1_model_ids": [
+        "unsloth/Qwen3-0.6B"
+      ],
+      "v1_row_count": 1,
+      "target_listed": true,
+      "target_row": {
+        "id": "unsloth/Qwen3-0.6B",
+        "object": "model",
+        "created": 1786966013,
+        "owned_by": "unsloth-studio",
+        "loaded": false,
+        "display_name": "Qwen3-0.6B"
+      },
+      "mlx_listed": false,
+      "switch_description": "Load a downloaded model named in an API request before serving. Off by default.",
+      "usage_no_model_shown": false,
+      "usage_snippet_model": "unsloth/Qwen3-0.6B",
+      "usage_snippet_head": "curl http://127.0.0.1:9231/v1/chat/completions \\ -H \"Authorization: Bearer sk-unsloth-YOUR_KEY\" \\ -H \"Content-Type: application/json\" \\ -d '{ \"model\": \"unsloth/Qwen3-0.6B\", \"messages\": [{\"role\": \"user\", \"content\": \"What is Unsloth?\"}], \"stream\": true }'",
+      "chat_status": 200,
+      "chat_model_field": "unsloth/Qwen3-0.6B",
+      "chat_text": "",
+      "gpu_free_mib_end": 6657
+    }
+  },
+  "host": "linux x86_64, single NVIDIA RTX 3080, CUDA",
+  "note": "isolated HF cache holding only unsloth/Qwen3-0.6B and mlx-community/Qwen3-0.6B-4bit, no GGUF"
+}
