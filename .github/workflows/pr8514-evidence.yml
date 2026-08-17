@@ -16,10 +16,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Tool versions
+      - name: Install ffmpeg
+        # ubuntu-latest does NOT ship ffmpeg: the first run of this workflow died with
+        # "ffmpeg: command not found". pngquant is not installed either and is not needed,
+        # since the largest file here is a 68 KB png.
         run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
           ffmpeg -version | head -1
-          echo "pngquant: $(command -v pngquant || echo 'not installed, not needed at these file sizes')"
 
       - name: Convert the recorded frames to gif
         # Two-pass palette, so the gif does not band. The webms were recorded by
