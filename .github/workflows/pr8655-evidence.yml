@@ -1,0 +1,77 @@
+# Disposable evidence workflow for unslothai/unsloth#8655. Delete after validation.
+#
+# It builds nothing: the two BEFORE|AFTER composites and the two fixtures that
+# produced them were shot locally from two isolated Studio installs (merge base
+# 06c90e489 vs head bcb79bd42). This job checks the bytes still match what the PR
+# comment claims and publishes them as a downloadable artifact, so a reviewer can
+# fetch the exact files instead of only viewing the inlined images.
+
+name: "PR 8655 Evidence"
+
+on:
+  push:
+    branches:
+      - "pr-8655-evidence-ci"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    name: "Attachment preview evidence"
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+
+      - name: "List the evidence files"
+        shell: bash
+        run: |
+          set -euo pipefail
+          ls -lR pr8655-evidence
+          file pr8655-evidence/pr8655_pair_00.png pr8655-evidence/pr8655_pair_01.png
+          sha256sum pr8655-evidence/pr8655_pair_00.png pr8655-evidence/pr8655_pair_01.png pr8655-evidence/fixtures/preprocess.py pr8655-evidence/fixtures/report.html
+
+      - name: "Assert the sizes and line counts the PR comment claims"
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          
+          root = Path("pr8655-evidence")
+          expected = {
+              "pr8655_pair_00.png": 92600,
+              "pr8655_pair_01.png": 74909,
+              "fixtures/preprocess.py": 938,
+              "fixtures/report.html": 849,
+          }
+          for name, size in expected.items():
+              actual = (root / name).stat().st_size
+              assert actual == size, f"{name}: {actual} bytes, expected {size}"
+              print(f"OK   {name} {actual} bytes")
+          
+          # The dialog's own line count is text.split("\n"), so the fixture must agree
+          # with the 32 the AFTER modal reports for preprocess.py.
+          lines = len((root / "fixtures/preprocess.py").read_text().split("\n"))
+          assert lines == 32, f"preprocess.py splits into {lines} lines, expected 32"
+          print(f"OK   preprocess.py splits into {lines} lines, matching the modal")
+          
+          # Both composites are one 760px clip per half plus the label band.
+          for name in ("pr8655_pair_00.png", "pr8655_pair_01.png"):
+              head = (root / name).read_bytes()[:24]
+              width = int.from_bytes(head[16:20], "big")
+              height = int.from_bytes(head[20:24], "big")
+              assert (width, height) == (1544, 876), f"{name}: {width}x{height}"
+              print(f"OK   {name} {width}x{height}")
+          print("PASS all evidence assertions")
+          PY
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: pr8655-evidence
+          path: pr8655-evidence
+          if-no-files-found: error

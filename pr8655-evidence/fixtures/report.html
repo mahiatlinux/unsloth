@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Quantisation notes</title>
+  </head>
+  <body>
+    <h1>Quantisation notes</h1>
+    <p>
+      A GGUF repository publishes one denoiser per quant. The text encoders, the
+      VAE and the tokenizer live in a separate companion repository that every
+      quant of the family shares.
+    </p>
+    <h2>What the picker reads</h2>
+    <ul>
+      <li>Each file is one row, at its own size.</li>
+      <li>A bare quant token resolves to the newest checkpoint.</li>
+      <li>Sharded checkpoints report the sum of their shards.</li>
+    </ul>
+    <h2>Why the line structure matters</h2>
+    <p>
+      An extractor that collapses every run of whitespace hands the model one
+      very long line, and the preview shows exactly what the model receives.
+    </p>
+  </body>
+</html>
