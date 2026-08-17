@@ -1,0 +1,99 @@
+name: PR 8759 evidence
+
+# Disposable. Carries the before/after UI evidence for upstream PR unslothai/unsloth#8759
+# ("studio: newline-terminate exported jsonl records") and uploads it as a downloadable
+# artifact. The two prompts.jsonl files ARE the evidence for this PR: the dialog that
+# produced them is unchanged, so the picture alone cannot show the fix. The assert step
+# re-checks every number quoted on the PR against the files in this branch.
+
+on:
+  push:
+    branches: [pr-8759-evidence-ci]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Show the exported bytes
+        run: |
+          set -euo pipefail
+          ls -l evidence
+          wc -c evidence/before_prompts.jsonl evidence/after_prompts.jsonl
+          echo "--- BEFORE tail ---"
+          xxd evidence/before_prompts.jsonl | tail -2
+          echo "--- AFTER tail ---"
+          xxd evidence/after_prompts.jsonl | tail -2
+          echo "--- cmp (expected: EOF on BEFORE after byte 251) ---"
+          cmp evidence/before_prompts.jsonl evidence/after_prompts.jsonl || true
+          echo "--- dialog screenshots, expected to be identical ---"
+          md5sum evidence/before_export_dialog.png evidence/after_export_dialog.png
+
+      - name: Assert every number quoted on the PR
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, pathlib
+
+          ev = pathlib.Path("evidence")
+          before = (ev / "before_prompts.jsonl").read_bytes()
+          after = (ev / "after_prompts.jsonl").read_bytes()
+
+          def report(raw):
+              lines = [ln for ln in raw.split(b"\n") if ln]
+              parsed, names, bad = 0, [], []
+              for ln in lines:
+                  try:
+                      rec = json.loads(ln)
+                  except ValueError:
+                      bad.append(ln.decode("utf-8", "replace"))
+                      continue
+                  parsed += 1
+                  names.append(rec["name"])
+              return {"bytes": len(raw), "last_byte": f"0x{raw[-1]:02x}",
+                      "ends_with_newline": raw.endswith(b"\n"), "lines": len(lines),
+                      "parsed": parsed, "names": names, "unparseable": bad}
+
+          b, a = report(before), report(after)
+          bb, aa = report(before + before), report(after + after)
+          print("BEFORE      ", json.dumps({k: v for k, v in b.items() if k != "unparseable"}))
+          print("AFTER       ", json.dumps({k: v for k, v in a.items() if k != "unparseable"}))
+          print("BEFORE x2   ", json.dumps({k: v for k, v in bb.items() if k != "unparseable"}))
+          print("AFTER x2    ", json.dumps({k: v for k, v in aa.items() if k != "unparseable"}))
+          print("fused line  ", bb["unparseable"][0] if bb["unparseable"] else None)
+
+          # The export, and the only thing about it this PR changes.
+          assert b["bytes"] == 251, b["bytes"]
+          assert a["bytes"] == 252, a["bytes"]
+          assert after == before + b"\n", "the head export is not the base export plus a newline"
+          assert b["last_byte"] == "0x7d" and not b["ends_with_newline"]
+          assert a["last_byte"] == "0x0a" and a["ends_with_newline"]
+
+          # The control: same records, same order, on both sides.
+          assert b["names"] == a["names"] == ["first record", "second record", "last record"], b["names"]
+          assert b["lines"] == a["lines"] == 3
+          assert b["parsed"] == a["parsed"] == 3
+
+          # The failure the PR describes: cat two copies together.
+          assert bb["lines"] == 5 and bb["parsed"] == 4 and len(bb["unparseable"]) == 1
+          assert "}{" in bb["unparseable"][0], bb["unparseable"][0]
+          assert aa["lines"] == 6 and aa["parsed"] == 6 and not aa["unparseable"]
+
+          # The dialog is untouched by this PR, so the two screenshots of it must match.
+          digests = [hashlib.md5((ev / f"{side}_export_dialog.png").read_bytes()).hexdigest()
+                     for side in ("before", "after")]
+          assert digests[0] == digests[1], digests
+          print("dialog md5  ", digests[0], "(identical, as expected: no markup changed)")
+          print("PASS: every number quoted on the PR holds against the files in this branch")
+          PY
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: pr8759-evidence
+          path: evidence
+          if-no-files-found: error
