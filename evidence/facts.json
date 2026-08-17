@@ -1,0 +1,64 @@
+{
+  "pr": 8879,
+  "head_ref": "feat/studio-current-date-prompt",
+  "base_sha": "203007d19051dcd2ae33876786d117c99f6b0368",
+  "head_sha": "b783353630a46e1c197357184ef083594f1c22b9",
+  "scene": "chat_current_date_prompt",
+  "expect": "the 'Chat defaults' section gains exactly one row, FIRST in the list: \"Tell the model today's date\", described as 'Add the current date to the prompt so web search and Deep Research look for recent sources instead of assuming the model's training cutoff.', with its Switch ON (DEFAULT_CURRENT_DATE_PROMPT_ENABLED is True). The rows below it must be IDENTICAL on both halves -- if they are not, the tab never rendered and the pair proves nothing. API: GET /api/settings/current-date-prompt 404/405 on the base, {enabled: true, default_enabled: true} on the head. MEASUREMENT beside the picture, read off a loopback echo server posing as a self-hosted vLLM endpoint: the system turn Studio proxies to it goes from 'Be terse.' to 'The current date is <today>.\\n\\nBe terse.', and PUT enabled=false puts it back to 'Be terse.' on the head, which is what makes this a setting rather than an unconditional prefix.",
+  "facts": {
+    "BEFORE": {
+      "today": "2026-08-17",
+      "settings_api": "HTTP 404",
+      "proxied_system_prompt": "Be terse.",
+      "put_disabled": "HTTP 405",
+      "chat_defaults_rows": [
+        "Collapse Thinking by default",
+        "Show model disclaimer",
+        "Show response model",
+        "Auto-title new chats",
+        "Sloth in greeting"
+      ],
+      "chat_defaults_row_count": 5,
+      "date_row_present": false,
+      "control_rows_present": true,
+      "section_px": [
+        654,
+        344
+      ]
+    },
+    "AFTER": {
+      "today": "2026-08-17",
+      "settings_api": {
+        "enabled": true,
+        "default_enabled": true
+      },
+      "proxied_system_prompt": "The current date is 2026-08-17.\n\nBe terse.",
+      "put_disabled": {
+        "enabled": false,
+        "default_enabled": true
+      },
+      "proxied_system_prompt_setting_off": "Be terse.",
+      "chat_defaults_rows": [
+        "Tell the model today's date",
+        "Collapse Thinking by default",
+        "Show model disclaimer",
+        "Show response model",
+        "Auto-title new chats",
+        "Sloth in greeting"
+      ],
+      "chat_defaults_row_count": 6,
+      "date_row_present": true,
+      "control_rows_present": true,
+      "date_switch_aria_checked": "true",
+      "date_switch_disabled": null,
+      "section_px": [
+        654,
+        420
+      ]
+    }
+  },
+  "ports": {
+    "BEFORE": 9220,
+    "AFTER": 9221
+  }
+}
