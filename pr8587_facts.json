@@ -1,0 +1,222 @@
+{
+  "pr": 8587,
+  "head_ref": "last-used-model-backend",
+  "base_sha": "10f34dbf6919081a770a4393ffcf73e689e7d3f8",
+  "head_sha": "c0677736c86909b046ab87cee3bf245c21537027",
+  "scene": "last_model_cross_browser",
+  "expect": "TWO browser contexts against ONE Studio, so the effect is cross-browser memory and a single-context shot would prove nothing. Context 1 picks unsloth/Qwen3-1.7B-GGUF (Q4_K_M, 1.11 GB) through the chat model picker and loads it; the model is then unloaded and context 2 opens with EMPTY localStorage and sends one message, which is what triggers the auto-load. Only two GGUF repos are cached, one downloaded quant each, so the smallest and the remembered model cannot be the same row: unsloth/Qwen3-0.6B-GGUF Q2_K (296 MB) is the smallest, unsloth/Qwen3-1.7B-GGUF Q4_K_M the remembered one. BEFORE the toast reads 'Loading a model…' over 'unsloth/Qwen3-0.6B-GGUF (Q2_K)' -- the second browser has no memory of context 1 at all, because the record only ever existed in the first browser's localStorage. AFTER it reads 'Loading last used model…' over 'unsloth/Qwen3-1.7B-GGUF (Q4_K_M)', and that is the model that goes resident. FACTS: backend_last_local_model, read from /api/settings/last-local-model on the same server that was photographed, is the backend setting's value per side -- 'http 404' BEFORE (the route does not exist) and {id: unsloth/Qwen3-1.7B-GGUF, kind: gguf, gguf_variant: Q4_K_M, loaded_at: <epoch ms>} AFTER. ctx2_toast_title 'Loading a model…' -> 'Loading last used model…', ctx2_toast_model 'unsloth/Qwen3-0.6B-GGUF (Q2_K)' -> 'unsloth/Qwen3-1.7B-GGUF (Q4_K_M)', ctx2_auto_loaded_model unsloth/Qwen3-0.6B-GGUF -> unsloth/Qwen3-1.7B-GGUF, ctx2_auto_loaded_variant Q2_K -> Q4_K_M. CONTROLS that must be IDENTICAL on both halves or the pair proves nothing: cached_gguf_repos (the same two repos at the same sizes, from the same isolated HF cache), ctx1_picked_model / ctx1_loaded_model / ctx1_loaded_variant (the same model really loaded in the first browser on both sides), ctx1_localstorage_record (the legacy shadow is still written on BOTH sides -- the PR keeps it as an upgrade fallback, so its presence is NOT the difference), ctx2_localstorage_at_boot null (context 2 starts with no record, which is what makes it a second browser rather than the first one again), and resident_before_ctx2 null (the model is unloaded, or tryAdoptServerActiveModel short-circuits the auto-load before it ever reads the record). THE TRAP: reuse one browser context and BOTH sides remember, since the localStorage shadow is written on both. The halves come out nearly identical and read as 'this PR changed nothing'.",
+  "studio_env": {
+    "HF_HOME": "/home/masher/unsloth-review/pr_ui/temp/pr8587_hf_cache",
+    "HF_HUB_CACHE": "/home/masher/unsloth-review/pr_ui/temp/pr8587_hf_cache/hub",
+    "HF_XET_CACHE": "/home/masher/unsloth-review/pr_ui/temp/pr8587_hf_cache/xet",
+    "XDG_CACHE_HOME": "/home/masher/unsloth-review/pr_ui/temp/pr8587_hf_cache/xdg"
+  },
+  "facts": {
+    "BEFORE": {
+      "gpu_free_mib_start": [
+        9377
+      ],
+      "cached_gguf_repos": [
+        {
+          "repo_id": "unsloth/Qwen3-0.6B-GGUF",
+          "size_bytes": 296238784
+        },
+        {
+          "repo_id": "unsloth/Qwen3-1.7B-GGUF",
+          "size_bytes": 1107409472
+        },
+        {
+          "repo_id": "unsloth/gemma-4-E2B-it-GGUF",
+          "size_bytes": 3184496736
+        },
+        {
+          "repo_id": "unsloth/orpheus-3b-0.1-ft-GGUF",
+          "size_bytes": 3529696320
+        },
+        {
+          "repo_id": "unsloth/Qwen3.8-27B-GGUF",
+          "size_bytes": 17923394624
+        }
+      ],
+      "backend_last_local_model_initial": "http 404",
+      "resident_at_start": null,
+      "ctx1_localstorage_at_boot": null,
+      "ctx1_picker_tab": "On Device",
+      "ctx1_sole_quant_row": true,
+      "ctx1_row_text": "Qwen3-1.7B-GGUF Q4_K_M 1.7B 1.1GB",
+      "ctx1_quant_row_text": null,
+      "ctx1_picked_model": "unsloth/Qwen3-1.7B-GGUF",
+      "ctx1_loaded_model": "unsloth/Qwen3-1.7B-GGUF",
+      "ctx1_loaded_variant": "Q4_K_M",
+      "ctx1_localstorage_record": {
+        "id": "unsloth/Qwen3-1.7B-GGUF",
+        "kind": "gguf",
+        "ggufVariant": "Q4_K_M",
+        "loadedAt": 1786969164675
+      },
+      "ctx1_picker_trigger_text": "Qwen3-1.7B-GGUF GGUF · Q4_K_M",
+      "backend_last_local_model": "http 404",
+      "resident_before_ctx2": null,
+      "ctx2_localstorage_at_boot": null,
+      "ctx2_toast_full_text": "Loading a model… unsloth/Qwen3-0.6B-GGUF (Q2_K)",
+      "ctx2_toast_title": "Loading a model…",
+      "ctx2_toast_model": "unsloth/Qwen3-0.6B-GGUF (Q2_K)",
+      "ctx2_toast_sequence": [
+        "Loading a model… Auto-selecting the smallest downloaded model.",
+        "Loading a model… unsloth/Qwen3-0.6B-GGUF (Q2_K)"
+      ],
+      "ctx2_auto_loaded_model": "unsloth/Qwen3-0.6B-GGUF",
+      "ctx2_auto_loaded_variant": "Q2_K",
+      "ctx2_auto_loaded_is_remembered": false,
+      "ctx2_forgetting_would_pick": "unsloth/Qwen3-0.6B-GGUF (Q2_K)",
+      "ctx2_picker_trigger_text": "Qwen3-0.6B-GGUF (Q2_K) GGUF · Q2_K",
+      "ctx2_toasts_at_end": [],
+      "gpu_free_mib_end": [
+        3664
+      ],
+      "backend_last_local_model_end": "http 404",
+      "ctx1_shot": "before_ctx1_loaded.png"
+    },
+    "AFTER": {
+      "gpu_free_mib_start": [
+        3643
+      ],
+      "cached_gguf_repos": [
+        {
+          "repo_id": "unsloth/Qwen3-0.6B-GGUF",
+          "size_bytes": 296238784
+        },
+        {
+          "repo_id": "unsloth/Qwen3-1.7B-GGUF",
+          "size_bytes": 1107409472
+        },
+        {
+          "repo_id": "unsloth/gemma-4-E2B-it-GGUF",
+          "size_bytes": 3184496736
+        },
+        {
+          "repo_id": "unsloth/orpheus-3b-0.1-ft-GGUF",
+          "size_bytes": 3529696320
+        },
+        {
+          "repo_id": "unsloth/Qwen3.8-27B-GGUF",
+          "size_bytes": 17923394624
+        }
+      ],
+      "backend_last_local_model_initial": {
+        "id": null,
+        "kind": null,
+        "gguf_variant": null,
+        "loaded_at": null,
+        "server_now": 1786969217389
+      },
+      "resident_at_start": null,
+      "ctx1_localstorage_at_boot": null,
+      "ctx1_picker_tab": "On Device",
+      "ctx1_sole_quant_row": true,
+      "ctx1_row_text": "Qwen3-1.7B-GGUF Q4_K_M 1.7B 1.1GB",
+      "ctx1_quant_row_text": null,
+      "ctx1_picked_model": "unsloth/Qwen3-1.7B-GGUF",
+      "ctx1_loaded_model": "unsloth/Qwen3-1.7B-GGUF",
+      "ctx1_loaded_variant": "Q4_K_M",
+      "ctx1_localstorage_record": {
+        "id": "unsloth/Qwen3-1.7B-GGUF",
+        "kind": "gguf",
+        "ggufVariant": "Q4_K_M",
+        "loadedAt": 1786969233704,
+        "pendingSync": false
+      },
+      "ctx1_picker_trigger_text": "Qwen3-1.7B-GGUF GGUF · Q4_K_M",
+      "backend_last_local_model": {
+        "id": "unsloth/Qwen3-1.7B-GGUF",
+        "kind": "gguf",
+        "gguf_variant": "Q4_K_M",
+        "loaded_at": 1786969233667,
+        "server_now": 1786969245396
+      },
+      "resident_before_ctx2": null,
+      "ctx2_localstorage_at_boot": null,
+      "ctx2_toast_full_text": "Loading last used model… unsloth/Qwen3-1.7B-GGUF (Q4_K_M)",
+      "ctx2_toast_title": "Loading last used model…",
+      "ctx2_toast_model": "unsloth/Qwen3-1.7B-GGUF (Q4_K_M)",
+      "ctx2_toast_sequence": [
+        "Loading a model… Loading last used model.",
+        "Loading last used model… unsloth/Qwen3-1.7B-GGUF (Q4_K_M)"
+      ],
+      "ctx2_auto_loaded_model": "unsloth/Qwen3-1.7B-GGUF",
+      "ctx2_auto_loaded_variant": "Q4_K_M",
+      "ctx2_auto_loaded_is_remembered": true,
+      "ctx2_forgetting_would_pick": "unsloth/Qwen3-0.6B-GGUF (Q2_K)",
+      "ctx2_picker_trigger_text": "Qwen3-1.7B-GGUF (Q4_K_M) GGUF · Q4_K_M",
+      "ctx2_toasts_at_end": [],
+      "gpu_free_mib_end": [
+        1316
+      ],
+      "backend_last_local_model_end": {
+        "id": "unsloth/Qwen3-1.7B-GGUF",
+        "kind": "gguf",
+        "gguf_variant": "Q4_K_M",
+        "loaded_at": 1786969256784,
+        "server_now": 1786969283704
+      },
+      "ctx1_shot": "after_ctx1_loaded.png"
+    }
+  },
+  "files": {
+    "pr8587_pair_00.png": {
+      "bytes": 11356,
+      "sha256": "01aa8ab495d571f28abd40a445c363fce1a9bf8225d29cff592dd4ff857ac66d"
+    },
+    "pr8587_pair_01.png": {
+      "bytes": 8232,
+      "sha256": "0f1edbfe1fcb94a7a76bbbaec9a7268ccca60c887a7fb37f33652f4e273e4d1b"
+    },
+    "pr8587_before_toast.png": {
+      "bytes": 6161,
+      "sha256": "a08748dc9f88fb1c180c38d5c9fc670d8807e934c70a9d3db38f7f1c89a074b7"
+    },
+    "pr8587_after_toast.png": {
+      "bytes": 6727,
+      "sha256": "b332ebe94a5ac9049fdd270e088b2d227ceb214ebc9de3f386a75724e328a245"
+    },
+    "pr8587_before_header.png": {
+      "bytes": 4247,
+      "sha256": "b3ea8cd30b5474903c07eb7e76e2b7e4921f94c9514154ec3a735e983f5e24e3"
+    },
+    "pr8587_after_header.png": {
+      "bytes": 4373,
+      "sha256": "f07b536cb6e7513d5942ad06da0395ae91674ecca9ffc640d0d0d562ee0151fd"
+    },
+    "pr8587_before_ctx1_loaded.png": {
+      "bytes": 44304,
+      "sha256": "820b26865a8a57c3b55d33bf7c30438960b3fd032a4319ac9d8ab1c704f936c3"
+    },
+    "pr8587_after_ctx1_loaded.png": {
+      "bytes": 45010,
+      "sha256": "967678e33c89779cdfeb8bda3c9790b1ba2064da4c321383eccf013ac9f9945a"
+    },
+    "pr8587_before_ctx2_page.png": {
+      "bytes": 62874,
+      "sha256": "cccaf56ffe0a83ca8d86bd64d64bbe9ed64bc74851b8bdefd46816c080cbaf1d"
+    },
+    "pr8587_after_ctx2_page.png": {
+      "bytes": 49981,
+      "sha256": "733858954586446766188860da67e2742978ac14d0a273e61b17038c4374e64d"
+    }
+  },
+  "identity_checks": [
+    {
+      "before": "pr8587_before_toast.png",
+      "after": "pr8587_after_toast.png"
+    },
+    {
+      "before": "pr8587_before_header.png",
+      "after": "pr8587_after_header.png"
+    }
+  ],
+  "notes": {
+    "pairs": "pr8587_pair_00.png is the auto-load toast the SECOND browser raised on its first message; pr8587_pair_01.png is the chat header that browser ended up with. Both are the same pixel box on each side, pasted onto a fixed canvas rather than height-matched by scaling.",
+    "extra_shots": "The ctx1/ctx2 full-viewport shots are context, not the pair, and they carry two incidental asymmetries that are NOT this PR: the BEFORE home had one 'hi' thread in Recents from an earlier probe run of the same scene against the same home, and the header's auto-sized context window reads 41.0k BEFORE against 8.4k AFTER for the SAME model and quant, because free VRAM on this box's single shared RTX 3080 was 9377 MiB when BEFORE ran and 3643 MiB when AFTER ran. Neither is inside the cropped pairs. The direction also rules memory out as an explanation of the finding: the side with LESS free VRAM is the side that loaded the LARGER model.",
+    "identity": "BEFORE ran on :9320 (pid 191142, UNSLOTH_STUDIO_HOME=.../home_before, frontend bundle /assets/index-D-sylplO.js sha256 033c51ab84c9afc5…), AFTER on :9321 (pid 192470, .../home_after, /assets/index-B-VHHHaz.js sha256 ed65ddab01cc78ed…). Unauthenticated GET /api/settings/last-local-model answers 404 on :9320 and 401 on :9321, so the route this PR adds exists on one side only."
+  }
+}

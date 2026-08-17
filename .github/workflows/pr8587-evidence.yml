@@ -1,0 +1,45 @@
+name: PR 8587 evidence
+
+# Disposable and branch-scoped: this branch is a parentless commit holding nothing but the
+# PR 8587 before/after evidence, so the trigger names it explicitly and cannot fire anywhere
+# else in the fork. Creating the ref is itself a push, so no workflow_dispatch is needed.
+on:
+  push:
+    branches:
+      - pr-8587-evidence-ci
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      # The point of the job. It re-asserts every number quoted in the PR comment against
+      # the files on this branch, so a green run means the comment and the artifact agree
+      # rather than only that the upload step worked.
+      - name: Re-assert the numbers quoted on the PR
+        run: python verify_pr8587_evidence.py
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: pr8587-evidence
+          if-no-files-found: error
+          path: |
+            pr8587_pair_00.png
+            pr8587_pair_01.png
+            pr8587_before_toast.png
+            pr8587_after_toast.png
+            pr8587_before_header.png
+            pr8587_after_header.png
+            pr8587_before_ctx1_loaded.png
+            pr8587_after_ctx1_loaded.png
+            pr8587_before_ctx2_page.png
+            pr8587_after_ctx2_page.png
+            pr8587_facts.json
