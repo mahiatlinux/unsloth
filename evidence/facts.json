@@ -1,0 +1,86 @@
+{
+  "pr": 8557,
+  "head_ref": "mcp-tool-display-names",
+  "base_sha": "c3230a749abeab4e2040558fa6df830e730f5185",
+  "head_sha": "79b6fccb537fccbdf3b68d072c6f63b7279edce7",
+  "scene": "mcp_tool_display_name",
+  "expect": "one MCP server row written straight into <home>/studio.db with a FIXED id, id=9f2c41ab7de05613 display_name='GitHub Issues', and one stored assistant message carrying two tool calls: mcp__9f2c41ab7de05613__create_issue and a non-MCP web_fetch control (also a plain fallback card, so the two sit side by side in the same group). The id is the whole point: uuid4().hex[:16] is what routes/mcp_servers.py mints, so BEFORE prints a hex string at the user. card trigger 'Used tool: 9f2c41ab7de05613 · create_issue' -> 'Used tool: GitHub Issues · create_issue'; details sheet Tools > Called 'MCP: 9f2c41ab7de05613__create_issue, Fetch' -> 'MCP: GitHub Issues · create_issue, Fetch' (BEFORE keeps the raw __ separator, it only slices 'mcp__' off); exported markdown '**tool call:** `mcp__9f2c41ab7de05613__create_issue`' -> '**tool call:** `GitHub Issues · create_issue`'. The web_fetch card ('Used tool: web_fetch'), the Fetch entry in Called, the Enabled row and the web_fetch markdown heading must be IDENTICAL on both sides -- a scene that moves those has changed something other than the MCP label",
+  "facts": {
+    "BEFORE": {
+      "mcp_server_id": "9f2c41ab7de05613",
+      "mcp_display_name": "GitHub Issues",
+      "mcp_tool_name": "mcp__9f2c41ab7de05613__create_issue",
+      "control_tool_name": "web_fetch",
+      "stored_tool_calls": [
+        "mcp__9f2c41ab7de05613__create_issue",
+        "web_fetch"
+      ],
+      "stored_mcp_provenance": {
+        "source": "local",
+        "round_id": 1,
+        "mcp_server": "GitHub Issues"
+      },
+      "status_for_tool": "Calling: mcp__9f2c41ab7de05613__create_issue",
+      "awaiting_approval_status": "Waiting for approval: mcp__9f2c41ab7de05613__create_issue",
+      "has_mcp_display_parts": false,
+      "backend_probe": "ok",
+      "card_labels": [
+        "Used tool: 9f2c41ab7de05613 · create_issue",
+        "Used tool: web_fetch"
+      ],
+      "card_mcp_label": "Used tool: 9f2c41ab7de05613 · create_issue",
+      "card_control_label": "Used tool: web_fetch",
+      "details_called_row": "MCP: 9f2c41ab7de05613__create_issue, Fetch",
+      "details_enabled_row": "Fetch, MCP",
+      "markdown_filename_pattern_ok": true,
+      "markdown_bytes": 531,
+      "markdown_tool_call_lines": 2,
+      "markdown_mcp_heading": "**tool call:** `mcp__9f2c41ab7de05613__create_issue`",
+      "markdown_control_heading": "**tool call:** `web_fetch`",
+      "backend_source_side": "worktree uidiff8557_before/studio/backend"
+    },
+    "AFTER": {
+      "mcp_server_id": "9f2c41ab7de05613",
+      "mcp_display_name": "GitHub Issues",
+      "mcp_tool_name": "mcp__9f2c41ab7de05613__create_issue",
+      "control_tool_name": "web_fetch",
+      "stored_tool_calls": [
+        "mcp__9f2c41ab7de05613__create_issue",
+        "web_fetch"
+      ],
+      "stored_mcp_provenance": {
+        "source": "local",
+        "round_id": 1,
+        "mcp_server": "GitHub Issues"
+      },
+      "status_for_tool": "Calling: GitHub Issues · create_issue",
+      "awaiting_approval_status": "Waiting for approval: GitHub Issues · create_issue",
+      "has_mcp_display_parts": true,
+      "mcp_display_parts": [
+        "GitHub Issues",
+        "create_issue"
+      ],
+      "backend_probe": "ok",
+      "card_labels": [
+        "Used tool: GitHub Issues · create_issue",
+        "Used tool: web_fetch"
+      ],
+      "card_mcp_label": "Used tool: GitHub Issues · create_issue",
+      "card_control_label": "Used tool: web_fetch",
+      "details_called_row": "MCP: GitHub Issues · create_issue, Fetch",
+      "details_enabled_row": "Fetch, MCP",
+      "markdown_filename_pattern_ok": true,
+      "markdown_bytes": 525,
+      "markdown_tool_call_lines": 2,
+      "markdown_mcp_heading": "**tool call:** `GitHub Issues · create_issue`",
+      "markdown_control_heading": "**tool call:** `web_fetch`",
+      "backend_source_side": "worktree uidiff8557_after/studio/backend"
+    }
+  },
+  "studio_env": {},
+  "pairs": [
+    "evidence/pr8557_pair_00_tool_cards.png",
+    "evidence/pr8557_pair_01_details_sheet.png",
+    "evidence/pr8557_pair_02_markdown.png"
+  ]
+}

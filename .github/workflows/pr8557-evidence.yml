@@ -1,0 +1,45 @@
+name: PR 8557 evidence
+
+# Disposable and branch-scoped. This is an ORPHAN branch: it carries the
+# before/after UI evidence for unslothai/unsloth#8557 and this workflow, and
+# nothing else, so none of the fork's other workflows run against it. The job
+# re-asserts every string and count the PR comment quotes before publishing the
+# bundle, so a green run means the comment's numbers came from these files.
+# Delete the branch once the PR is closed.
+
+on:
+  push:
+    branches: [pr-8557-evidence-ci]
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Only for the composite geometry checks: the halves must be the same size,
+      # because hstack_images would otherwise have rescaled one of them.
+      - name: Install Pillow
+        run: python -m pip install --disable-pip-version-check --quiet pillow
+
+      - name: Re-assert every string and count the comment quotes
+        run: python verify_pr8557_evidence.py
+
+      - name: Checksum the bundle
+        run: |
+          set -euo pipefail
+          cd evidence
+          sha256sum -- *.png *.md facts.json | tee SHA256SUMS.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr8557-evidence
+          path: evidence/
+          if-no-files-found: error
