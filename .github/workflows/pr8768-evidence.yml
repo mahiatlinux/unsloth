@@ -62,11 +62,12 @@ jobs:
         run: |
           python -m pip install -q --upgrade pip
           python -m pip install -q fastapi pydantic huggingface_hub safetensors numpy \
-            pyyaml psutil structlog mlx mlx-lm
+            pyyaml psutil structlog mlx mlx-lm 'mlx-vlm>=0.4.4'
       - name: Report the host
         run: |
           uname -sm
           python -c "import mlx.core as mx; print('mlx', mx.__version__)"
+          python -c "import mlx_vlm; print('mlx_vlm', mlx_vlm.__version__)"
           python -c "from importlib.util import find_spec; print('mlx_lm.models.qwen3', find_spec('mlx_lm.models.qwen3') is not None)"
       - name: Seed the MLX checkpoint
         run: |
@@ -92,7 +93,9 @@ jobs:
             PROBE_SIDE="$side" PROBE_REPO="$REPO_ID" \
             PYTHONPATH="$PWD/$side/studio/backend" \
             HF_HOME="$PROBE_HF" HF_HUB_CACHE="$PROBE_HF" \
-              python ci/evidence/mlx_probe.py | tee "out/$side.json"
+            PROBE_OUT="$PWD/out/$side.json" \
+              python ci/evidence/pr8768_mlx_probe.py
+            cat "out/$side.json"
           done
       - name: Assert the A/B
         run: |
