@@ -1,0 +1,109 @@
+name: PR 8514 evidence artifact
+
+# Disposable, branch-scoped: it exists only to turn the committed before/after evidence
+# into a downloadable artifact, and to do the one conversion the machine that recorded
+# the frames could not (no system ffmpeg there). Delete the branch when 8514 lands.
+on:
+  push:
+    branches: [pr-8514-evidence-ci]
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tool versions
+        run: |
+          ffmpeg -version | head -1
+          echo "pngquant: $(command -v pngquant || echo 'not installed, not needed at these file sizes')"
+
+      - name: Convert the recorded frames to gif
+        # Two-pass palette, so the gif does not band. The webms were recorded by
+        # Chromium through Playwright at whatever cadence it actually drew, on a loaded
+        # 16-core box; fps=10 RESAMPLES for size and is not a frame-rate measurement.
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          for side in before after; do
+            src="evidence/${side}_session.webm"
+            ffmpeg -hide_banner -loglevel error -y -i "$src" \
+              -vf "fps=10,scale=720:-1:flags=lanczos,palettegen" "out/${side}_palette.png"
+            ffmpeg -hide_banner -loglevel error -y -i "$src" -i "out/${side}_palette.png" \
+              -lavfi "fps=10,scale=720:-1:flags=lanczos [x]; [x][1:v] paletteuse" \
+              -loop 0 "out/${side}_open.gif"
+            rm -f "out/${side}_palette.png"
+          done
+          ls -l out
+
+      - name: Assemble the artifact
+        run: |
+          set -euo pipefail
+          mkdir -p artifact
+          cp evidence/pr8514_pair_00.png artifact/
+          cp evidence/pr8514_pair_01.png artifact/
+          cp evidence/pr8514_pair_02.png artifact/
+          cp evidence/geometry_table.md artifact/
+          cp evidence/geometry_summary.json artifact/
+          cp evidence/before_open_frames.json artifact/
+          cp evidence/after_open_frames.json artifact/
+          cp evidence/before_reopen_frames.json artifact/
+          cp evidence/after_reopen_frames.json artifact/
+          cp evidence/before_session.webm artifact/
+          cp evidence/after_session.webm artifact/
+          cp evidence/chat_search_open_stability.py artifact/
+          cp evidence/NOTES.md artifact/
+          cp out/before_open.gif artifact/
+          cp out/after_open.gif artifact/
+          ls -l artifact
+
+      - name: Check the artifact says what the comment claims
+        # A green run has to mean something, so assert the numbers rather than just
+        # copying files: the per-frame series must still show a flat 420 px list on the
+        # head and a 71 -> 420 px jump on the base, and both gifs must have real frames.
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, sys
+          a = pathlib.Path("artifact")
+          problems = []
+          for name in ("pr8514_pair_00.png", "pr8514_pair_01.png", "pr8514_pair_02.png"):
+              size = (a / name).stat().st_size
+              if size < 10_000:
+                  problems.append(f"{name} is only {size} bytes")
+          for side in ("before", "after"):
+              gif = a / f"{side}_open.gif"
+              if not gif.exists() or gif.stat().st_size < 10_000:
+                  problems.append(f"{side}_open.gif missing or too small")
+          before = json.loads((a / "before_open_frames.json").read_text())
+          after = json.loads((a / "after_open_frames.json").read_text())
+          if not before or not after:
+              problems.append("a frame series is empty")
+          else:
+              b_heights = {f["lh"] for f in before}
+              a_heights = {f["lh"] for f in after}
+              if b_heights != {71, 420}:
+                  problems.append(f"base list heights {sorted(b_heights)}, expected [71, 420]")
+              if a_heights != {420}:
+                  problems.append(f"head list heights {sorted(a_heights)}, expected [420]")
+          summary = json.loads((a / "geometry_summary.json").read_text())
+          if summary["BEFORE"]["open_list_h_changes"] != 1:
+              problems.append("published summary no longer records one resize on the base")
+          if summary["AFTER"]["open_list_h_changes"] != 0:
+              problems.append("published summary no longer records zero resizes on the head")
+          for p in problems:
+              print(f"FAIL {p}")
+          if problems:
+              sys.exit(1)
+          print(f"PASS {len(before)} base frames, {len(after)} head frames, "
+                f"heights {sorted(b_heights)} vs {sorted(a_heights)}")
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr8514-evidence
+          path: artifact/
+          if-no-files-found: error
+          retention-days: 30
