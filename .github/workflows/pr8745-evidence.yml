@@ -1,0 +1,165 @@
+name: PR 8745 evidence
+
+# Disposable, branch-scoped, and on an ORPHAN commit: a branch cut from the fork's main
+# would carry every other workflow the fork has and creating the ref would fire the lot.
+#
+# Packages the before/after Studio evidence recorded locally for unslothai/unsloth#8745,
+# and re-asserts every number quoted in the PR comment against the run's own meta.json
+# BEFORE uploading anything, so a green tick means the numbers were checked rather than
+# that some files happened to exist.
+
+on:
+  push:
+    branches:
+      - pr-8745-evidence-ci
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Re-assert every number the PR comment quotes
+        run: |
+          set -euo pipefail
+          cd evidence8745
+          python3 - <<'PY'
+          import json
+
+          meta = json.load(open("pr8745_meta.json"))
+          assert meta["pr"] == 8745, meta["pr"]
+          assert meta["scene"] == "bulk_chat_manage", meta["scene"]
+          assert meta["head_ref"] == "chat-manager-bulk-actions", meta["head_ref"]
+          assert meta["base_sha"].startswith("c3230a749"), meta["base_sha"]
+          assert meta["head_sha"].startswith("8eb492c90"), meta["head_sha"]
+
+          before = meta["facts"]["BEFORE"]
+          after = meta["facts"]["AFTER"]
+
+          # The controls first. This PR does not touch the "Use chats as training data" row,
+          # and both sides were seeded through the same backend routes, so both must match
+          # exactly. If they do not, the two panels are not comparable and nothing below
+          # means anything.
+          assert before["control_row_present"] == after["control_row_present"] == 1
+          assert before["control_row_text"] == after["control_row_text"], (
+              before["control_row_text"], after["control_row_text"])
+          assert before["seed"] == after["seed"], (before["seed"], after["seed"])
+          assert before["seed"]["seeded_total"] == 24, before["seed"]
+          assert before["seed"]["seeded_archived"] == [], before["seed"]
+          assert before["seed"]["seeded_in_project"] == [
+              "pr8745-thread-03", "pr8745-thread-04", "pr8745-thread-07"], before["seed"]
+
+          # The row: absent BEFORE, present AFTER, and added in exactly one place.
+          assert before["manage_chats_row_present"] == 0
+          assert after["manage_chats_row_present"] == 1
+          b_labels, a_labels = before["data_row_labels"], after["data_row_labels"]
+          assert len(b_labels) == 12 and len(a_labels) == 13, (len(b_labels), len(a_labels))
+          assert "Manage chats" not in b_labels, b_labels
+          assert [x for x in a_labels if x != "Manage chats"] == b_labels, (b_labels, a_labels)
+          i = a_labels.index("Manage chats")
+          assert a_labels[i - 1] == "Use chats as training data", a_labels
+          assert a_labels[i + 1] == "Archived chats", a_labels
+          assert after["manage_chats_row_text"] == (
+              "Manage chats Select multiple chats to move, pin, archive, export, or delete. "
+              "Manage"), after["manage_chats_row_text"]
+          assert before["manage_chats_row_text"] is None
+
+          # The subpage, reachable on AFTER only.
+          for key in ("manage_counter_at_rest", "manage_toolbar_at_rest",
+                      "manage_counter_selected", "manage_toolbar_selected",
+                      "manage_visible_rows", "manage_show_more",
+                      "manage_counter_after_archive"):
+              assert before[key] is None, (key, before[key])
+          assert after["manage_visible_rows"] == 20, after["manage_visible_rows"]
+          assert after["manage_show_more"] == "Show more (4)", after["manage_show_more"]
+          assert after["manage_counter_at_rest"] == "24 chats", after["manage_counter_at_rest"]
+          assert after["manage_counter_selected"] == "3 chats selected", (
+              after["manage_counter_selected"])
+
+          # Every bulk action disabled with nothing ticked, all five enabled with three.
+          actions = ["Move", "Pin", "Archive", "Export", "Delete"]
+          rest, live = after["manage_toolbar_at_rest"], after["manage_toolbar_selected"]
+          assert rest == [f"{a} (disabled)" for a in actions], rest
+          assert live == actions, live
+
+          # The measurement: one Archive click, three threads archived server-side, read
+          # back from /api/chat/threads on the photographed Studio.
+          assert after["manage_counter_after_archive"] == "21 chats", (
+              after["manage_counter_after_archive"])
+          b_state, a_state = before["state_after_bulk_archive"], after["state_after_bulk_archive"]
+          assert b_state["seeded_archived"] == [], b_state
+          assert a_state["seeded_archived"] == [
+              "pr8745-thread-01", "pr8745-thread-02", "pr8745-thread-03"], a_state
+          assert b_state["seeded_total"] == a_state["seeded_total"] == 24
+          # Archiving must not have moved anything else.
+          assert b_state["seeded_in_project"] == a_state["seeded_in_project"]
+
+          print("every asserted number holds")
+          print(f"  data_row_labels:  {len(b_labels)} -> {len(a_labels)}")
+          print(f"  toolbar at rest:  {rest}")
+          print(f"  toolbar selected: {live}")
+          print(f"  counter:          {after['manage_counter_at_rest']} -> "
+                f"{after['manage_counter_selected']} -> "
+                f"{after['manage_counter_after_archive']}")
+          print(f"  seeded_archived:  {b_state['seeded_archived']} -> "
+                f"{a_state['seeded_archived']}")
+          PY
+
+      - name: Verify the images are the ones the comment inlines
+        run: |
+          set -euo pipefail
+          cd evidence8745
+          python3 - <<'PY'
+          import hashlib, struct
+
+          composites = ["pr8745_data_tab_before_after.png",
+                        "pr8745_manage_view_before_after.png"]
+          halves = ["pr8745_before_data_tab.png", "pr8745_after_data_tab.png",
+                    "pr8745_before_manage_selected.png",
+                    "pr8745_after_manage_selected.png"]
+
+          for name in composites:
+              blob = open(name, "rb").read()
+              assert blob[:8] == b"\x89PNG\r\n\x1a\n", name
+              # Two 620px halves padded onto a fixed canvas, a 24px gutter, and a 56px
+              # label bar. A pair that had been rescaled would not land on this exactly.
+              assert struct.unpack(">II", blob[16:24]) == (1264, 876), name
+              assert len(blob) > 100_000, (name, len(blob))
+              print(f"{name}: 1264x876, {len(blob)} bytes")
+
+          digests = {}
+          for name in halves:
+              blob = open(name, "rb").read()
+              assert blob[:8] == b"\x89PNG\r\n\x1a\n", name
+              assert struct.unpack(">II", blob[16:24]) == (620, 820), name
+              digests[name] = hashlib.sha256(blob).hexdigest()
+              print(f"{name}: 620x820, {len(blob)} bytes")
+
+          # BEFORE's two shots ARE the same image, deliberately: there is no Manage row to
+          # open, so shot 1 repeats shot 0. That repeat is the finding, and asserting it
+          # here stops a future edit from quietly branching around it.
+          assert (digests["pr8745_before_data_tab.png"]
+                  == digests["pr8745_before_manage_selected.png"]), "BEFORE halves differ"
+          assert (digests["pr8745_after_data_tab.png"]
+                  != digests["pr8745_after_manage_selected.png"]), "AFTER halves identical"
+          # And no half may match its opposite number, or one build served both ports.
+          assert (digests["pr8745_before_data_tab.png"]
+                  != digests["pr8745_after_data_tab.png"]), "the two sides are the same image"
+          print("BEFORE shot 0 == shot 1 (expected), AFTER shots differ, sides differ")
+          PY
+          sha256sum *
+
+      - name: What is in the artifact
+        run: |
+          cd evidence8745
+          ls -l
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr8745-evidence
+          path: evidence8745/*
+          if-no-files-found: error
+          retention-days: 30

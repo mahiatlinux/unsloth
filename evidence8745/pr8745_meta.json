@@ -1,0 +1,122 @@
+{
+  "pr": 8745,
+  "head_ref": "chat-manager-bulk-actions",
+  "base_sha": "c3230a749abeab4e2040558fa6df830e730f5185",
+  "head_sha": "8eb492c90803a7d97d38885662821532c56f7231",
+  "scene": "bulk_chat_manage",
+  "expect": "Data panel: the rows run 'Use chats as training data' -> 'Archived chats' BEFORE, and gain 'Manage chats' with a Manage button between them AFTER (data_row_labels grows by exactly that one entry). Clicking it is only possible AFTER, and opens a checkbox table (Name / Project / Date created, 20 of 24 seeded chats plus 'Show more (4)') over a Move/Pin/Archive/Export/Delete toolbar that is disabled at rest and enabled once three rows are ticked, with the counter reading '24 chats' -> '3 chats selected'. The measurement: one Archive click archives all three at once, so seeded_archived goes [] -> the three seeded ids and the counter drops to '21 chats'; BEFORE has no way to archive a selection, so it stays []",
+  "facts": {
+    "BEFORE": {
+      "seed": {
+        "seeded_total": 24,
+        "seeded_archived": [],
+        "seeded_in_project": [
+          "pr8745-thread-03",
+          "pr8745-thread-04",
+          "pr8745-thread-07"
+        ]
+      },
+      "control_row_present": 1,
+      "control_row_text": "Use chats as training data Create a fine-tuning JSONL dataset from your chats. Load it in Train, refine in Recipes, or export it. Load in Train tab",
+      "data_row_labels": [
+        "Use chats as training data",
+        "Archived chats",
+        "Archived images",
+        "Archived videos",
+        "Archive all chats",
+        "Confirm before deleting",
+        "Export chat history",
+        "Export Recents and Projects",
+        "Clear all chats",
+        "Import chats",
+        "Files",
+        "Uploaded files"
+      ],
+      "manage_chats_row_present": 0,
+      "manage_chats_row_text": null,
+      "manage_counter_at_rest": null,
+      "manage_toolbar_at_rest": null,
+      "manage_visible_rows": null,
+      "manage_show_more": null,
+      "manage_counter_selected": null,
+      "manage_toolbar_selected": null,
+      "manage_counter_after_archive": null,
+      "state_after_bulk_archive": {
+        "seeded_total": 24,
+        "seeded_archived": [],
+        "seeded_in_project": [
+          "pr8745-thread-03",
+          "pr8745-thread-04",
+          "pr8745-thread-07"
+        ]
+      }
+    },
+    "AFTER": {
+      "seed": {
+        "seeded_total": 24,
+        "seeded_archived": [],
+        "seeded_in_project": [
+          "pr8745-thread-03",
+          "pr8745-thread-04",
+          "pr8745-thread-07"
+        ]
+      },
+      "control_row_present": 1,
+      "control_row_text": "Use chats as training data Create a fine-tuning JSONL dataset from your chats. Load it in Train, refine in Recipes, or export it. Load in Train tab",
+      "data_row_labels": [
+        "Use chats as training data",
+        "Manage chats",
+        "Archived chats",
+        "Archived images",
+        "Archived videos",
+        "Archive all chats",
+        "Confirm before deleting",
+        "Export chat history",
+        "Export Recents and Projects",
+        "Clear all chats",
+        "Import chats",
+        "Files",
+        "Uploaded files"
+      ],
+      "manage_chats_row_present": 1,
+      "manage_chats_row_text": "Manage chats Select multiple chats to move, pin, archive, export, or delete. Manage",
+      "manage_counter_at_rest": "24 chats",
+      "manage_toolbar_at_rest": [
+        "Move (disabled)",
+        "Pin (disabled)",
+        "Archive (disabled)",
+        "Export (disabled)",
+        "Delete (disabled)"
+      ],
+      "manage_visible_rows": 20,
+      "manage_show_more": "Show more (4)",
+      "manage_counter_selected": "3 chats selected",
+      "manage_toolbar_selected": [
+        "Move",
+        "Pin",
+        "Archive",
+        "Export",
+        "Delete"
+      ],
+      "manage_counter_after_archive": "21 chats",
+      "state_after_bulk_archive": {
+        "seeded_total": 24,
+        "seeded_archived": [
+          "pr8745-thread-01",
+          "pr8745-thread-02",
+          "pr8745-thread-03"
+        ],
+        "seeded_in_project": [
+          "pr8745-thread-03",
+          "pr8745-thread-04",
+          "pr8745-thread-07"
+        ]
+      }
+    }
+  },
+  "studio_env": {},
+  "pairs": [
+    "/home/masher/unsloth-review/pr_ui/outputs/ui_diff_8745/combined/pr8745_pair_00.png",
+    "/home/masher/unsloth-review/pr_ui/outputs/ui_diff_8745/combined/pr8745_pair_01.png"
+  ]
+}
