@@ -1,0 +1,81 @@
+# Disposable repro CI for unslothai/unsloth#8979. Delete with the branch.
+#
+# The PR moves SIDEBAR_ORGANIZATION_STORAGE_KEY into a module that imports nothing, to stop
+# general-tab.tsx reading it before initialization. This workflow measures which import
+# shapes actually throw, on the PR's merge base and on its head, using a vite entry with no
+# backend and no auth.
+name: PR 8979 module cycle repro
+
+on:
+  push:
+    branches:
+      - "pr-8979-*"
+  workflow_dispatch:
+
+jobs:
+  cycle-matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out the harness
+        uses: actions/checkout@v4
+
+      - name: Resolve the PR head and its merge base
+        id: refs
+        run: |
+          set -euo pipefail
+          git remote add upstream https://github.com/unslothai/unsloth.git
+          git fetch --no-tags --prune upstream main "+refs/pull/8979/head:refs/remotes/upstream/pr8979"
+          head_sha=$(git rev-parse refs/remotes/upstream/pr8979)
+          base_sha=$(git merge-base "$head_sha" upstream/main)
+          echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"
+          echo "base_sha=$base_sha" >> "$GITHUB_OUTPUT"
+          echo "head $head_sha"
+          echo "base $base_sha"
+          git worktree add --detach ../pr8979-base "$base_sha"
+          git worktree add --detach ../pr8979-head "$head_sha"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: studio/frontend/package-lock.json
+
+      - name: Install frontend dependencies once and share them
+        run: |
+          set -euo pipefail
+          # Shared on purpose, and only because the two sides pin the same lockfile. A
+          # mismatch here would mean the sides are not comparable, so it stops the run.
+          base_lock=$(sha256sum ../pr8979-base/studio/frontend/package-lock.json | cut -d' ' -f1)
+          head_lock=$(sha256sum ../pr8979-head/studio/frontend/package-lock.json | cut -d' ' -f1)
+          if [ "$base_lock" != "$head_lock" ]; then
+            echo "package-lock.json differs between the sides; install each separately" >&2
+            exit 1
+          fi
+          cd ../pr8979-head/studio/frontend
+          npm ci
+          ln -s "$PWD/node_modules" ../../../pr8979-base/studio/frontend/node_modules
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Playwright
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Run the module scope cycle matrix
+        run: |
+          python scripts/pr8979_repro/cycle_matrix.py \
+            --base ../pr8979-base \
+            --head ../pr8979-head \
+            --out-dir cycle-artifacts
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr8979-cycle-matrix
+          path: cycle-artifacts
