@@ -100,7 +100,6 @@ import {
   listPromptEntries,
   type PromptEntry,
 } from "@/features/chat/api/prompts-api";
-import { applySavedPromptAsSystemPrompt } from "@/features/chat/utils/saved-system-prompt-actions";
 import { useChatPreferencesStore } from "@/features/chat/stores/chat-preferences-store";
 import { useChatProjects } from "@/features/chat/hooks/use-chat-projects";
 import { NewProjectDialog } from "@/features/chat/components/new-project-dialog";
@@ -5542,10 +5541,6 @@ const ComposerToolsMenu: FC<{
       onOpenChange={setPromptStorageOpen}
       onUse={(text) => {
         aui.composer().setText(text);
-      }}
-      onApplyAsSystemPrompt={(text) => {
-        applySavedPromptAsSystemPrompt(text);
-        toast.success("Applied as system prompt");
       }}
       onRunList={(items) => {
         const started = startQueue(items, undefined, () => {
