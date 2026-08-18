@@ -1,0 +1,81 @@
+# Disposable repro workflow. Delete after validation.
+
+name: "PR 9123 Composer Stop/Queue Repro"
+
+on:
+  push:
+    branches:
+      - "pr-9123-*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repro:
+    name: "Targeted repro"
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        with:
+          node-version: "22.17.1"
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.12"
+
+      - name: "Upgrade npm to 11.x"
+        shell: bash
+        run: |
+          npm install -g npm@^11 --no-fund --no-audit
+          npm -v
+
+      - name: "Install frontend deps"
+        shell: bash
+        run: |
+          cd studio/frontend
+          npm ci --strict-allow-scripts --no-fund --no-audit
+
+      - name: "Composer stop/queue regression test (the test this PR adds)"
+        shell: bash
+        run: |
+          cd studio/frontend
+          set +e
+          node --experimental-strip-types --test tests/composer-stop-queue.test.ts
+          rc=$?
+          set -e
+          echo "composer-stop-queue exit=$rc"
+          if [ "$rc" -eq 0 ]; then echo 'PASS composer-stop-queue'; else echo 'FAIL composer-stop-queue'; fi
+          exit $rc
+
+      - name: "Rendered-source shape the test asserts on"
+        shell: bash
+        run: |
+          cd studio/frontend
+          python3 - <<'PY'
+          import re, pathlib
+          src = pathlib.Path('src/components/assistant-ui/thread.tsx').read_text()
+          start = src.index('<AuiIf condition={({ thread }) => thread.isRunning}>')
+          end = src.index('</AuiIf>', start)
+          controls = src[start:end]
+          print('stop_in_running_controls', 'aria-label="Stop generating"' in controls)
+          print('exclusive_queue_ternary', bool(re.search(r'\{queueDisabled \?', controls)))
+          print('queue_guard_after_stop', controls.find('{!queueDisabled ?') > controls.find('aria-label="Stop generating"'))
+          PY
+
+      - name: "Backend CI parallel isolation test (also touched by this PR)"
+        shell: bash
+        run: |
+          python3 -m pip install -q pytest
+          set +e
+          python3 -m pytest -q tests/studio/test_backend_ci_parallel_isolation.py
+          rc=$?
+          set -e
+          echo "isolation exit=$rc"
+          exit $rc
+
