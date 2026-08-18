@@ -93,6 +93,10 @@ jobs:
       - name: The new tests must fail, and fail for the documented reason
         working-directory: studio/frontend
         run: |
+          # GitHub runs `bash -e`, and this step's whole point is a command that
+          # exits non-zero, so errexit has to come off or the assertions below
+          # never run and the job reports the repro as a failure.
+          set +e
           set -uo pipefail
           # TAP explicitly: the default reporter depends on whether stdout is a
           # TTY, and the assertions below read TAP's summary and diff fields.
