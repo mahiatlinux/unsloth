@@ -73,8 +73,10 @@ jobs:
           set -euxo pipefail
           git fetch --no-tags --depth=1 https://github.com/unslothai/unsloth.git "$BASE_SHA"
           git checkout FETCH_HEAD -- "$UTILS_PATH"
-          # Loud, so a silent no-op cannot pass as a reverted tree.
-          if git diff --quiet -- "$UTILS_PATH"; then
+          # Against HEAD, not the index: `git checkout <ref> -- <path>` stages the
+          # file as well as writing it, so a plain `git diff` sees a clean tree and
+          # a revert that did nothing would read as one that worked.
+          if git diff --quiet HEAD -- "$UTILS_PATH"; then
             echo "::error::checkout did not change $UTILS_PATH; the before-state was never applied"
             exit 1
           fi
@@ -82,7 +84,7 @@ jobs:
             echo "::error::$UTILS_PATH still defines trimFormatted after the revert"
             exit 1
           fi
-          git --no-pager diff --stat -- "$UTILS_PATH"
+          git --no-pager diff --stat HEAD -- "$UTILS_PATH"
 
       - name: Install
         working-directory: studio/frontend
