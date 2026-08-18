@@ -49,7 +49,9 @@ from studio_test_kit.ui import open_chat
 MAX_TEXT_LUMINANCE_GAP = 0.15
 MAX_FILL_LUMINANCE_GAP = 0.25
 
-TRIGGER_SEL = "[data-slot=input-group]:has(input[placeholder='./models/my-model'])"
+# anchored on the tour id, not the placeholder: the placeholder is i18n text and reads
+# "scanning local and cached models" until the first scan returns
+TRIGGER_SEL = "[data-tour=studio-local-model] [data-slot=input-group]"
 CONTENT_SEL = "[data-slot=combobox-content]"
 ITEM_SEL = "[data-slot=combobox-item]"
 
@@ -250,11 +252,28 @@ async def computed(locator, props: list[str]) -> dict:
     )
 
 
-async def open_studio_page(sp, base_url: str):
+async def open_studio_page(sp, base_url: str, artifact_dir: Path, tag: str):
     page = sp.page
     await page.goto(f"{base_url}/studio", wait_until="domcontentloaded")
-    await page.locator(TRIGGER_SEL).first.wait_for(state="visible", timeout=90_000)
+    try:
+        await page.locator(TRIGGER_SEL).first.wait_for(state="visible", timeout=90_000)
+    except Exception:
+        await dump_page(page, artifact_dir, tag)
+        raise
     return page
+
+
+async def dump_page(page, artifact_dir: Path, tag: str) -> None:
+    """Screenshot and text-dump the page a selector could not find itself in."""
+    try:
+        await page.screenshot(path=str(artifact_dir / f"debug-{tag}.png"), full_page=True)
+        text = await page.evaluate("document.body ? document.body.innerText : ''")
+        (artifact_dir / f"debug-{tag}.txt").write_text(
+            f"url: {page.url}\n\n{text[:4000]}", encoding="utf-8"
+        )
+        print(f"WARN wrote debug-{tag}.png/.txt for {page.url}", flush=True)
+    except Exception as exc:  # noqa: BLE001 -- diagnostics must not mask the real error
+        warn(f"could not dump the page state: {type(exc).__name__}: {exc}")
 
 
 async def assert_theme(page, theme: str) -> str:
@@ -269,7 +288,7 @@ async def dark_pass(base_url: str, init: str, browser: str, artifact_dir: Path) 
     """Measure the trigger surface before and after the input takes focus."""
     async with open_chat(base_url, init_scripts=[init], browser_name=browser,
                          viewport=(1440, 900)) as sp:
-        page = await open_studio_page(sp, base_url)
+        page = await open_studio_page(sp, base_url, artifact_dir, f"dark-{browser}")
         await assert_theme(page, "dark")
         trigger = page.locator(TRIGGER_SEL).first
         resting = (await computed(trigger, ["background-color"]))["background-color"]
@@ -308,7 +327,7 @@ async def light_pass(base_url: str, init: str, browser: str, artifact_dir: Path)
     """Measure the highlighted row against an unhighlighted one in the same panel."""
     async with open_chat(base_url, init_scripts=[init], browser_name=browser,
                          viewport=(1440, 900)) as sp:
-        page = await open_studio_page(sp, base_url)
+        page = await open_studio_page(sp, base_url, artifact_dir, f"light-{browser}")
         await assert_theme(page, "light")
 
         field = page.locator(f"{TRIGGER_SEL} input").first
