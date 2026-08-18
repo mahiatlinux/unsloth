@@ -1,0 +1,87 @@
+# Disposable repro workflow. Delete after validation.
+
+name: "PR 8595 custom provider max output cap A/B"
+
+on:
+  push:
+    branches:
+      - "pr-8595-*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repro:
+    name: "Targeted repro"
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 30
+    env:
+      BASE_SHA: "51fac012be24ef5c981bd7ab293b3c043c091103"
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        with:
+          node-version: "22.17.1"
+
+      - name: "Record the two SHAs under test"
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "head            $(git rev-parse HEAD)"
+          echo "merge base      $BASE_SHA"
+          git --no-pager log --oneline -1 "$BASE_SHA"
+          node -v
+
+      - name: "AFTER: the PR head must pass the whole file"
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd studio/frontend
+          node --experimental-strip-types --test tests/provider-capabilities-current-models.test.ts 2>&1 | tee "$RUNNER_TEMP/after.log"
+          grep -qE 'fail 0$' "$RUNNER_TEMP/after.log"
+          echo 'PASS: 0 failures at the PR head'
+
+      - name: "BEFORE: revert only provider-capabilities.ts and the same file must fail"
+        shell: bash
+        run: |
+          set -euo pipefail
+          git checkout "$BASE_SHA" -- studio/frontend/src/features/chat/provider-capabilities.ts
+          git --no-pager diff --stat HEAD -- studio/frontend/src/features/chat/provider-capabilities.ts
+          cd studio/frontend
+          status=0
+          node --experimental-strip-types --test tests/provider-capabilities-current-models.test.ts > "$RUNNER_TEMP/before.log" 2>&1 || status=$?
+          cat "$RUNNER_TEMP/before.log"
+          if [ "$status" -eq 0 ]; then
+            echo 'FAIL: the merge-base source passed the new tests, so they do not pin the fix'
+            exit 1
+          fi
+          grep -q 'a custom OpenAI-compatible provider gets the family cap for a known model id' "$RUNNER_TEMP/before.log"
+          grep -qE 'expected 32768 to (strictly )?equal 384000|384000' "$RUNNER_TEMP/before.log"
+          grep -qE 'fail 1$' "$RUNNER_TEMP/before.log"
+          echo 'PASS: exactly one failure at the merge base, on the custom-provider cap'
+
+      - name: "Restore the head source"
+        shell: bash
+        run: |
+          set -euo pipefail
+          git checkout HEAD -- studio/frontend/src/features/chat/provider-capabilities.ts
+          git status --short
+
+      - name: "Does the PR still merge into upstream main?"
+        shell: bash
+        run: |
+          set -euo pipefail
+          git remote add upstream https://github.com/unslothai/unsloth.git 2>/dev/null || true
+          git fetch --no-tags --depth=50 upstream main
+          if git merge-tree --write-tree upstream/main HEAD > "$RUNNER_TEMP/merge.out" 2>&1; then
+            echo 'MERGE CLEAN: the PR head merges into upstream main with no conflict'
+          else
+            echo 'MERGE CONFLICT: the PR head no longer merges into upstream main'
+            cat "$RUNNER_TEMP/merge.out"
+          fi
+
