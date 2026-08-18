@@ -45,6 +45,26 @@ jobs:
             python -m playwright install "${{ matrix.browser }}"
           fi
 
+      - name: Open the Train route on a CPU-only runner
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          # GitHub runners have no GPU, so detect_hardware() leaves CHAT_ONLY True and the
+          # root route redirects /studio to /chat, where the styles under test do not exist.
+          # Identical on both A/B branches and orthogonal to the CSS this run measures.
+          path = Path("studio/backend/utils/hardware/hardware.py")
+          text = path.read_text(encoding="utf-8")
+          before = text
+          text = text.replace("CHAT_ONLY: bool = True", "CHAT_ONLY: bool = False", 1)
+          text = text.replace("    CHAT_ONLY = True  # reset", "    CHAT_ONLY = False  # reset", 1)
+          if text == before:
+              raise SystemExit("hardware.py no longer has the CHAT_ONLY lines this patch targets")
+          path.write_text(text, encoding="utf-8")
+          print("patched CHAT_ONLY off for this CI run")
+          PY
+
       - name: Install Studio from this branch (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
