@@ -1,0 +1,120 @@
+# Disposable repro CI for unslothai/unsloth#8724.
+#
+# Upstream Frontend CI already runs `npm test` on the PR head, so it proves the
+# after-state. What it cannot show is that the six new cases actually catch the
+# defect: a test file that passes on both sides of a change is indistinguishable
+# from one that tests nothing. This workflow runs the A/B in one job matrix so
+# both halves share a toolchain, and asserts the failure SHAPE rather than only
+# a non-zero exit, which a missing dependency would also produce.
+
+name: PR 8724 chart metric repro
+
+on:
+  push:
+    branches:
+      - 'pr-8724-*'
+
+permissions:
+  contents: read
+
+env:
+  # The PR's merge base. The before-state is this commit's charts/utils.ts, not
+  # current main, so the comparison isolates the PR from everything that landed
+  # alongside it.
+  BASE_SHA: 10f34dbf6919081a770a4393ffcf73e689e7d3f8
+  UTILS_PATH: studio/frontend/src/features/studio/sections/charts/utils.ts
+
+jobs:
+  after:
+    name: After (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    defaults:
+      run:
+        shell: bash
+        working-directory: studio/frontend
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - run: npm ci --ignore-scripts --no-fund --no-audit
+
+      - name: Full frontend suite
+        run: npm test
+
+      - name: Typecheck
+        if: matrix.os == 'ubuntu-latest'
+        run: npm run typecheck
+
+  before:
+    name: Before (merge base charts/utils.ts, same tests)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Restore charts/utils.ts to the PR's merge base
+        run: |
+          set -euxo pipefail
+          git fetch --no-tags --depth=1 https://github.com/unslothai/unsloth.git "$BASE_SHA"
+          git checkout FETCH_HEAD -- "$UTILS_PATH"
+          # Loud, so a silent no-op cannot pass as a reverted tree.
+          if git diff --quiet -- "$UTILS_PATH"; then
+            echo "::error::checkout did not change $UTILS_PATH; the before-state was never applied"
+            exit 1
+          fi
+          if grep -q 'trimFormatted' "$UTILS_PATH"; then
+            echo "::error::$UTILS_PATH still defines trimFormatted after the revert"
+            exit 1
+          fi
+          git --no-pager diff --stat -- "$UTILS_PATH"
+
+      - name: Install
+        working-directory: studio/frontend
+        run: npm ci --ignore-scripts --no-fund --no-audit
+
+      - name: The new tests must fail, and fail for the documented reason
+        working-directory: studio/frontend
+        run: |
+          set -uo pipefail
+          # TAP explicitly: the default reporter depends on whether stdout is a
+          # TTY, and the assertions below read TAP's summary and diff fields.
+          node --experimental-strip-types --test-reporter=tap \
+            --test tests/chart-metric-formatting.test.ts > repro.log 2>&1
+          rc=$?
+          echo "exit code: $rc"
+          cat repro.log
+
+          fail() { echo "::error::$1"; exit 1; }
+
+          [ "$rc" -ne 0 ] || fail "the suite passed against the merge-base formatters, so the new tests do not catch the defect"
+          # Exactly the three cases the PR reports as newly failing. A different
+          # count means something other than the truncation broke.
+          grep -qE '^# fail 3$' repro.log || fail "expected 3 failing cases, got: $(grep -E '^# (pass|fail) ' repro.log | tr '\n' ' ')"
+          grep -q 'formatMetric(1000)' repro.log || fail "no assertion message naming formatMetric(1000); the failure is not the truncation"
+          grep -qE "actual: '1'" repro.log || fail "expected an actual value of '1' for formatMetric(1000)"
+          grep -qE "expected: '1000'" repro.log || fail "expected an expected value of '1000' for formatMetric(1000)"
+          echo "before-state reproduced: 3 failing cases, formatMetric(1000) returned '1'"
+
+      - name: Upload before-state log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr8724-before-state-log
+          path: studio/frontend/repro.log
+          if-no-files-found: warn
