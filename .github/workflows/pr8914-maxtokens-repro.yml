@@ -1,0 +1,37 @@
+# Disposable repro workflow. Delete after validation.
+
+name: "PR 8914 Max Tokens Cap Repro"
+
+on:
+  push:
+    branches:
+      - "pr-8914-maxtokens-repro-ci-*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repro:
+    name: "Targeted repro"
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        with:
+          node-version: "22"
+
+      - name: "Resolved OpenRouter caps on this branch"
+        shell: bash
+        run: |
+          cd studio/frontend && node --experimental-strip-types --no-warnings --test tests/pr8914-openrouter-caps-probe.test.ts
+
+      - name: "The provider capability suite the PR extends"
+        shell: bash
+        run: |
+          cd studio/frontend && node --experimental-strip-types --no-warnings --test tests/provider-capabilities-current-models.test.ts
+
