@@ -434,6 +434,13 @@ async def main() -> None:
             auth.refresh_token = body.get("refresh_token", "")
         pass_log("Studio API login succeeded")
 
+        with urllib.request.urlopen(f"{base_url}/api/health", timeout=10) as response:
+            health = json.loads(response.read())
+        measurements["chat_only"] = health.get("chat_only")
+        if health.get("chat_only"):
+            fail("this host reports chat_only, so /studio redirects to /chat and the "
+                 "Local Model picker never renders")
+
         seed = seed_scan_folder(home.parent)
         async with httpx.AsyncClient(timeout=120) as client:
             added = await api(client, "POST", base_url, "/api/models/scan-folders",
