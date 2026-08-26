@@ -15,6 +15,12 @@ export interface MemoryTotalDevice {
   shared_memory?: boolean;
 }
 
+export interface GpuMemoryTotalsGb {
+  dedicated: number;
+  shared: number;
+  total: number;
+}
+
 export interface VramReportingGpu {
   devices?: VramReportingDevice[];
   /** Used VRAM across the visible GPUs when no single device's usage could be
@@ -30,16 +36,35 @@ export interface VramReportingGpu {
 export function aggregateGpuMemoryTotalGb(
   devices: MemoryTotalDevice[],
 ): number {
-  const dedicated = devices
-    .filter((device) => !device.shared_memory)
-    .reduce((sum, device) => sum + (device.memory_total_gb ?? 0), 0);
-  const shared = Math.max(
-    0,
-    ...devices
-      .filter((device) => device.shared_memory)
-      .map((device) => device.memory_total_gb ?? 0),
+  return gpuMemoryTotalsGb(devices).total;
+}
+
+/** Return dedicated, shared, and aggregate capacities from one classification pass. */
+export function gpuMemoryTotalsGb(
+  devices: MemoryTotalDevice[],
+): GpuMemoryTotalsGb {
+  const dedicated = roundToDevicePrecision(
+    devices
+      .filter((device) => !device.shared_memory)
+      .reduce((sum, device) => sum + (device.memory_total_gb ?? 0), 0),
   );
-  return Math.round((dedicated + shared) * 100) / 100;
+  const shared = roundToDevicePrecision(
+    Math.max(
+      0,
+      ...devices
+        .filter((device) => device.shared_memory)
+        .map((device) => device.memory_total_gb ?? 0),
+    ),
+  );
+  return {
+    dedicated,
+    shared,
+    total: roundToDevicePrecision(dedicated + shared),
+  };
+}
+
+function roundToDevicePrecision(value: number): number {
+  return Math.round(value * 100) / 100;
 }
 
 /** Whether every device reports its own usage, so each row and their sum are real. */
