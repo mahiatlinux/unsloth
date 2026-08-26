@@ -13,12 +13,16 @@ import {
   resolveGpuSelectionContext,
 } from "./gpu-selection";
 import {
+  gpuMemoryTotalsGb,
+  gpuSharedHostMemoryGb,
+  systemRamAvailableOutsideSharedPoolGb,
+} from "./gpu-vram";
+import {
   type SystemInfoResponse,
   fetchSystemInfo,
   getCachedSystemInfo,
   subscribeSystemInfo,
 } from "./use-system";
-import { gpuMemoryTotalsGb } from "./gpu-vram";
 
 export {
   pinnableGpuContext,
@@ -88,11 +92,10 @@ function toGpuInfo(
   const memoryTotals = gpuMemoryTotalsGb(devices);
   return {
     ...base,
-    // A Vulkan iGPU's reported budget is capped shared system RAM, not an
-    // independent VRAM pool. Do not offer the same RAM again for CPU offload.
-    systemRamAvailableGb: devices.some((device) => device.shared_memory)
-      ? 0
-      : base.systemRamAvailableGb,
+    systemRamAvailableGb: systemRamAvailableOutsideSharedPoolGb(
+      base.systemRamAvailableGb,
+      gpuSharedHostMemoryGb(devices),
+    ),
     available: true,
     budgetKnown: true,
     name: devices[0]?.name ?? "Unknown",
