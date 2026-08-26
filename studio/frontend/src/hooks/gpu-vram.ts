@@ -13,6 +13,14 @@ export interface MemoryTotalDevice {
   memory_total_gb?: number;
   /** True when the reported GPU budget comes from shared system memory. */
   shared_memory?: boolean;
+  /** host-backed portion of the shared pool; the rest is reserved GPU memory. */
+  shared_memory_host_backed_gb?: number | null;
+}
+
+export interface GpuMemoryTotalsGb {
+  dedicated: number;
+  shared: number;
+  total: number;
 }
 
 export interface VramReportingGpu {
@@ -30,16 +38,73 @@ export interface VramReportingGpu {
 export function aggregateGpuMemoryTotalGb(
   devices: MemoryTotalDevice[],
 ): number {
-  const dedicated = devices
-    .filter((device) => !device.shared_memory)
-    .reduce((sum, device) => sum + (device.memory_total_gb ?? 0), 0);
-  const shared = Math.max(
-    0,
-    ...devices
-      .filter((device) => device.shared_memory)
-      .map((device) => device.memory_total_gb ?? 0),
+  return gpuMemoryTotalsGb(devices).total;
+}
+
+/** Return dedicated, shared, and aggregate capacities from one classification pass. */
+export function gpuMemoryTotalsGb(
+  devices: MemoryTotalDevice[],
+): GpuMemoryTotalsGb {
+  const dedicatedDevices = roundToDevicePrecision(
+    devices
+      .filter((device) => !device.shared_memory)
+      .reduce((sum, device) => sum + (device.memory_total_gb ?? 0), 0),
   );
-  return Math.round((dedicated + shared) * 100) / 100;
+  const sharedPool = devices
+    .filter((device) => device.shared_memory)
+    .reduce(
+      (totals, device) => {
+        const total = Math.max(0, device.memory_total_gb ?? 0);
+        const hostBackedReported = device.shared_memory_host_backed_gb;
+        const hostBackedKnown = hostBackedReported != null;
+        const hostBacked = hostBackedKnown
+          ? Math.min(total, Math.max(0, hostBackedReported))
+          : total;
+        return {
+          hostBacked: Math.max(totals.hostBacked, hostBacked),
+          reserved:
+            totals.reserved + (hostBackedKnown ? total - hostBacked : 0),
+        };
+      },
+      { hostBacked: 0, reserved: 0 },
+    );
+  const shared = roundToDevicePrecision(sharedPool.hostBacked);
+  const dedicated = roundToDevicePrecision(
+    dedicatedDevices + sharedPool.reserved,
+  );
+  return {
+    dedicated,
+    shared,
+    total: roundToDevicePrecision(dedicated + shared),
+  };
+}
+
+/** return the host RAM that overlaps the shared GPU pool, counted once. */
+export function gpuSharedHostMemoryGb(devices: MemoryTotalDevice[]): number {
+  return roundToDevicePrecision(
+    Math.max(
+      0,
+      ...devices
+        .filter((device) => device.shared_memory)
+        .map(
+          (device) =>
+            device.shared_memory_host_backed_gb ?? device.memory_total_gb ?? 0,
+        ),
+    ),
+  );
+}
+
+export function systemRamAvailableOutsideSharedPoolGb(
+  availableGb: number,
+  hostBackedSharedPoolGb: number,
+): number {
+  return roundToDevicePrecision(
+    Math.max(0, availableGb - hostBackedSharedPoolGb),
+  );
+}
+
+function roundToDevicePrecision(value: number): number {
+  return Math.round(value * 100) / 100;
 }
 
 /** Whether every device reports its own usage, so each row and their sum are real. */
