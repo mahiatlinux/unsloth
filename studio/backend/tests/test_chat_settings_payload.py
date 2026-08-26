@@ -206,3 +206,28 @@ def test_the_rejection_detail_can_be_rendered_as_json():
         put_settings({"ragAutoInjectMinScore": float("nan")}, current_subject = "t")
     assert excinfo.value.status_code == 400
     json.dumps(excinfo.value.detail, allow_nan = False)
+
+
+def test_auto_compact_settings_round_trip():
+    payload = ChatSettingsPayload.model_validate(
+        {
+            "autoCompactEnabled": False,
+            "contextPolicy": "rolling",
+            "compactionHeadroomRatio": 0.05,
+        }
+    )
+    assert payload.model_dump(exclude_unset = True) == {
+        "autoCompactEnabled": False,
+        "contextPolicy": "rolling",
+        "compactionHeadroomRatio": 0.05,
+    }
+
+
+def test_auto_compact_settings_can_inherit_the_server_policy():
+    payload = ChatSettingsPayload.model_validate({"contextPolicy": "inherit"})
+    assert payload.model_dump(exclude_unset = True) == {"contextPolicy": "inherit"}
+
+
+def test_compaction_headroom_ratio_is_bounded():
+    with pytest.raises(ValidationError):
+        ChatSettingsPayload.model_validate({"compactionHeadroomRatio": 1.5})

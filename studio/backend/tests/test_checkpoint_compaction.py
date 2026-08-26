@@ -570,7 +570,7 @@ def test_studios_own_memory_history_does_not_steal_the_request_from_the_context_
     )
 
     assert inference_route._takes_tool_passthrough(payload, _ToolCapableBackend()) is False
-    assert inference_route._only_studio_memory_tool_history(payload) is True
+    assert inference_route._only_studio_tool_history(payload) is True
 
 
 def test_a_real_client_tool_loop_still_takes_the_passthrough():
@@ -590,7 +590,7 @@ def test_a_real_client_tool_loop_still_takes_the_passthrough():
         stream = True,
     )
 
-    assert inference_route._only_studio_memory_tool_history(payload) is False
+    assert inference_route._only_studio_tool_history(payload) is False
     assert inference_route._takes_tool_passthrough(payload, _ToolCapableBackend()) is True
 
     # And a client catalog alongside Unsloth's own history is still the client's request.
@@ -607,8 +607,41 @@ def test_a_real_client_tool_loop_still_takes_the_passthrough():
             }
         ],
     )
-    assert inference_route._only_studio_memory_tool_history(with_catalog) is False
+    assert inference_route._only_studio_tool_history(with_catalog) is False
     assert inference_route._takes_tool_passthrough(with_catalog, _ToolCapableBackend()) is True
+
+
+def test_marked_python_history_keeps_compaction_on_the_fitted_path():
+    from models.inference import ChatCompletionRequest
+    from routes import inference as inference_route
+
+    branch = _memory_tool_branch()
+    branch[2]["tool_calls"][0]["function"]["name"] = "python"
+    branch[3]["name"] = "python"
+    payload = ChatCompletionRequest(
+        model = "local",
+        messages = branch,
+        thread_id = "thread-1",
+        enable_tools = False,
+        studio_tool_history = True,
+        context_overflow = "truncate_oldest",
+        context_policy = "rolling",
+        compaction_headroom_ratio = 0.0,
+        stream = True,
+    )
+
+    assert inference_route._only_studio_tool_history(payload) is True
+    assert inference_route._takes_tool_passthrough(payload, _ToolCapableBackend()) is False
+    assert inference_route._rolling_context_policy(payload) == "truncate_oldest"
+    assert inference_route._request_context_policy(payload) == "rolling"
+    assert inference_route._request_compaction_headroom_ratio(payload) == 0.0
+
+    empty = ChatCompletionRequest(
+        model = "local",
+        messages = [{"role": "user", "content": "hello"}],
+        studio_tool_history = True,
+    )
+    assert inference_route._only_studio_tool_history(empty) is False
 
 
 def test_can_reset_false_replays_an_epoch_but_never_starts_one():
@@ -762,6 +795,16 @@ def test_only_a_checkpoint_fitted_request_is_told_the_conversation_was_reset():
     reset = routes_mod._apply_compaction_nudge("base.", tools, checkpoint_fitted = True)
     assert routes_mod._CHECKPOINT_SESSION_NUDGE in reset
 
+    import types
+
+    rolling_override = routes_mod._apply_compaction_nudge(
+        "base.",
+        tools,
+        checkpoint_fitted = True,
+        payload = types.SimpleNamespace(context_policy = "rolling"),
+    )
+    assert routes_mod._CHECKPOINT_SESSION_NUDGE not in rolling_override
+
 
 def test_a_request_that_withdrew_the_tool_loop_never_resets(monkeypatch):
     """The process policy is not the only way `search_conversation` fails to arrive.
@@ -856,7 +899,7 @@ def test_the_memory_tool_override_needs_a_request_that_can_actually_reset(monkey
     import routes.inference as routes_mod
 
     monkeypatch.setattr(routes_mod, "_thread_has_conversation_archive", lambda _tid: True)
-    monkeypatch.setattr(routes_mod, "_checkpoint_needs_search", lambda: True)
+    monkeypatch.setattr(routes_mod, "_checkpoint_needs_search", lambda *_a, **_k: True)
 
     payload = types.SimpleNamespace(
         enabled_tools = [],
@@ -879,8 +922,8 @@ def test_identical_retry_siblings_do_not_let_one_of_them_claim_the_branch(monkey
     """Two Retry siblings can carry byte-identical replies with only one having reset.
 
     The exact-text filter keeps both, and taking the first match reopened the tool loop on
-    the branch that never reset. Where the text cannot separate them, leave the request as
-    it was, as the sticky boundary's `min(boundaries)` does; this pins that agreement.
+    the branch that never reset. Once the siblings also disagree on policy, neither boundary
+    is safe to replay: checkpoint cannot inherit rolling, and rolling cannot inherit checkpoint.
     """
     import sys
     import types
@@ -931,11 +974,11 @@ def test_identical_retry_siblings_do_not_let_one_of_them_claim_the_branch(monkey
 
     branch = [{"role": "user", "content": "q"}, {"role": "assistant", "content": reply}]
 
-    # Only the abandoned sibling reset, so the shallower (never-reset) boundary is
-    # replayed and no epoch is in force on this branch.
+    # only the abandoned sibling reset, so mixed-policy byte-identical rows force either policy to refit.
     _install(_rows(True))
     assert inference_routes._thread_has_checkpoint("t1", branch) is False
-    assert llama_cpp._sticky_compaction_boundary("t1", branch) == 6
+    assert llama_cpp._sticky_compaction_boundary("t1", branch) == 0
+    assert llama_cpp._sticky_compaction_boundary("t1", branch, context_policy = "rolling") == 0
 
     # Neither reset: unchanged, and still no loop.
     _install(_rows(False))
@@ -1126,7 +1169,7 @@ def test_the_loop_is_only_reopened_for_a_request_that_can_actually_compact():
 
     route = inspect.getsource(routes_mod.openai_chat_completions)
     gate = route.split("if (\n            not use_tools", 1)[1].split("use_tools = True", 1)[0]
-    assert "_checkpoint_needs_search()" in gate
+    assert "_checkpoint_needs_search(payload)" in gate
     assert "_thread_has_conversation_archive" in gate
     assert "_rolling_context_policy(payload) is not None" in gate
     # And the request must be able to USE the loop once it opens, not merely open it.
@@ -1185,6 +1228,108 @@ def test_only_truncate_oldest_is_a_policy_that_can_reset(requested, expected, mo
     assert routes_mod._rolling_context_policy(payload) == expected
 
 
+def test_a_request_can_force_rolling_when_checkpoint_is_the_process_default(monkeypatch):
+    """Studio's sliding-window control must not need UNSLOTH_CONTEXT_POLICY=rolling."""
+    from core.inference import llama_cpp
+
+    seen = {}
+
+    def _rolling(messages, **kwargs):
+        seen["rolling"] = True
+        seen["headroom"] = kwargs.get("headroom_ratio")
+        return messages, None
+
+    monkeypatch.setattr("core.inference.checkpoint.enabled", lambda: True)
+    monkeypatch.setattr(llama_cpp, "fit_rolling_context", _rolling)
+    llama_cpp._fit_context(
+        [{"role": "user", "content": "hi"}],
+        context_length = 4096,
+        max_tokens = 128,
+        count_tokens = count,
+        can_reset = True,
+        context_policy = "rolling",
+        headroom_ratio = 0.0,
+    )
+
+    assert seen == {"rolling": True, "headroom": 0.0}
+
+
+def test_request_compaction_overrides_are_optional():
+    import types
+
+    import routes.inference as routes_mod
+
+    empty = types.SimpleNamespace()
+    assert routes_mod._request_context_policy(empty) is None
+    assert routes_mod._request_compaction_headroom_ratio(empty) is None
+
+    payload = types.SimpleNamespace(
+        context_policy = "rolling",
+        compaction_headroom_ratio = 0.1,
+    )
+    assert routes_mod._request_context_policy(payload) == "rolling"
+    assert routes_mod._request_compaction_headroom_ratio(payload) == 0.1
+    assert routes_mod._request_context_policy(types.SimpleNamespace(context_policy = "nope")) is None
+
+
+def test_checkpoint_needs_search_follows_the_request_policy(monkeypatch):
+    """Tool admission must use the same override `_fit_context` does.
+
+    With UNSLOTH_CONTEXT_POLICY=rolling, a Studio (or API) request that sends
+    context_policy=checkpoint still resets; the search tool and nudge have to
+    follow, or a tools-off chat archives history it can never retrieve.
+    """
+    import types
+
+    import routes.inference as routes_mod
+
+    monkeypatch.setattr("core.inference.checkpoint.enabled", lambda: False)
+    assert routes_mod._checkpoint_needs_search() is False
+    assert (
+        routes_mod._checkpoint_needs_search(types.SimpleNamespace(context_policy = "rolling"))
+        is False
+    )
+    assert (
+        routes_mod._checkpoint_needs_search(types.SimpleNamespace(context_policy = "checkpoint"))
+        is True
+    )
+
+    monkeypatch.setattr("core.inference.checkpoint.enabled", lambda: True)
+    assert routes_mod._checkpoint_needs_search() is True
+    assert (
+        routes_mod._checkpoint_needs_search(types.SimpleNamespace(context_policy = "rolling"))
+        is False
+    )
+
+
+def test_a_checkpoint_request_override_still_admits_the_memory_tool(monkeypatch):
+    import asyncio
+    import types
+
+    import routes.inference as routes_mod
+
+    monkeypatch.setattr(routes_mod, "_thread_has_conversation_archive", lambda _tid: True)
+    monkeypatch.setattr("core.inference.checkpoint.enabled", lambda: False)
+
+    def _names(context_policy):
+        payload = types.SimpleNamespace(
+            enabled_tools = [],
+            rag_scope = None,
+            thread_id = "t1",
+            bypass_permissions = False,
+            context_policy = context_policy,
+        )
+        tools = asyncio.run(
+            routes_mod._select_request_tools(
+                payload, tools_on = False, mcp_allowed = False, checkpoint_fitted = True
+            )
+        )
+        return [tool["function"]["name"] for tool in tools]
+
+    assert _names("checkpoint") == ["search_conversation"]
+    assert "search_conversation" not in _names("rolling")
+
+
 def test_a_degraded_archive_stops_the_block_promising_a_lookup_that_returns_nothing(monkeypatch):
     """`degraded()` is the verdict on the last write, and the write runs AFTER the fit.
 
@@ -1239,8 +1384,8 @@ def _stub_studio_db(monkeypatch, messages):
     monkeypatch.setitem(sys.modules, "storage.studio_db", module)
 
 
-def test_a_checkpoint_boundary_is_not_replayed_once_the_policy_is_rolling(monkeypatch):
-    """The escape hatch has to escape the depth too, not just the reset.
+def test_a_boundary_is_not_replayed_after_the_context_policy_changes(monkeypatch):
+    """A policy switch has to discard the old depth, not just select another fitter.
 
     A checkpoint boundary is the depth of a RESET, affordable only because the block is
     rebuilt on every replay. Under `UNSLOTH_CONTEXT_POLICY=rolling` neither `_fit_context`
@@ -1274,6 +1419,10 @@ def test_a_checkpoint_boundary_is_not_replayed_once_the_policy_is_rolling(monkey
 
     monkeypatch.setattr(checkpoint, "CONTEXT_POLICY", "checkpoint")
     assert llama_cpp._sticky_compaction_boundary("t1") == 18
+    assert llama_cpp._sticky_compaction_boundary("t1", context_policy = "checkpoint") == 18
+    assert (
+        llama_cpp._sticky_compaction_boundary("t1", context_policy = "rolling") == 0
+    ), "a request that forces rolling must not replay a reset-sized checkpoint cut"
 
     monkeypatch.setattr(checkpoint, "CONTEXT_POLICY", "rolling")
     assert (
@@ -1287,6 +1436,28 @@ def test_a_checkpoint_boundary_is_not_replayed_once_the_policy_is_rolling(monkey
         "boundary_messages": 6,
     }
     assert llama_cpp._sticky_compaction_boundary("t1") == 6
+    assert llama_cpp._sticky_compaction_boundary("t1", context_policy = "rolling") == 6
+    assert (
+        llama_cpp._sticky_compaction_boundary("t1", context_policy = "checkpoint") == 0
+    ), "a checkpoint request must start a new epoch instead of reusing a rolling boundary"
+
+    monkeypatch.setattr(checkpoint, "CONTEXT_POLICY", "checkpoint")
+    switched_boundary = llama_cpp._sticky_compaction_boundary("t1")
+    assert switched_boundary == 0, (
+        "a rolling boundary must not suppress the first checkpoint reset and recall"
+    )
+
+    monkeypatch.setattr(llama_cpp, "_archive_is_degraded", lambda: False)
+    _, truncation = llama_cpp._fit_context(
+        _thread() + [{"role": "user", "content": "continue"}],
+        context_length = 1200,
+        max_tokens = 200,
+        count_tokens = count,
+        can_reset = True,
+        sticky_dropped = switched_boundary,
+        context_policy = "checkpoint",
+    )
+    assert truncation["checkpoint_started"] is True
 
 
 def test_a_rescued_boundary_is_recorded_but_never_replayed(monkeypatch):
