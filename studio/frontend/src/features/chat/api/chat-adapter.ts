@@ -61,6 +61,8 @@ import {
   releasePreStreamRunReservation,
 } from "../utils/pre-stream-run-reservation";
 import { readThreadCreationClaim } from "../utils/chat-thread-creation-claim";
+import { ggufCompactionRequestFields } from "../utils/auto-compaction";
+import { hasOnlyStudioOwnedToolHistory } from "../utils/studio-tool-history";
 import {
   consumeQueuedChatRunSettings,
   shouldPersistResolvedQueuedModel,
@@ -4622,6 +4624,8 @@ export function createOpenAIStreamAdapter(
         messages,
         !isExternalRequest,
       );
+      const studioOwnedToolHistory =
+        hasOnlyStudioOwnedToolHistory(survivingMessages);
 
       // toOpenAIMessages emits assistant tool_calls + role="tool"
       // follow-ups; the backend Gemini translator rebuilds the
@@ -5747,12 +5751,16 @@ export function createOpenAIStreamAdapter(
             messages: outboundMessages,
             stream: true,
             ...(continuation ? { continue_final_message: true } : {}),
+            ...(studioOwnedToolHistory ? { studio_tool_history: true } : {}),
             // Opt into the trailing usage chunk so the context-usage bar
             // and tok/s readout populate (backend gates it on include_usage).
             stream_options: { include_usage: true },
-            ...(activeModel?.isGguf === true
-              ? { context_overflow: "truncate_oldest" as const }
-              : {}),
+            ...ggufCompactionRequestFields({
+              isGguf: activeModel?.isGguf === true,
+              autoCompactEnabled: runtime.autoCompactEnabled,
+              contextPolicy: runtime.contextPolicy,
+              compactionHeadroomRatio: runtime.compactionHeadroomRatio,
+            }),
             temperature: params.temperature,
             top_p: params.topP,
             max_tokens: params.maxTokens,
