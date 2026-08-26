@@ -1,0 +1,32 @@
+# disposable repro workflow; delete after validation
+
+name: "PR 8759 JSONL Windows repro"
+
+on:
+  push:
+    branches:
+      - "pr-8759-jsonl-repro-ci-1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repro:
+    name: "Targeted repro"
+    runs-on: "windows-latest"
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        with:
+          node-version: "22.17.1"
+
+      - name: "Run focused JSONL tests"
+        shell: bash
+        run: |
+          cd studio/frontend
+          node --experimental-strip-types --test tests/ndjson-body.test.ts
