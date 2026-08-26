@@ -20,6 +20,10 @@ import {
 } from "../presets/preset-policy";
 import type { ReasoningEffort } from "../stores/chat-runtime-store";
 import {
+  sanitizeCompactionHeadroomRatio,
+  sanitizeContextPolicy,
+} from "./auto-compaction";
+import {
   assignSanitizedMirroredSettings,
   hasNoMirroredSettings,
 } from "./mirrored-chat-settings";
@@ -259,6 +263,11 @@ function sanitizeChatSettings(value: unknown): PersistedChatSettings {
   );
   const autoHealToolCalls = sanitizeBool(value.autoHealToolCalls);
   const nudgeToolCalls = sanitizeBool(value.nudgeToolCalls);
+  const autoCompactEnabled = sanitizeBool(value.autoCompactEnabled);
+  const contextPolicy = sanitizeContextPolicy(value.contextPolicy);
+  const compactionHeadroomRatio = sanitizeCompactionHeadroomRatio(
+    value.compactionHeadroomRatio,
+  );
   const maxToolCallsPerMessage = sanitizeInt(value.maxToolCallsPerMessage, 1);
   const toolCallTimeout = sanitizeInt(value.toolCallTimeout, 1);
 
@@ -289,6 +298,13 @@ function sanitizeChatSettings(value: unknown): PersistedChatSettings {
   }
   if (nudgeToolCalls !== undefined) {
     settings.nudgeToolCalls = nudgeToolCalls;
+  }
+  if (autoCompactEnabled !== undefined) {
+    settings.autoCompactEnabled = autoCompactEnabled;
+  }
+  if (contextPolicy) settings.contextPolicy = contextPolicy;
+  if (compactionHeadroomRatio !== undefined) {
+    settings.compactionHeadroomRatio = compactionHeadroomRatio;
   }
   if (maxToolCallsPerMessage !== undefined) {
     settings.maxToolCallsPerMessage = maxToolCallsPerMessage;
@@ -354,6 +370,9 @@ export function isEmptyChatSettings(settings: PersistedChatSettings): boolean {
     settings.allowArtifactNetworkAccess === undefined &&
     settings.autoHealToolCalls === undefined &&
     settings.nudgeToolCalls === undefined &&
+    settings.autoCompactEnabled === undefined &&
+    settings.contextPolicy === undefined &&
+    settings.compactionHeadroomRatio === undefined &&
     settings.maxToolCallsPerMessage === undefined &&
     settings.toolCallTimeout === undefined &&
     hasNoMirroredSettings(settings)
