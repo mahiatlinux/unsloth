@@ -1,0 +1,90 @@
+name: PR 9815 preview reasoning repro
+
+on:
+  push:
+    branches:
+      - 'pr-9815-preview-reasoning-repro-ci-*'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  preview-reasoning:
+    name: preview page renders reasoning + cutoff
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Install preview-route dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # the preview route imports without torch, so install only what the
+          # page + route layer need rather than the whole Studio stack.
+          pip install \
+            fastapi uvicorn 'pydantic>=2.9' \
+            'python-multipart' 'pyyaml' 'httpx' 'email-validator' \
+            'pyjwt' 'cryptography' 'structlog' 'psutil' 'numpy' \
+            'huggingface_hub' 'tqdm' 'rich' 'click' 'sqlite-vec' \
+            playwright pillow
+          python -m playwright install --with-deps chromium
+
+      - name: Show which preview_page.html is under test
+        run: |
+          echo "ref: ${{ github.ref_name }}  sha: ${{ github.sha }}"
+          sha256sum studio/backend/assets/preview_page.html
+          grep -c 'reasoning_content' studio/backend/assets/preview_page.html || true
+
+      - name: Run base, original head, and repaired head
+        run: |
+          git fetch --no-tags --depth=1 origin \
+            95fd60fa2436c029c795b4824fc795f4ef0234a6 \
+            98f794b5fe7cea2d26e567abf88b3481460af398
+          set +e
+          git checkout 95fd60fa2436c029c795b4824fc795f4ef0234a6 -- studio/backend/assets/preview_page.html
+          python ci/pr9815/ci_evidence.py \
+            --backend studio/backend \
+            --outdir "$RUNNER_TEMP/pr9815/base" \
+            --label "base@95fd60fa24"
+          base_status=$?
+
+          git checkout 98f794b5fe7cea2d26e567abf88b3481460af398 -- studio/backend/assets/preview_page.html
+          python ci/pr9815/ci_evidence.py \
+            --backend studio/backend \
+            --outdir "$RUNNER_TEMP/pr9815/original-head" \
+            --label "original-head@98f794b5fe"
+          original_status=$?
+
+          git checkout "${{ github.sha }}" -- studio/backend/assets/preview_page.html
+          python ci/pr9815/ci_evidence.py \
+            --backend studio/backend \
+            --outdir "$RUNNER_TEMP/pr9815/repaired-head" \
+            --label "repaired-head@${{ github.sha }}"
+          repaired_status=$?
+          set -e
+
+          test "$base_status" -ne 0
+          test "$original_status" -ne 0
+          test "$repaired_status" -eq 0
+
+          python ci/pr9815/compose.py \
+            "$RUNNER_TEMP/pr9815/base/thinking.png" \
+            "$RUNNER_TEMP/pr9815/repaired-head/thinking.png" \
+            "$RUNNER_TEMP/pr9815/preview_reasoning_before_after.png"
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: pr9815-${{ github.ref_name }}
+          path: ${{ runner.temp }}/pr9815
+          if-no-files-found: warn
