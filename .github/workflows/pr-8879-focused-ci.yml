@@ -43,11 +43,12 @@ jobs:
         run: |
           PYTHONPATH=studio/backend pytest -q studio/backend/tests/test_current_date_prompt_settings.py studio/backend/tests/test_external_hosted_tool_passthrough.py -k 'date or hosted_provider_receives'
           PYTHONPATH=studio/backend pytest -q studio/backend/tests/test_openai_tool_passthrough.py::TestGgufVisionToolRouting::test_api_server_tool_loop_keeps_the_current_date studio/backend/tests/test_openai_auto_switch.py::test_chat_count_tokens_prices_the_current_date studio/backend/tests/test_openai_auto_switch.py::test_chat_count_tokens_dates_only_api_server_tool_prompts studio/backend/tests/test_anthropic_messages.py::TestAnthropicMessagesToolRouting::test_plain_non_streaming_states_the_current_date studio/backend/tests/test_anthropic_messages.py::TestAnthropicMessagesToolRouting::test_api_server_tool_request_keeps_the_current_date
+          PYTHONPATH=studio/backend pytest -q studio/backend/tests/test_openai_codex_subscription.py::test_codex_chat_receives_the_current_date
 
       - name: "Lint changed backend paths"
         shell: bash
         run: |
-          ruff check studio/backend/utils/current_date_prompt_settings.py studio/backend/core/research/prompts.py studio/backend/core/inference/providers.py studio/backend/routes/inference.py studio/backend/routes/research_runs.py studio/backend/tests/test_current_date_prompt_settings.py studio/backend/tests/test_external_hosted_tool_passthrough.py studio/backend/tests/test_openai_tool_passthrough.py studio/backend/tests/test_openai_auto_switch.py studio/backend/tests/test_anthropic_messages.py
+          ruff check studio/backend/utils/current_date_prompt_settings.py studio/backend/core/research/prompts.py studio/backend/core/inference/providers.py studio/backend/routes/inference.py studio/backend/routes/research_runs.py studio/backend/tests/test_current_date_prompt_settings.py studio/backend/tests/test_external_hosted_tool_passthrough.py studio/backend/tests/test_openai_tool_passthrough.py studio/backend/tests/test_openai_auto_switch.py studio/backend/tests/test_anthropic_messages.py studio/backend/tests/test_openai_codex_subscription.py
 
       - name: "Install frontend dependencies"
         shell: bash
@@ -61,4 +62,4 @@ jobs:
           cd studio/frontend
           npm run typecheck
           npm run i18n:check:strict
-          node --experimental-strip-types --test tests/auth-fetch-timezone.test.ts tests/current-date-context-usage.test.ts tests/current-date-settings-accessibility.test.ts tests/current-date-settings-errors.test.ts tests/settings-search.test.ts
+          node --experimental-strip-types --test tests/auth-fetch-timezone.test.ts tests/current-date-context-usage.test.ts tests/current-date-settings-accessibility.test.ts tests/current-date-settings-errors.test.ts tests/settings-search.test.ts tests/on-device-dot-and-header-alignment.test.ts
