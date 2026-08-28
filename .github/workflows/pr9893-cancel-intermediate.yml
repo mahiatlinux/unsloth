@@ -1,0 +1,41 @@
+# Disposable repro workflow. Delete after validation.
+
+name: "PR 9893 cancellation intermediate"
+
+on:
+  push:
+    branches:
+      - "pr-9893-cancel-repro-ci-intermediate"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repro:
+    name: "Targeted repro"
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.12"
+
+      - name: "Install focused test dependencies"
+        shell: bash
+        run: |
+          python -m pip install pytest==9.0.3 httpx huggingface-hub
+
+      - name: "Run health cancellation tests"
+        shell: bash
+        run: |
+          python -m pytest -q studio/backend/tests/test_llama_cpp_wait_for_health.py
+
+      - name: "Compile the route change"
+        shell: bash
+        run: |
+          python -m py_compile studio/backend/routes/inference.py
