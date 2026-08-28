@@ -4,9 +4,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { registerBundlerResolver } from "./helpers/kit.ts";
+import { registerStoreStubResolver } from "./helpers/kit.ts";
 
-registerBundlerResolver();
+registerStoreStubResolver();
+
+const { setAuthFetchHandler } = await import("./helpers/store-stubs/auth.ts");
 
 const { compareInventoryItemsByRecent } = await import(
   "../src/features/hub/catalog/inventory-sort.ts"
@@ -26,6 +28,9 @@ const {
 } = await import("../src/features/hub/inventory/inventory-hints.ts");
 const { pendingWithInventoryHints, useInventoryHintStore } = await import(
   "../src/features/hub/inventory/inventory-hint-store.ts"
+);
+const { deleteCachedModel } = await import(
+  "../src/features/hub/inventory/api.ts"
 );
 const {
   discardDeletedInventoryHints,
@@ -217,6 +222,15 @@ test("a stale aggregate row cannot consume a newer variant hint", () => {
     refreshStartedAt: completedAt + 1,
   });
   assert.equal(rescanned.pending.gguf.size, 0);
+
+  const unconfirmed = reconcileInventoryHints({
+    pending: stale.pending,
+    kind: "gguf",
+    rows: rescanned.rows,
+    previouslyObserved: new Set(["org/existing"]),
+    refreshStartedAt: null,
+  });
+  assert.equal(unconfirmed.pending.gguf.size, 1);
 });
 
 test("a new download clears historical observation and records completion time", () => {
@@ -318,6 +332,99 @@ test("a new download clears historical observation and records completion time",
     pending: createPendingInventoryHints(),
     observedKeys: hintState.observedKeys,
   });
+});
+
+test("full deletion removes every completed variant contribution", () => {
+  const repoId = "Org/Deleted-Variants";
+  const keys = ["Q4_K_M", "Q8_0"].map((variant, index) => {
+    const key = jobKeyOf("model", repoId, variant);
+    putJob({
+      key,
+      kind: "model",
+      repoId,
+      variant,
+      state: "running",
+      downloadedBytes: 10,
+      completedBytes: 10,
+      completeOnDisk: true,
+      expectedBytes: 10,
+      fraction: 1,
+      bytesPerSec: 0,
+      etaSeconds: 0,
+      error: null,
+      startedAt: 1_900_000_000_000 + index,
+    });
+    patchJob(key, {
+      state: "complete",
+      completedAt: 1_900_000_060_000 + index,
+    });
+    return key;
+  });
+
+  assert.equal(getState().completedInventoryHints.length, 2);
+  discardDeletedInventoryHints(repoId, ["gguf"]);
+  assert.equal(getState().completedInventoryHints.length, 0);
+  assert.equal(keys.some((key) => key in getState().jobs), false);
+
+  removeJob(keys[0]);
+  assert.equal(getState().completedInventoryHints.length, 0);
+  removeJob(keys[1]);
+  assert.equal(getState().completedInventoryHints.length, 0);
+});
+
+test("variant deletion clears its hint and permits a peer completion", async () => {
+  const repoId = "Org/Deleted-Quant";
+  const deletedKey = jobKeyOf("model", repoId, "Q4_K_M");
+  const peerKey = jobKeyOf("model", repoId, "Q8_0");
+  for (const [key, variant] of [
+    [deletedKey, "Q4_K_M"],
+    [peerKey, "Q8_0"],
+  ] as const) {
+    putJob({
+      key,
+      kind: "model",
+      repoId,
+      variant,
+      state: "running",
+      downloadedBytes: 10,
+      completedBytes: 10,
+      completeOnDisk: true,
+      expectedBytes: 10,
+      fraction: 1,
+      bytesPerSec: 0,
+      etaSeconds: 0,
+      error: null,
+      startedAt: 1_900_000_000_000,
+    });
+  }
+  patchJob(deletedKey, {
+    state: "complete",
+    completedAt: 1_900_000_060_000,
+  });
+
+  setAuthFetchHandler(() => new Response(null, { status: 204 }));
+  try {
+    await deleteCachedModel(repoId, "Q4_K_M");
+  } finally {
+    setAuthFetchHandler(null);
+  }
+
+  assert.equal(
+    useInventoryHintStore.getState().pending.gguf.has("org/deleted-quant"),
+    false,
+  );
+  assert.equal(getState().completedInventoryHints.length, 0);
+  assert.equal(getState().jobs[deletedKey], undefined);
+
+  patchJob(peerKey, {
+    state: "complete",
+    completedAt: 1_900_000_120_000,
+  });
+  assert.equal(getState().completedInventoryHints.length, 1);
+
+  discardDeletedInventoryHints(repoId, ["gguf"]);
+  removeJob(deletedKey);
+  removeJob(peerKey);
 });
 
 test("picker dto timestamps stay in epoch seconds", () => {

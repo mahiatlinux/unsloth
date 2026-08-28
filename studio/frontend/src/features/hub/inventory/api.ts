@@ -12,7 +12,10 @@ import { localPathCacheKey } from "@/features/hub/lib/local-path";
 import { isHuggingFaceOffline } from "@/features/hub/lib/network";
 import { fingerprintToken } from "@/features/hub/lib/token-fingerprint";
 import { bumpInventoryVersion } from "@/features/hub/stores/inventory-events";
-import { discardDeletedInventoryHints } from "../download-manager/download-manager-state";
+import {
+  discardDeletedInventoryHints,
+  discardDeletedModelInventoryHints,
+} from "../download-manager/download-manager-state";
 import type { ScanFolderStatus } from "../lib/scan-folder-status";
 import type { LocalSource } from "./constants";
 import { bumpGgufVariantsCacheVersion } from "./gguf-variants-cache-events";
@@ -85,6 +88,11 @@ export interface CachedModelRepo {
   tags?: string[];
   library_name?: string | null;
   quant_method?: string | null;
+}
+
+export interface CachedInventoryResponse<Repo> {
+  cached: Repo[];
+  scan_confirmed?: boolean;
 }
 
 export interface LocalModelInfo {
@@ -233,30 +241,44 @@ export async function listLocalModels(): Promise<LocalModelListResponse> {
   return parseJsonOrThrow<LocalModelListResponse>(response);
 }
 
-export async function listCachedGguf(
+export async function fetchCachedGgufInventory(
   hfToken?: string | null,
-): Promise<CachedGgufRepo[]> {
+): Promise<CachedInventoryResponse<CachedGgufRepo>> {
   const response = await withHubTimeout(INVENTORY_TIMEOUT_MS, (signal) =>
     authFetch("/api/hub/cached-gguf", {
       headers: hubTokenHeader(hfToken),
       signal,
     }),
   );
-  const data = await parseJsonOrThrow<{ cached: CachedGgufRepo[] }>(response);
-  return data.cached;
+  return await parseJsonOrThrow<CachedInventoryResponse<CachedGgufRepo>>(
+    response,
+  );
 }
 
-export async function listCachedModels(
+export async function listCachedGguf(
   hfToken?: string | null,
-): Promise<CachedModelRepo[]> {
+): Promise<CachedGgufRepo[]> {
+  return (await fetchCachedGgufInventory(hfToken)).cached;
+}
+
+export async function fetchCachedModelsInventory(
+  hfToken?: string | null,
+): Promise<CachedInventoryResponse<CachedModelRepo>> {
   const response = await withHubTimeout(INVENTORY_TIMEOUT_MS, (signal) =>
     authFetch("/api/hub/cached-models", {
       headers: hubTokenHeader(hfToken),
       signal,
     }),
   );
-  const data = await parseJsonOrThrow<{ cached: CachedModelRepo[] }>(response);
-  return data.cached;
+  return await parseJsonOrThrow<CachedInventoryResponse<CachedModelRepo>>(
+    response,
+  );
+}
+
+export async function listCachedModels(
+  hfToken?: string | null,
+): Promise<CachedModelRepo[]> {
+  return (await fetchCachedModelsInventory(hfToken)).cached;
 }
 
 export async function listLocalDatasets(): Promise<LocalDatasetsResponse> {
@@ -372,9 +394,7 @@ export async function deleteCachedModel(
   });
   try {
     await throwIfNotOk(response);
-    if (!variant) {
-      discardDeletedInventoryHints(repoId, ["model", "gguf"]);
-    }
+    discardDeletedModelInventoryHints(repoId, variant);
     bumpInventoryVersion();
   } finally {
     invalidateGgufVariantsCache(repoId);
