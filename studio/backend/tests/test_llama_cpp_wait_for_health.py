@@ -76,6 +76,83 @@ class TestWaitForHealthResilience:
         assert b._wait_for_health(timeout = 0.02, interval = 0.01) is False
         assert any("health check timed out" in ln for ln in b._stdout_lines)
 
+    def test_cancel_stops_the_wait_without_a_timeout_marker(self, monkeypatch):
+        b = _make_backend()
+        b._process.poll.return_value = None
+        b._cancel_event = threading.Event()
+        b._cancel_event.set()
+        monkeypatch.setattr(httpx, "get", lambda *a, **kw: mock.Mock(status_code = 503))
+        started = time.monotonic()
+        assert b._wait_for_health(timeout = 30.0, interval = 0.01) is False
+        assert time.monotonic() - started < 1.0
+        assert not any("health check timed out" in ln for ln in b._stdout_lines)
+
+    def test_cancel_midway_stops_a_wait_already_in_progress(self, monkeypatch):
+        b = _make_backend()
+        b._process.poll.return_value = None
+        b._cancel_event = threading.Event()
+        probes = []
+
+        def probe(*a, **kw):
+            probes.append(1)
+            if len(probes) == 3:
+                b._cancel_event.set()
+            return mock.Mock(status_code = 503)
+
+        monkeypatch.setattr(httpx, "get", probe)
+        assert b._wait_for_health(timeout = 30.0, interval = 0.01) is False
+        assert len(probes) == 3
+
+    def test_a_scoped_load_cancel_stops_the_wait(self, monkeypatch):
+        """An auto-switch or a /load carrying load_request_id cancels through its own
+        event and never calls unload_model, so _cancel_event stays clear. The wait has
+        to honor the predicate load_model passes down or it polls the full timeout."""
+        b = _make_backend()
+        b._process.poll.return_value = None
+        b._cancel_event = threading.Event()  # no unload was issued
+        scoped = threading.Event()
+        scoped.set()
+        monkeypatch.setattr(httpx, "get", lambda *a, **kw: mock.Mock(status_code = 503))
+        started = time.monotonic()
+        assert b._wait_for_health(timeout = 30.0, interval = 0.01, cancelled = scoped.is_set) is False
+        assert time.monotonic() - started < 1.0
+        assert not any("health check timed out" in ln for ln in b._stdout_lines)
+
+    def test_cancel_leaves_a_marker_the_classifier_reads_as_a_cancel(self, monkeypatch):
+        """The cancel kills the child on purpose, so poll() reports no exit code and the
+        startup log holds nothing diagnostic. Without a marker the load is classified as
+        an unknown start failure and the user is told to check their GGUF."""
+        b = _make_backend()
+        b._process.poll.return_value = None
+        b._cancel_event = threading.Event()
+        b._cancel_event.set()
+        monkeypatch.setattr(httpx, "get", lambda *a, **kw: mock.Mock(status_code = 503))
+        assert b._wait_for_health(timeout = 30.0, interval = 0.01) is False
+
+        detail = LlamaCppBackend._classify_llama_start_failure(
+            "\n".join(b._stdout_lines),
+            "/models/model.gguf",
+            "owner/model",
+            returncode = None,
+        )
+        assert "cancelled" in detail
+        assert "GGUF file is valid" not in detail
+
+    def test_a_cancel_during_the_probe_does_not_publish_the_model(self, monkeypatch):
+        """The probe blocks for up to 2s. A cancel landing inside that window used to be
+        ignored because the 200 returned first, so the unwanted model went live."""
+        b = _make_backend()
+        b._process.poll.return_value = None
+        b._cancel_event = threading.Event()
+        scoped = threading.Event()
+
+        def probe(*a, **kw):
+            scoped.set()  # the user cancels while this request is in flight
+            return mock.Mock(status_code = 200)
+
+        monkeypatch.setattr(httpx, "get", probe)
+        assert b._wait_for_health(timeout = 30.0, interval = 0.01, cancelled = scoped.is_set) is False
+
     def test_read_error_loops_to_subprocess_poll(self, monkeypatch):
         """WinError 10054 (httpx.ReadError) must be swallowed; the next iteration sees the dead subprocess and returns False with a structured exit-code log."""
         b = _make_backend()
@@ -299,3 +376,218 @@ class TestFitOffRetryEligible:
     def test_fit_tuning_flags_do_not_block_retry(self, tuning_args):
         cmd = ["llama-server", "-m", "x.gguf", *tuning_args]
         assert LlamaCppBackend._fit_off_retry_eligible(cmd, use_fit = False) is True
+
+
+def test_every_health_wait_in_load_model_forwards_a_cancel_predicate():
+    """A _wait_for_health call that does not carry the per-load predicate polls the
+    full 600s on an auto-switch cancel, which sets only the generation event."""
+    import ast
+
+    src = Path(_BACKEND_DIR, "core", "inference", "llama_cpp.py").read_text(encoding = "utf-8")
+    calls = [
+        node
+        for node in ast.walk(ast.parse(src))
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "_wait_for_health"
+    ]
+    assert calls, "the health wait moved; re-pin this test"
+    missing = [c.lineno for c in calls if not any(k.arg == "cancelled" for k in c.keywords)]
+    assert not missing, (
+        f"_wait_for_health called without a cancelled predicate at lines {missing}; "
+        "a cancel that is not the unload flag would be ignored there"
+    )
+
+
+class TestCancelledWaitEndsTheLoad:
+    """An auto-switch cancels through its own event and never unloads, so the child is
+    still alive and poll() reports no exit code. Classifying that as a start failure
+    raises a 500 at the caller before it can run its own cancellation handling."""
+
+    def test_a_cancelled_health_wait_returns_false_instead_of_raising(self, tmp_path):
+        from core.inference.llama_cpp import GgufLoadIntent
+
+        gguf = tmp_path / "model.gguf"
+        gguf.write_bytes(b"GGUF" + b"\0" * 4096)
+
+        b = LlamaCppBackend()
+        b._find_llama_server_binary = lambda *a, **kw: "/usr/bin/true"
+        # The header refusals read a real GGUF; this fixture stands in for a chat model.
+        b._non_chat_gguf_refusal_for_path = lambda *a, **kw: None
+        b._non_chat_gguf_refusal = lambda *a, **kw: None
+        b._kill_process = lambda *a, **kw: None
+
+        def _start(cmd, env, **kw):
+            proc = mock.Mock()
+            proc.poll.return_value = None  # alive: the cancel kills it, not a crash
+            proc.pid = 424242
+            b._process = proc
+            b._stdout_lines = ["build: 6543", "main: loading model"]
+            return proc
+
+        b._start_llama_process = _start
+        scoped = threading.Event()
+        scoped.set()
+        real_wait = b._wait_for_health
+        b._wait_for_health = lambda timeout = 600.0, interval = 0.5, cancelled = None: real_wait(
+            timeout = 2.0,
+            interval = 0.05,
+            cancelled = scoped.is_set,
+        )
+
+        assert (
+            b.load_model(
+                GgufLoadIntent(
+                    model_identifier = "owner/model",
+                    gguf_path = str(gguf),
+                    n_ctx = 4096,
+                )
+            )
+            is False
+        )
+
+
+def test_every_failed_health_wait_in_load_model_checks_the_cancel_flag():
+    """Each health wait inside load_model has its own failure branch, and each one
+    classifies a startup error. A branch that skips the flag raises a 500 for a
+    deliberate cancel instead of returning the load."""
+    import ast
+
+    src = Path(_BACKEND_DIR, "core", "inference", "llama_cpp.py").read_text(encoding = "utf-8")
+    load_model = next(
+        n
+        for n in ast.walk(ast.parse(src))
+        if isinstance(n, ast.FunctionDef) and n.name == "load_model"
+    )
+    waits = [
+        n.lineno
+        for n in ast.walk(load_model)
+        if isinstance(n, ast.Call)
+        and isinstance(n.func, ast.Attribute)
+        and n.func.attr == "_wait_for_health"
+    ]
+    guards = [
+        n.lineno
+        for n in ast.walk(load_model)
+        if isinstance(n, ast.Constant) and n.value == "_health_wait_cancelled"
+    ]
+    assert waits, "the health waits moved; re-pin this test"
+    assert len(guards) >= len(waits), (
+        f"{len(waits)} health wait(s) in load_model but only {len(guards)} cancel guard(s); "
+        "a failure branch classifies a cancelled load as a server-start failure"
+    )
+
+
+def test_a_cancelled_diffusion_start_reaps_the_runner():
+    """An automatic switch cancels without unloading, so nothing else reaps the shim
+    and the visual server; they would keep loading and holding memory."""
+    import subprocess
+
+    b = LlamaCppBackend()
+    kills = []
+    b._kill_process = lambda *a, **kw: kills.append(1)
+    b._find_diffusion_assets = lambda *a, **kw: (["/bin/true"], "/bin/true", None)
+    b._find_free_port = lambda *a, **kw: 45999
+
+    def _wait(
+        timeout = 600.0,
+        interval = 0.5,
+        cancelled = None,
+    ):
+        b._health_wait_cancelled = True
+        return False
+
+    b._wait_for_health = _wait
+    proc = mock.Mock()
+    proc.poll.return_value = None
+    proc.pid = 999
+    with mock.patch.object(subprocess, "Popen", return_value = proc):
+        assert (
+            b._start_diffusion_server(
+                model_path = "/m/x.gguf",
+                gguf_path = "/m/x.gguf",
+                hf_repo = None,
+                hf_variant = None,
+                model_identifier = "o/m",
+                n_ctx = 4096,
+                extra_args = None,
+                cancelled = lambda: True,
+            )
+            is False
+        )
+    # One teardown before the launch, one for the cancelled runner.
+    assert len(kills) == 2, f"the cancelled runner was left running (kills={len(kills)})"
+
+
+def _cancel_scaffold(tmp_path, kills):
+    """A backend wired far enough to run load_model without weights or a server."""
+    b = LlamaCppBackend()
+    b._find_llama_server_binary = lambda *a, **kw: "/usr/bin/true"
+    b._non_chat_gguf_refusal_for_path = lambda *a, **kw: None
+    b._non_chat_gguf_refusal = lambda *a, **kw: None
+    b._kill_process = lambda *a, **kw: kills.append(1)
+
+    def _start(cmd, env, **kw):
+        proc = mock.Mock()
+        proc.poll.return_value = None
+        proc.pid = 424242
+        b._process = proc
+        b._stdout_lines = ["build: 6543", "main: loading model"]
+        return proc
+
+    b._start_llama_process = _start
+    gguf = tmp_path / "model.gguf"
+    gguf.write_bytes(b"GGUF" + b"\0" * 4096)
+    return b, gguf
+
+
+def test_a_stale_cancel_marker_does_not_abort_the_next_load(tmp_path):
+    """The marker belongs to one attempt. Left set, a guard that runs before this
+    load's first health wait reads the previous request's cancellation and swallows
+    a genuine start failure."""
+    from core.inference.llama_cpp import GgufLoadIntent
+
+    kills = []
+    b, gguf = _cancel_scaffold(tmp_path, kills)
+    b._health_wait_cancelled = True  # left over from an earlier cancelled load
+    # A genuine failure: the wait fails and does NOT mark the load cancelled.
+    b._wait_for_health = lambda timeout = 600.0, interval = 0.5, cancelled = None: False
+
+    with pytest.raises(RuntimeError):
+        b.load_model(
+            GgufLoadIntent(
+                model_identifier = "owner/model",
+                gguf_path = str(gguf),
+                n_ctx = 4096,
+            )
+        )
+
+
+def test_a_cancel_after_the_server_is_healthy_does_not_publish_it(tmp_path):
+    """Cancelling during the post-health setup used to leave the child resident while
+    the cancel route saw is_loaded and skipped teardown."""
+    from core.inference.llama_cpp import GgufLoadIntent
+
+    kills = []
+    b, gguf = _cancel_scaffold(tmp_path, kills)
+
+    def _wait(
+        timeout = 600.0,
+        interval = 0.5,
+        cancelled = None,
+    ):
+        b._cancel_event.set()  # the user cancels while the load finishes publishing
+        return True
+
+    b._wait_for_health = _wait
+    assert (
+        b.load_model(
+            GgufLoadIntent(
+                model_identifier = "owner/model",
+                gguf_path = str(gguf),
+                n_ctx = 4096,
+            )
+        )
+        is False
+    )
+    assert kills, "the healthy-but-cancelled child was left resident"

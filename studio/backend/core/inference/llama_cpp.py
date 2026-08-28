@@ -12549,6 +12549,7 @@ class LlamaCppBackend:
         gpu_ids: Optional[List[int]] = None,
         gpu_memory_mode: Literal["auto", "manual"] = "auto",
         gpu_layers: int = -1,
+        cancelled: Optional[Callable[[], bool]] = None,
     ) -> bool:
         """Launch the OpenAI-compat diffusion shim (which drives the on-device
         visual decoder) and wait for health. Presents the same /v1 + /health
@@ -12782,7 +12783,7 @@ class LlamaCppBackend:
         self._effective_context_length = maxtok or self._context_length
         self._max_context_length = self._context_length or maxtok or None
 
-        healthy = self._wait_for_health(timeout = 600.0)
+        healthy = self._wait_for_health(timeout = 600.0, cancelled = cancelled)
         if healthy:
             self._healthy = True
             self._gpu_offload_active = not holds_no_gpu
@@ -12809,7 +12810,14 @@ class LlamaCppBackend:
             self._requested_n_ctx = int(n_ctx)
         else:
             self._healthy = False
-            logger.error("DiffusionGemma runner failed to become healthy")
+            if getattr(self, "_health_wait_cancelled", False):
+                # An automatic switch cancels without unloading, so nothing else reaps
+                # the shim and the visual server: they would keep loading and holding
+                # memory until some later teardown.
+                logger.info("DiffusionGemma start cancelled; stopping the runner")
+                self._kill_process()
+            else:
+                logger.error("DiffusionGemma runner failed to become healthy")
         return healthy
 
     # ── HF download (no lock held) ───────────────────────────────
@@ -14952,6 +14960,15 @@ class LlamaCppBackend:
                 "expected; otherwise check the llama-server log for the cause."
             )
 
+        # A cancel kills the child on purpose, so there is no exit code and no
+        # diagnostic output. Say so rather than blaming the GGUF below.
+        if "llama-server startup cancelled" in lowered:
+            return (
+                "llama-server was stopped before it became healthy because the "
+                "load was cancelled. If you cancelled or unloaded the model this "
+                "is expected."
+            )
+
         # A live server that never answered 200 on /health is not a bad GGUF:
         # the load is too large for VRAM/context, or a local proxy/VPN grabbed
         # the loopback probe (#5740).
@@ -16845,6 +16862,9 @@ class LlamaCppBackend:
             # Placement is undecided until the spawn site narrows it: a needless
             # reload prompt beats sizing a child against a replaced budget.
             self._cancel_event.clear()
+            # Belongs to this attempt only; a guard that runs before this load's first
+            # health wait would otherwise read the previous request's cancellation.
+            self._health_wait_cancelled = False
             if _load_cancelled():
                 logger.info("Load cancelled before GGUF resolution")
                 return False
@@ -17316,6 +17336,7 @@ class LlamaCppBackend:
                         gpu_ids = gpu_ids,
                         gpu_memory_mode = gpu_memory_mode,
                         gpu_layers = gpu_layers,
+                        cancelled = _load_cancelled,
                     )
 
             if not binary:
@@ -21834,7 +21855,7 @@ class LlamaCppBackend:
                             target = self._drain_stdout, daemon = True, name = "llama-stdout"
                         )
                         self._stdout_thread.start()
-                        if self._wait_for_health(timeout = 600.0):
+                        if self._wait_for_health(timeout = 600.0, cancelled = _load_cancelled):
                             if _did_rocm_retry:
                                 # Proved on this host: every later child skips the
                                 # prepend instead of crashing into it first.
@@ -22101,11 +22122,25 @@ class LlamaCppBackend:
                         "startup; retrying once with llama.cpp devices disabled."
                     )
                     if not _spawn_and_wait(replay, label = "-cpu"):
+                        if getattr(self, "_health_wait_cancelled", False):
+                            # Cancelled during the staged replay. The caller abandons its
+                            # next argv too, so nothing later reclaims the copied runtime.
+                            self._kill_process()
+                            self._cleanup_failed_cpu_fallback()
+                            self._vram_fraction_pending = None
+                            return False
                         if not terminal:
                             # This argv's drafter may be why it cannot start at all,
                             # which the GPU crash says nothing about. Reap the child
                             # and keep the staged runtime for the caller's next argv.
                             self._kill_process()
+                            return False
+                        if getattr(self, "_health_wait_cancelled", False):
+                            # Cancelled during the staged replay's wait. Reap the child
+                            # and report no replay; load_model turns that into a return.
+                            self._kill_process()
+                            self._cleanup_failed_cpu_fallback()
+                            self._vram_fraction_pending = None
                             return False
                         cpu_rc = self._process.poll() if self._process is not None else None
                         detail = self._classify_llama_start_failure(
@@ -22242,6 +22277,8 @@ class LlamaCppBackend:
                             avail_mib = _preflight_avail_mib,
                         )
                         if prepared is None:
+                            if getattr(self, "_health_wait_cancelled", False):
+                                return False
                             _raise_terminal_load_failure(
                                 "The prior Vulkan CPU fallback could not be reconstructed; run "
                                 "`unsloth studio update` to repair the managed llama.cpp runtime."
@@ -22852,6 +22889,12 @@ class LlamaCppBackend:
                     # Read the crash code before _kill_process() clears _process.
                     _crash_rc = self._process.poll() if self._process is not None else None
                     self._kill_process()
+                    # Only when the WAIT itself was cancelled. A cancel that lands later,
+                    # while a crashed launch is staging its CPU fallback, must still run
+                    # that recovery, so _load_cancelled() alone is the wrong test here.
+                    if getattr(self, "_health_wait_cancelled", False):
+                        logger.info("Load cancelled during the llama-server health wait")
+                        return False
                     # The #6415 split-axis abort is latched earlier (first spawn).
                     # Skip if a cancel/unload is pending (mirrors the MTP guard).
                     _projector_msg = self._is_projector_incompatibility(out)
@@ -22923,6 +22966,8 @@ class LlamaCppBackend:
                                 elif self._is_gpu_memory_start_failure(_cpu_projector_out):
                                     # The projector was already off the GPU, so removing it
                                     # cannot repair this allocation failure; keep the real error.
+                                    if getattr(self, "_health_wait_cancelled", False):
+                                        return False
                                     _raise_terminal_load_failure(
                                         self._classify_llama_start_failure(
                                             _cpu_projector_out,
@@ -22938,6 +22983,8 @@ class LlamaCppBackend:
                         elif _projector_memory and _paravirtual_mmproj_pinnable(server_caps):
                             # An env/argv pin already put mmproj on CPU. Text-only
                             # cannot free additional GPU memory, so surface the OOM.
+                            if getattr(self, "_health_wait_cancelled", False):
+                                return False
                             _raise_terminal_load_failure(
                                 self._classify_llama_start_failure(
                                     out,
@@ -22976,7 +23023,7 @@ class LlamaCppBackend:
                             self._is_vision = False
                             self._mmproj_has_audio = False
                             self._start_llama_process(cmd, env)
-                            if self._wait_for_health(timeout = 600.0):
+                            if self._wait_for_health(timeout = 600.0, cancelled = _load_cancelled):
                                 healthy = True
                                 # The child that serves this session never read the
                                 # CPU-pinned projector, so the host-memory advisory the
@@ -23000,6 +23047,11 @@ class LlamaCppBackend:
                                     self._process.poll() if self._process is not None else None
                                 )
                                 self._kill_process()
+                                if getattr(self, "_health_wait_cancelled", False):
+                                    logger.info(
+                                        "Load cancelled during the text-only retry health wait"
+                                    )
+                                    return False
                                 # A text-only signal crash is independent evidence of a GPU
                                 # startup fault. Keep a confirmed bad projector out of the
                                 # replay; a guessed one still gets a CPU try with vision.
@@ -23017,6 +23069,8 @@ class LlamaCppBackend:
                                         if not _projector_msg:
                                             self._mmproj_fallback_reason = None
                                     else:
+                                        if getattr(self, "_health_wait_cancelled", False):
+                                            return False
                                         _raise_terminal_load_failure(
                                             self._gpu_init_crash_message(binary)
                                         )
@@ -23031,6 +23085,8 @@ class LlamaCppBackend:
                                         (self._api_key,),
                                         self._extra_args,
                                     )
+                                    if getattr(self, "_health_wait_cancelled", False):
+                                        return False
                                     _raise_terminal_load_failure(
                                         self._mmproj_retry_failure_message(
                                             projector_confirmed = _projector_msg,
@@ -23057,6 +23113,8 @@ class LlamaCppBackend:
                         if _replayed:
                             healthy = True
                         else:
+                            if getattr(self, "_health_wait_cancelled", False):
+                                return False
                             _raise_terminal_load_failure(
                                 self._classify_llama_start_failure(
                                     out,
@@ -23272,6 +23330,13 @@ class LlamaCppBackend:
                 return False
 
             if not self._healthy:
+                return False
+            if _load_cancelled():
+                # Cancelled during the post-health setup or the audio probe. Publishing
+                # now leaves the child resident while the cancel route sees is_loaded.
+                logger.info("Load cancelled after llama-server became healthy; unwinding")
+                self._kill_process()
+                self._healthy = False
                 return False
             # Snapshot the files the server actually loaded. If a GGUF shard or a
             # LoRA/control-vector sidecar is swapped on disk afterwards while the
@@ -25707,6 +25772,7 @@ class LlamaCppBackend:
         self,
         timeout: float = 120.0,
         interval: float = 0.5,
+        cancelled: Optional[Callable[[], bool]] = None,
     ) -> bool:
         """Poll llama-server's /health until 200; also detect early exit/crash."""
         deadline = time.monotonic() + timeout
@@ -25715,7 +25781,25 @@ class LlamaCppBackend:
         if health_probe_event is None:  # Backward-compatible with lightweight test doubles.
             health_probe_event = self._health_probe_event = threading.Event()
 
+        if cancelled is None:
+            # A scoped /load carries its own cancel event, so load_model passes its own
+            # predicate; fall back to the unload flag for callers that have none.
+            cancel_event = getattr(self, "_cancel_event", None)
+            cancelled = cancel_event.is_set if cancel_event is not None else None
+
+        # Why this wait ended, for callers that must tell a cancel apart from a crash:
+        # a cancel landing during CPU-fallback staging is not a cancelled wait.
+        self._health_wait_cancelled = False
+
         while time.monotonic() < deadline:
+            # unload_model() blocks on self._lock, which the load holds across this wait.
+            if cancelled is not None and cancelled():
+                # Marker for _classify_llama_start_failure: the child is still alive, so
+                # poll() reports no exit code and nothing else says this was deliberate.
+                self._stdout_lines.append("llama-server startup cancelled")
+                logger.info("llama-server startup cancelled before it became healthy")
+                self._health_wait_cancelled = True
+                return False
             # Cleared before probing so output during the request stays latched for
             # the fallback wait below.
             health_probe_event.clear()
@@ -25744,6 +25828,13 @@ class LlamaCppBackend:
                 # for 127.0.0.1 loops the probe until timeout and hangs load.
                 resp = httpx.get(url, timeout = 2.0, trust_env = False)
                 if resp.status_code == 200:
+                    # The probe blocks for up to 2s; a cancel landing inside that window
+                    # would otherwise publish the model the user just asked us to drop.
+                    if cancelled is not None and cancelled():
+                        self._stdout_lines.append("llama-server startup cancelled")
+                        logger.info("llama-server became healthy after the load was cancelled")
+                        self._health_wait_cancelled = True
+                        return False
                     return True
             except (
                 httpx.ConnectError,
