@@ -1,0 +1,307 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright 2026-present the Unsloth AI Inc. team. All rights reserved.
+
+name: PR 9476 focused multimodal compaction
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/pr-9476-media-compaction.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-9476-focused-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  multimodal-compaction:
+    name: Qwen3-VL real compaction
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      PYTHONUNBUFFERED: '1'
+      HF_HOME: ${{ github.workspace }}/hf-cache-vision
+      HF_XET_CACHE: ${{ github.workspace }}/xet-scratch
+      GGUF_REPO: unsloth/Qwen3-VL-2B-Instruct-GGUF
+      GGUF_VARIANT: UD-Q4_K_XL
+      GGUF_FILE: Qwen3-VL-2B-Instruct-UD-Q4_K_XL.gguf
+      MMPROJ_FILE: mmproj-F16.gguf
+      STUDIO_PORT: '18890'
+      STUDIO_LOG: logs/studio-pr-9476.log
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: pr-9476-fixes
+          persist-credentials: false
+
+      - name: Install system dependencies
+        timeout-minutes: 15
+        env:
+          RETRY_ATTEMPTS: '2'
+          RETRY_ATTEMPT_TIMEOUT: '360'
+        run: |
+          bash .github/scripts/retry-with-apt-lock.sh sudo sh -c \
+            'apt-get install -y --no-install-recommends libcurl4-openssl-dev libssl-dev jq ffmpeg || { apt-get update && apt-get install -y --no-install-recommends libcurl4-openssl-dev libssl-dev jq ffmpeg; }'
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
+        with:
+          node-version: '22'
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Install Unsloth
+        timeout-minutes: 25
+        uses: ./.github/actions/install-unsloth-local
+        with:
+          gh-token: ${{ secrets.GITHUB_TOKEN }}
+          hf-token: ''
+
+      - name: Restore multimodal model cache
+        id: cache-model
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        continue-on-error: true
+        with:
+          path: hf-cache-vision
+          key: Linux-hf-${{ env.GGUF_REPO }}-${{ env.GGUF_VARIANT }}-${{ env.MMPROJ_FILE }}-v3
+
+      - name: Download Qwen3-VL GGUF and projector
+        timeout-minutes: 20
+        run: |
+          python -m pip install --upgrade huggingface_hub
+          mkdir -p "$HF_HOME"
+          bash .github/scripts/hf-download-with-retry.sh "$GGUF_REPO" "$GGUF_FILE"
+          bash .github/scripts/hf-download-with-retry.sh "$GGUF_REPO" "$MMPROJ_FILE"
+          bash .github/scripts/hf-download-with-retry.sh ggml-org/models tinyllamas/stories260K.gguf
+
+      - name: Boot Studio and load Qwen3-VL
+        timeout-minutes: 20
+        run: |
+          bash .github/scripts/boot-studio-api-only.sh --port "$STUDIO_PORT" --log "$STUDIO_LOG"
+          bash .github/scripts/wait-for-health.sh --port "$STUDIO_PORT"
+          PASSWORD=$(cat ~/.unsloth/studio/auth/.bootstrap_password)
+          echo "::add-mask::$PASSWORD"
+          TOKEN=$(curl -fs -X POST "http://127.0.0.1:${STUDIO_PORT}/api/auth/login" \
+            -H 'content-type: application/json' \
+            -d "{\"username\":\"unsloth\",\"password\":\"$PASSWORD\"}" | jq -r .access_token)
+          echo "::add-mask::$TOKEN"
+          echo "API_KEY=$TOKEN" >> "$GITHUB_ENV"
+          curl -fs -X POST "http://127.0.0.1:${STUDIO_PORT}/api/inference/load" \
+            -H "Authorization: Bearer $TOKEN" \
+            -H 'content-type: application/json' \
+            --max-time 900 \
+            -d "{\"model_path\":\"$GGUF_REPO\",\"gguf_variant\":\"$GGUF_VARIANT\",\"is_lora\":false,\"max_seq_length\":2048}" \
+            | tee /tmp/load.json
+          jq -e '.status == "loaded" or .status == "success"' /tmp/load.json
+
+      - name: Exercise rolling multimodal compaction
+        timeout-minutes: 20
+        env:
+          BASE_URL: http://127.0.0.1:18890
+        run: |
+          python - <<'PY'
+          import base64
+          import json
+          import os
+          import subprocess
+          import urllib.error
+          import urllib.request
+
+          base = os.environ["BASE_URL"]
+          key = os.environ["API_KEY"]
+          png = (
+              "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAYklEQVR4nO3PMQ0AIADAMEAI/k"
+              "UhBhEcDcmqYJtn7/GzpQNeNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA"
+              "1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaA1oDWgNaBdCJ0BmMJ25zMAAAAASUVORK5CYII="
+          )
+          data_uri = f"data:image/png;base64,{png}"
+
+          def request(path, body, *, timeout=600):
+              req = urllib.request.Request(
+                  f"{base}{path}",
+                  data=json.dumps(body).encode(),
+                  method="POST",
+                  headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+              )
+              try:
+                  with urllib.request.urlopen(req, timeout=timeout) as response:
+                      return json.loads(response.read().decode())
+              except urllib.error.HTTPError as exc:
+                  detail = exc.read().decode("utf-8", "replace")
+                  raise AssertionError(f"{path} returned {exc.code}: {detail}") from exc
+
+          def request_sse(body, *, timeout=600):
+              req = urllib.request.Request(
+                  f"{base}/v1/chat/completions",
+                  data=json.dumps(body).encode(),
+                  method="POST",
+                  headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+              )
+              events = []
+              try:
+                  with urllib.request.urlopen(req, timeout=timeout) as response:
+                      for raw in response:
+                          line = raw.decode("utf-8", "replace").strip()
+                          if not line.startswith("data: ") or line == "data: [DONE]":
+                              continue
+                          events.append(json.loads(line[6:]))
+              except urllib.error.HTTPError as exc:
+                  detail = exc.read().decode("utf-8", "replace")
+                  raise AssertionError(f"tool stream returned {exc.code}: {detail}") from exc
+              return events
+
+          def history(pairs=24, width=180):
+              messages = []
+              for index in range(pairs):
+                  messages.append({"role": "user", "content": f"old-user-{index:02d} " + "u" * width})
+                  messages.append({"role": "assistant", "content": f"old-assistant-{index:02d} " + "a" * width})
+              return messages
+
+          def content(data):
+              return ((data.get("choices") or [{}])[0].get("message") or {}).get("content") or ""
+
+          def assert_compacted(data, label):
+              truncation = data.get("context_truncated") or {}
+              assert truncation.get("fits") is True, f"{label}: no successful fit: {data}"
+              assert int(truncation.get("dropped_messages") or 0) >= 2, (
+                  f"{label}: old text history was not dropped: {truncation}"
+              )
+              assert content(data).strip(), f"{label}: generation was empty"
+              usage = data.get("usage") or {}
+              if usage.get("prompt_tokens") is not None:
+                  assert int(usage["prompt_tokens"]) < 2048, f"{label}: prompt crossed context: {usage}"
+              print(f"PASS {label}: {truncation}")
+
+          short = request("/v1/chat/completions", {
+              "messages": [{"role": "user", "content": "Reply with the word ready."}],
+              "stream": False,
+              "temperature": 0.0,
+              "max_tokens": 32,
+              "enable_thinking": False,
+              "context_overflow": "truncate_oldest",
+          })
+          assert content(short).strip(), "media-free short request regressed"
+          assert not short.get("context_truncated"), f"short request compacted unexpectedly: {short}"
+          print("PASS media-free request")
+
+          plain_messages = history() + [{"role": "user", "content": "Reply with one word."}]
+          plain = request("/v1/chat/completions", {
+              "messages": plain_messages,
+              "stream": False,
+              "temperature": 0.0,
+              "max_tokens": 48,
+              "enable_thinking": False,
+              "context_overflow": "truncate_oldest",
+          })
+          assert_compacted(plain, "media-free long history")
+
+          latest_images = {
+              "role": "user",
+              "content": [
+                  {"type": "text", "text": "What colour dominates both images? Reply briefly."},
+                  {"type": "image_url", "image_url": {"url": data_uri}},
+                  {"type": "image_url", "image_url": {"url": data_uri}},
+              ],
+          }
+          image_messages = history() + [latest_images]
+          image_result = request("/v1/chat/completions", {
+              "messages": image_messages,
+              "stream": False,
+              "temperature": 0.0,
+              "max_tokens": 64,
+              "enable_thinking": False,
+              "context_overflow": "truncate_oldest",
+          })
+          assert_compacted(image_result, "two latest-turn images")
+
+          rolling_messages = image_messages + [
+              {"role": "assistant", "content": content(image_result)},
+              {
+                  "role": "user",
+                  "content": [
+                      {"type": "text", "text": "Now describe this image in one sentence."},
+                      {"type": "image_url", "image_url": {"url": data_uri}},
+                  ],
+              },
+          ]
+          rolling = request("/v1/chat/completions", {
+              "messages": rolling_messages,
+              "stream": False,
+              "temperature": 0.0,
+              "max_tokens": 64,
+              "enable_thinking": False,
+              "context_overflow": "truncate_oldest",
+          })
+          assert_compacted(rolling, "rolling mixed-media history")
+
+          tool_messages = history() + [{
+              "role": "user",
+              "content": [
+                  {"type": "text", "text": "Use python to compute 17 * 19, then answer with the number."},
+                  {"type": "image_url", "image_url": {"url": data_uri}},
+              ],
+          }]
+          tool_events = request_sse({
+              "messages": tool_messages,
+              "stream": True,
+              "temperature": 0.0,
+              "max_tokens": 400,
+              "enable_thinking": False,
+              "enable_tools": True,
+              "enabled_tools": ["python"],
+              "tool_choice": "required",
+              "permission_mode": "full",
+              "max_tool_calls_per_message": 1,
+              "session_id": "pr-9476-tool-loop",
+              "context_overflow": "truncate_oldest",
+          })
+          assert any(event.get("context_truncated", {}).get("fits") for event in tool_events), (
+              "tool loop did not compact old text history"
+          )
+          assert any(event.get("type") in {"tool_start", "tool_end"} for event in tool_events), (
+              f"tool loop produced no execution event: {tool_events[-20:]}"
+          )
+          print("PASS tool-loop compaction with latest image")
+
+          subprocess.run([
+              "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+              "-f", "lavfi", "-i", "color=c=blue:s=64x64:d=0.4",
+              "-pix_fmt", "yuv420p", "/tmp/pr-9476.mp4",
+          ], check=True)
+          with open("/tmp/pr-9476.mp4", "rb") as video_file:
+              video = base64.b64encode(video_file.read()).decode()
+          video_result = request("/v1/chat/completions", {
+              "messages": history() + [{"role": "user", "content": "Describe the video briefly."}],
+              "video_base64": video,
+              "stream": False,
+              "temperature": 0.0,
+              "max_tokens": 64,
+              "enable_thinking": False,
+              "context_overflow": "truncate_oldest",
+          })
+          assert_compacted(video_result, "video with long history")
+          print("PASS generation after repeated compaction")
+          print("SKIP real audio generation: Qwen3-VL has no audio projector; audio payload identity is covered by focused backend tests")
+          PY
+
+      - name: Upload focused logs
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: pr-9476-media-compaction-logs
+          path: |
+            logs/studio-pr-9476.log
+            ~/.unsloth/studio/logs/
+          retention-days: 7
+
+      - name: Stop Studio
+        if: always()
+        run: |
+          pkill -f 'unsloth.*studio' || true
+          pkill -f llama-server || true
