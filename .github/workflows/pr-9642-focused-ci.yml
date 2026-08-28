@@ -58,5 +58,5 @@ jobs:
         shell: bash
         run: |
           cd studio/backend
-          python -m ruff check hub/services/models/cache_inventory.py hub/tests/test_model_services.py hub/schemas/datasets.py hub/services/datasets/cache_inventory.py tests/test_dataset_cache_timestamps.py
-          PYTHONPATH=. python -m pytest -q hub/tests/test_model_services.py::test_gguf_inventory_dates_rows_from_managed_companions tests/test_dataset_cache_timestamps.py
+          python -m ruff check hub/services/download_lifecycle.py hub/services/models/cache_inventory.py hub/schemas/inventory.py hub/schemas/datasets.py hub/services/datasets/cache_inventory.py hub/tests/test_download_lifecycle.py hub/tests/test_model_services.py tests/test_dataset_cache_timestamps.py
+          PYTHONPATH=. python -m pytest -q hub/tests/test_download_lifecycle.py::test_completion_invalidates_inventory_before_publishing_state hub/tests/test_model_services.py::test_cached_inventory_requests_share_scan hub/tests/test_model_services.py::test_cached_inventory_discards_a_scan_that_raced_an_invalidation hub/tests/test_model_services.py::test_cached_inventory_scan_stops_retrying_under_constant_invalidation hub/tests/test_model_services.py::test_gguf_inventory_dates_rows_from_managed_companions tests/test_dataset_cache_timestamps.py
