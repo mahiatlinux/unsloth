@@ -46,6 +46,7 @@ jobs:
         run: |
           cd studio/frontend
           node --experimental-strip-types --test tests/hub-inventory-recent-sort.test.ts
+          node --experimental-strip-types --test tests/on-device-dot-and-header-alignment.test.ts
           npm run typecheck
           npm run build
 
