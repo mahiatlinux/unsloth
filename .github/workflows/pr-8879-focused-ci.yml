@@ -1,0 +1,64 @@
+# Disposable repro workflow. Delete after validation.
+
+name: "PR 8879 focused CI"
+
+on:
+  push:
+    branches:
+      - "pr-8879-focused-ci"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repro:
+    name: "Targeted repro"
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        with:
+          node-version: "22"
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.10"
+
+      - name: "Install focused backend dependencies"
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r studio/backend/requirements/studio.txt
+          pip install python-multipart aiofiles sqlalchemy cryptography psutil pyyaml jinja2 mammoth unpdf requests 'numpy<3' pytest pytest-asyncio httpx
+          pip install --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple 'torch>=2.4,<2.11'
+          pip install 'transformers>=4.51,<5.5' peft==0.18.1 ruff==0.15.12
+
+      - name: "Run focused backend tests"
+        shell: bash
+        run: |
+          PYTHONPATH=studio/backend pytest -q studio/backend/tests/test_current_date_prompt_settings.py studio/backend/tests/test_external_hosted_tool_passthrough.py -k 'date or hosted_provider_receives'
+          PYTHONPATH=studio/backend pytest -q studio/backend/tests/test_openai_tool_passthrough.py::TestGgufVisionToolRouting::test_api_server_tool_loop_keeps_the_current_date studio/backend/tests/test_openai_auto_switch.py::test_chat_count_tokens_prices_the_current_date studio/backend/tests/test_openai_auto_switch.py::test_chat_count_tokens_dates_only_api_server_tool_prompts studio/backend/tests/test_anthropic_messages.py::TestAnthropicMessagesToolRouting::test_plain_non_streaming_states_the_current_date studio/backend/tests/test_anthropic_messages.py::TestAnthropicMessagesToolRouting::test_api_server_tool_request_keeps_the_current_date
+
+      - name: "Lint changed backend paths"
+        shell: bash
+        run: |
+          ruff check studio/backend/utils/current_date_prompt_settings.py studio/backend/core/research/prompts.py studio/backend/core/inference/providers.py studio/backend/routes/inference.py studio/backend/routes/research_runs.py studio/backend/tests/test_current_date_prompt_settings.py studio/backend/tests/test_external_hosted_tool_passthrough.py studio/backend/tests/test_openai_tool_passthrough.py studio/backend/tests/test_openai_auto_switch.py studio/backend/tests/test_anthropic_messages.py
+
+      - name: "Install frontend dependencies"
+        shell: bash
+        run: |
+          cd studio/frontend
+          npm ci
+
+      - name: "Run focused frontend checks"
+        shell: bash
+        run: |
+          cd studio/frontend
+          npm run typecheck
+          npm run i18n:check:strict
+          node --experimental-strip-types --test tests/auth-fetch-timezone.test.ts tests/current-date-context-usage.test.ts tests/current-date-settings-accessibility.test.ts tests/current-date-settings-errors.test.ts tests/settings-search.test.ts
