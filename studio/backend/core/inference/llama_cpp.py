@@ -12808,6 +12808,11 @@ class LlamaCppBackend:
                 self._effective_context_length = chosen
                 self._max_context_length = chosen
             self._requested_n_ctx = int(n_ctx)
+            if cancelled is not None and cancelled():
+                logger.info("DiffusionGemma start cancelled after it became healthy")
+                self._healthy = False
+                self._kill_process()
+                return False
         else:
             self._healthy = False
             if getattr(self, "_health_wait_cancelled", False):
@@ -25848,6 +25853,12 @@ class LlamaCppBackend:
                 pass
 
             health_probe_event.wait(interval)
+
+        if cancelled is not None and cancelled():
+            self._stdout_lines.append("llama-server startup cancelled")
+            logger.info("llama-server startup cancelled at the health-check deadline")
+            self._health_wait_cancelled = True
+            return False
 
         # Leave a marker so _classify_llama_start_failure tells a live but
         # never-healthy load (too large, or a proxy hijacking the loopback
