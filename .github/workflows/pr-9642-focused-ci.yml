@@ -47,9 +47,9 @@ jobs:
         run: |
           python -m pip install pytest fastapi==0.141.1 pydantic==2.13.4 'huggingface-hub>=1.23.0,<2.0' 'structlog>=24.1.0' httpx ruff
 
-      - name: "test dataset cache timestamps"
+      - name: "test cache timestamps"
         shell: bash
         run: |
           cd studio/backend
-          python -m ruff check hub/schemas/datasets.py hub/services/datasets/cache_inventory.py tests/test_dataset_cache_timestamps.py
-          python -m pytest -q tests/test_dataset_cache_timestamps.py
+          python -m ruff check hub/services/models/cache_inventory.py hub/tests/test_model_services.py hub/schemas/datasets.py hub/services/datasets/cache_inventory.py tests/test_dataset_cache_timestamps.py
+          PYTHONPATH=. python -m pytest -q hub/tests/test_model_services.py::test_gguf_inventory_dates_rows_from_managed_companions tests/test_dataset_cache_timestamps.py
