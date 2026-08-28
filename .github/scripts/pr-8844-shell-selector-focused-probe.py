@@ -422,7 +422,12 @@ async def scenario_side_by_side(post_home: Path, post_base: str, post_password: 
             fail("could not read pre-ref Studio bootstrap password")
 
         async def open_agents(page, base: str):
-            await page.goto(f"{base}/settings", wait_until="domcontentloaded")
+            await page.goto(f"{base}/chat", wait_until="domcontentloaded")
+            settings_button = page.get_by_role(
+                "button", name="Settings", exact=True
+            ).last
+            await settings_button.wait_for(state="visible", timeout=30_000)
+            await settings_button.click()
             agents_tab = page.get_by_test_id("settings-tab-agents")
             await agents_tab.wait_for(state="visible", timeout=30_000)
             await agents_tab.click()
@@ -531,10 +536,7 @@ async def scenario_side_by_side(post_home: Path, post_base: str, post_password: 
                 ) != "true":
                     fail("Windows shell selection did not survive a tab remount")
 
-                await page.goto(f"{base}/settings", wait_until="domcontentloaded")
-                await page.get_by_test_id("settings-tab-agents").click()
-                builder = page.locator('section[aria-label="Command builder"]')
-                await builder.wait_for(state="visible", timeout=30_000)
+                builder = await open_agents(page, base)
                 if await builder.get_by_role("button", name="Windows", exact=True).get_attribute(
                     "aria-pressed"
                 ) != "true":
