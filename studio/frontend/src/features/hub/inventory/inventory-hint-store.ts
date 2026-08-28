@@ -23,6 +23,7 @@ type ObservedInventoryKeys = Record<InventoryHint["kind"], Set<string>>;
 
 export type PendingHintReconciliationCommit = {
   kind: InventoryHint["kind"];
+  protectedObservedKeys?: ReadonlySet<string>;
   reconciliation: Pick<
     InventoryHintReconciliation,
     "pending" | "staleCompletedHints" | "observedKeys"
@@ -44,6 +45,7 @@ const INVENTORY_HINT_EQUALITY_FIELDS = {
   kind: true,
   repoId: true,
   bytes: true,
+  startedAt: true,
   createdAt: true,
 } satisfies Record<keyof InventoryHint, true>;
 
@@ -80,9 +82,13 @@ function inventoryHintEqual(
   }
   return INVENTORY_HINT_EQUALITY_KEYS.every((key) => {
     const left =
-      key === "bytes" || key === "createdAt" ? (a[key] ?? 0) : a[key];
+      key === "bytes" || key === "startedAt" || key === "createdAt"
+        ? (a[key] ?? 0)
+        : a[key];
     const right =
-      key === "bytes" || key === "createdAt" ? (b[key] ?? 0) : b[key];
+      key === "bytes" || key === "startedAt" || key === "createdAt"
+        ? (b[key] ?? 0)
+        : b[key];
     return left === right;
   });
 }
@@ -160,9 +166,13 @@ function rememberObservedInventoryKeys(
   kind: InventoryHint["kind"],
   keys: ReadonlySet<string>,
   pending: PendingInventoryHints,
+  protectedKeys: ReadonlySet<string>,
 ): ObservedInventoryKeys {
   const observed = new Set(current[kind]);
   for (const key of keys) {
+    if (pending[kind].has(key) || protectedKeys.has(key)) {
+      continue;
+    }
     observed.delete(key);
     observed.add(key);
   }
@@ -209,7 +219,11 @@ export const useInventoryHintStore = create<InventoryHintState>()(
       let next = pendingWithInventoryHints(state.pending, completedHints);
       let observedKeys = state.observedKeys;
       const completedHintsToSuppress: InventoryHint[] = [];
-      for (const { kind, reconciliation } of reconciliations) {
+      for (const {
+        kind,
+        protectedObservedKeys = new Set<string>(),
+        reconciliation,
+      } of reconciliations) {
         const committed = commitInventoryHintReconciliation({
           current: next,
           kind,
@@ -223,6 +237,7 @@ export const useInventoryHintStore = create<InventoryHintState>()(
           kind,
           reconciliation.observedKeys,
           next,
+          protectedObservedKeys,
         );
         completedHintsToSuppress.push(...committed.completedHintsToSuppress);
       }

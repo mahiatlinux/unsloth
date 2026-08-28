@@ -11,10 +11,9 @@ registerBundlerResolver();
 const { compareInventoryItemsByRecent } = await import(
   "../src/features/hub/catalog/inventory-sort.ts"
 );
-const {
-  buildCachedInventoryRow,
-  buildLocalInventoryRows,
-} = await import("../src/features/hub/inventory/view-models.ts");
+const { buildCachedInventoryRow, buildLocalInventoryRows } = await import(
+  "../src/features/hub/inventory/view-models.ts"
+);
 const { epochMillisecondsToSeconds } = await import(
   "../src/features/hub/inventory/inventory-timestamps.ts"
 );
@@ -25,10 +24,7 @@ const {
   reconcileInventoryHints,
   rememberInventoryHint,
 } = await import("../src/features/hub/inventory/inventory-hints.ts");
-const {
-  pendingWithInventoryHints,
-  useInventoryHintStore,
-} = await import(
+const { pendingWithInventoryHints, useInventoryHintStore } = await import(
   "../src/features/hub/inventory/inventory-hint-store.ts"
 );
 const { getState, jobKeyOf, patchJob, putJob, removeJob } = await import(
@@ -125,13 +121,16 @@ test("Recent keeps a completed download first until the cache rescan", () => {
 });
 
 test("a newer completion refreshes the same repo timestamp and expiry", () => {
+  const firstStartedAt = 1_899_999_940_000;
   const firstCompletedAt = 1_900_000_000_000;
+  const secondStartedAt = firstCompletedAt + 30_000;
   const secondCompletedAt = firstCompletedAt + 60_000;
   let pending = pendingWithInventoryHints(createPendingInventoryHints(), [
     {
       kind: "gguf",
       repoId: "Org/Repeated",
       bytes: 20,
+      startedAt: firstStartedAt,
       createdAt: firstCompletedAt,
     },
   ]);
@@ -140,6 +139,7 @@ test("a newer completion refreshes the same repo timestamp and expiry", () => {
       kind: "gguf",
       repoId: "Org/Repeated",
       bytes: 10,
+      startedAt: secondStartedAt,
       createdAt: secondCompletedAt,
     },
   ]);
@@ -148,6 +148,7 @@ test("a newer completion refreshes the same repo timestamp and expiry", () => {
     kind: "gguf",
     repoId: "Org/Repeated",
     bytes: 20,
+    startedAt: secondStartedAt,
     createdAt: secondCompletedAt,
   });
   assert.equal(
@@ -168,11 +169,13 @@ test("a newer completion refreshes the same repo timestamp and expiry", () => {
 
 test("a stale aggregate row cannot consume a newer variant hint", () => {
   const completedAt = 1_900_000_000_000;
+  const startedAt = completedAt - 60_000;
   const pending = pendingWithInventoryHints(createPendingInventoryHints(), [
     {
       kind: "gguf",
       repoId: "Org/Existing",
       bytes: 200,
+      startedAt,
       createdAt: completedAt,
     },
   ]);
@@ -183,7 +186,7 @@ test("a stale aggregate row cannot consume a newer variant hint", () => {
       {
         repo_id: "Org/Existing",
         size_bytes: 500,
-        last_modified: 1_700_000_000,
+        last_modified: (startedAt - 1_000) / 1000,
       },
     ],
     previouslyObserved: new Set<string>(),
@@ -198,8 +201,8 @@ test("a stale aggregate row cannot consume a newer variant hint", () => {
     rows: [
       {
         repo_id: "Org/Existing",
-        size_bytes: 700,
-        last_modified: completedAt / 1000,
+        size_bytes: 100,
+        last_modified: startedAt / 1000,
       },
     ],
     previouslyObserved: new Set(["org/existing"]),
@@ -212,6 +215,7 @@ test("a new download clears historical observation and records completion time",
   const key = jobKeyOf("model", repoId, "Q4_K_M");
   const hintState = useInventoryHintStore.getState();
   useInventoryHintStore.setState({
+    pending: createPendingInventoryHints(),
     observedKeys: {
       ...hintState.observedKeys,
       gguf: new Set(["org/redownload"]),
@@ -233,17 +237,64 @@ test("a new download clears historical observation and records completion time",
     error: null,
     startedAt: 1_900_000_000_000,
   });
+  const afterStart = useInventoryHintStore.getState();
+  const staleRowReconciliation = reconcileInventoryHints({
+    pending: afterStart.pending,
+    kind: "gguf",
+    rows: [
+      {
+        repo_id: repoId,
+        size_bytes: 100,
+        last_modified: 1_800_000_000,
+      },
+    ],
+    previouslyObserved: afterStart.observedKeys.gguf,
+  });
+  afterStart.commitReconciliations([], afterStart.pending, [
+    {
+      kind: "gguf",
+      protectedObservedKeys: new Set(["org/redownload"]),
+      reconciliation: staleRowReconciliation,
+    },
+  ]);
+  assert.equal(
+    useInventoryHintStore.getState().observedKeys.gguf.has("org/redownload"),
+    false,
+  );
+
   const beforeCompletion = Date.now();
   patchJob(key, { state: "complete" });
   const afterCompletion = Date.now();
   const [hint] = getState().completedInventoryHints;
+  const completedState = useInventoryHintStore.getState();
+  const completedPending = pendingWithInventoryHints(
+    completedState.pending,
+    hint ? [hint] : [],
+  );
+  const missingRowReconciliation = reconcileInventoryHints({
+    pending: completedPending,
+    kind: "gguf",
+    rows: [],
+    previouslyObserved: completedState.observedKeys.gguf,
+  });
+  const suppressed = completedState.commitReconciliations(
+    hint ? [hint] : [],
+    completedPending,
+    [{ kind: "gguf", reconciliation: missingRowReconciliation }],
+  );
 
   assert.equal(
     useInventoryHintStore.getState().observedKeys.gguf.has("org/redownload"),
     false,
   );
+  assert.equal(suppressed.length, 0);
+  assert.equal(
+    useInventoryHintStore.getState().pending.gguf.has("org/redownload"),
+    true,
+  );
   assert.ok(hint?.createdAt && hint.createdAt >= beforeCompletion);
   assert.ok(hint?.createdAt && hint.createdAt <= afterCompletion);
+  assert.equal(hint?.startedAt, 1_900_000_000_000);
 
   removeJob(key);
   useInventoryHintStore.setState({
