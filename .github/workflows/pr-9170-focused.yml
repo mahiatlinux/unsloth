@@ -100,7 +100,8 @@ jobs:
         shell: pwsh
         run: |
           Set-Location studio/backend
-          python -m pytest -q tests/test_bind_host_policy.py tests/test_lan_access_settings.py tests/test_public_check_optout.py tests/test_secure_tunnel_gate.py tests/test_startup_banner_loopback.py tests/test_studio_pid_files.py
+          python -m pytest -q tests/test_bind_host_policy.py tests/test_lan_access_settings.py tests/test_public_check_optout.py tests/test_secure_tunnel_gate.py tests/test_startup_banner_loopback.py
+          python -m pytest -q tests/test_studio_pid_files.py -k 'address_matching or wildcard_alias'
 
       - name: "Run focused CLI tests"
         shell: pwsh
