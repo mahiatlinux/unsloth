@@ -5,7 +5,7 @@ name: "pr 9170 focused validation"
 on:
   push:
     branches:
-      - "codex/pr-9170-convergence-1"
+      - "codex/pr-9170-convergence-2"
   workflow_dispatch:
 
 permissions:
@@ -14,7 +14,6 @@ permissions:
 jobs:
   linux:
     name: "linux backend, cli, frontend, browser"
-    if: false
     runs-on: "ubuntu-latest"
     timeout-minutes: 30
     steps:
@@ -34,7 +33,12 @@ jobs:
         shell: bash
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pytest pytest-asyncio typer==0.27.1 fastapi==0.141.1 uvicorn==0.52.1 pydantic==2.13.4 structlog sqlalchemy cryptography psutil pyyaml jinja2 python-multipart aiofiles httpx requests diceware packaging pyjwt filelock 'huggingface-hub>=1.23.0,<2.0' 'playwright>=1.45,<2'
+          python -m pip install pytest pytest-asyncio ruff typer==0.27.1 fastapi==0.141.1 uvicorn==0.52.1 pydantic==2.13.4 structlog sqlalchemy cryptography psutil pyyaml jinja2 python-multipart aiofiles httpx requests diceware packaging pyjwt filelock 'huggingface-hub>=1.23.0,<2.0' 'playwright>=1.45,<2'
+
+      - name: "Lint changed Python paths"
+        shell: bash
+        run: |
+          python -m ruff check studio/backend/run.py studio/backend/lan_access.py studio/backend/utils/host_policy.py studio/backend/utils/lan_access_settings.py studio/backend/tests/test_bind_host_policy.py studio/backend/tests/test_lan_access_settings.py studio/backend/tests/test_public_check_optout.py unsloth_cli/_tool_policy.py unsloth_cli/commands/studio.py unsloth_cli/tests/test_studio_password_prompt.py
 
       - name: "Run focused backend tests"
         shell: bash
@@ -45,7 +49,7 @@ jobs:
       - name: "Run focused CLI tests"
         shell: bash
         run: |
-          python -m pytest -q unsloth_cli/tests/test_studio_cloudflare_flag.py unsloth_cli/tests/test_studio_password_prompt.py
+          python -m pytest -q unsloth_cli/tests/test_studio_cloudflare_flag.py unsloth_cli/tests/test_studio_password_prompt.py unsloth_cli/tests/test_studio_secure_flag.py unsloth_cli/tests/test_studio_run_parallel_flag.py
 
       - name: "Install frontend dependencies"
         shell: bash
@@ -108,7 +112,7 @@ jobs:
         shell: pwsh
         run: |
           python -m pytest -q unsloth_cli/tests/test_studio_cloudflare_flag.py -k 'run_cloudflare_notice_uses_external_host_policy or run_display_host_delegates_wildcard_aliases'
-          python -m pytest -q unsloth_cli/tests/test_studio_password_prompt.py -k 'should_prompt_password_change_matrix or empty_bind'
+          python -m pytest -q unsloth_cli/tests/test_studio_password_prompt.py -k 'should_prompt_password_change_matrix or empty_bind or mapped_wildcard'
 
       - name: "Install frontend dependencies"
         shell: pwsh
