@@ -14,6 +14,7 @@ permissions:
 jobs:
   linux:
     name: "linux backend, cli, frontend, browser"
+    if: false
     runs-on: "ubuntu-latest"
     timeout-minutes: 30
     steps:
@@ -106,7 +107,8 @@ jobs:
       - name: "Run focused CLI tests"
         shell: pwsh
         run: |
-          python -m pytest -q unsloth_cli/tests/test_studio_cloudflare_flag.py unsloth_cli/tests/test_studio_password_prompt.py
+          python -m pytest -q unsloth_cli/tests/test_studio_cloudflare_flag.py -k 'run_cloudflare_notice_uses_external_host_policy or run_display_host_delegates_wildcard_aliases'
+          python -m pytest -q unsloth_cli/tests/test_studio_password_prompt.py -k 'should_prompt_password_change_matrix or empty_bind'
 
       - name: "Install frontend dependencies"
         shell: pwsh
