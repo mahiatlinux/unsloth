@@ -129,5 +129,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: studio-side-by-side-${{ matrix.os }}-${{ matrix.browser }}
-          path: ${{ github.workspace }}/.studio-live/artifacts
+          path: |
+            ${{ github.workspace }}/.studio-live/artifacts/**/*.png
+            ${{ github.workspace }}/.studio-live/artifacts/**/*.log
           if-no-files-found: warn

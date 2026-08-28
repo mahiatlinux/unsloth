@@ -409,7 +409,8 @@ def install_pre_ref(root: Path, log_path: Path) -> Path:
 
 
 async def scenario_side_by_side(post_home: Path, post_base: str, post_password: str, browser_name: str, artifact_dir: Path) -> None:
-    root = artifact_dir / "side-by-side"
+    root = Path(os.environ.get("RUNNER_TEMP", artifact_dir.parent)) / f"pr-8844-side-by-side-{browser_name}"
+    root.mkdir(parents=True, exist_ok=True)
     pre_home = install_pre_ref(root, artifact_dir / "pre-install.log")
     pre_port = free_port()
     pre_base = f"http://127.0.0.1:{pre_port}"
