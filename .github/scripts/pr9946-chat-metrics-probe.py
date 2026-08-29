@@ -483,9 +483,11 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
             return (await tps.get_attribute("aria-label")) == "Live generation speed unavailable"
 
         async def current_thread_id():
-            match = re.search(r"/chat/([^/?#]+)", page.url)
-            if match:
-                return match.group(1)
+            routed = await page.evaluate(
+                "new URL(location.href).searchParams.get('thread')"
+            )
+            if routed:
+                return routed
             result = await browser_request(page, "/api/chat/threads?includeArchived=true")
             if result["status"] != 200:
                 return None
@@ -546,6 +548,20 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
                 matches_exact_poll,
                 timeout_s=timeout_s,
                 message=f"TPS never matched the browser poll for monitor {monitor_id}",
+            )
+
+        async def wait_for_monitor_poll(monitor_id: str, *, timeout_s: float = 15):
+            return await wait_until(
+                lambda: next(
+                    (
+                        sample
+                        for sample in reversed(monitor_samples)
+                        if sample["url"].endswith(f"/monitor/{monitor_id}")
+                    ),
+                    None,
+                ),
+                timeout_s=timeout_s,
+                message=f"browser never polled monitor {monitor_id}",
             )
 
         async def sidebar_usage_text(thread_id: str):
@@ -694,8 +710,8 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
             timeout_s=30,
             message="concurrent generation did not persist its thread",
         )
-        await wait_for_live_monitor(concurrent_id)
-        await sp.screenshot(artifact_dir / "09-concurrent-active.png")
+        await wait_for_monitor_poll(concurrent_id)
+        await sp.screenshot(artifact_dir / "09-concurrent-queued.png")
 
         first_row = page.locator(
             f'[data-testid="recent-thread"][data-thread-id="{first_thread}"]'
@@ -706,26 +722,27 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
             arg=first_thread,
             timeout=15_000,
         )
-        pass_log(
-            f"first-thread switch route={page.url} debug="
-            f"{await page.evaluate('window.__pr9946LiveTps')!r}"
-        )
         await wait_for_live_monitor(resume_id, timeout_s=20)
         await sp.screenshot(artifact_dir / "10-first-thread-active.png")
+        if await stop.is_visible():
+            await stop.click()
+            await stop.wait_for(state="hidden", timeout=30_000)
+        await wait_until(
+            tps_unavailable,
+            timeout_s=15,
+            message="first concurrent request retained TPS",
+        )
+
         concurrent_row = page.locator(
             f'[data-testid="recent-thread"][data-thread-id="{concurrent_thread}"]'
         ).first
         await concurrent_row.click(force=True)
-        await wait_for_live_monitor(concurrent_id, timeout_s=20)
+        await wait_for_live_monitor(concurrent_id, timeout_s=60)
+        await sp.screenshot(artifact_dir / "11-concurrent-active.png")
         if await stop.is_visible():
             await stop.click()
             await stop.wait_for(state="hidden", timeout=30_000)
         await wait_until(tps_unavailable, timeout_s=15, message="concurrent cancellation retained TPS")
-        await first_row.click(force=True)
-        if await stop.is_visible():
-            await stop.click()
-            await stop.wait_for(state="hidden", timeout=30_000)
-        await wait_until(tps_unavailable, timeout_s=15, message="first concurrent request retained TPS")
         pass_log("reconnect, concurrent chats, and thread switching kept monitor ownership isolated")
 
         for cycle in range(3):
