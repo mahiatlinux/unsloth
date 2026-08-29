@@ -407,9 +407,24 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
         )
         response.raise_for_status()
         body = response.json()
-        direct_monitor_id = response.headers.get("X-Unsloth-Monitor-Id")
+        streaming_payload = {
+            **payload,
+            "stream": True,
+            "max_tokens": 16,
+        }
+        streaming_response = await client.post(
+            f"{base_url}/v1/chat/completions",
+            headers={"Authorization": f"Bearer {api_key}"},
+            json=streaming_payload,
+        )
+        streaming_response.raise_for_status()
+        direct_monitor_id = streaming_response.headers.get("X-Unsloth-Monitor-Id")
         if not direct_monitor_id:
-            fail("direct chat response omitted X-Unsloth-Monitor-Id")
+            fail("streaming chat response omitted X-Unsloth-Monitor-Id")
+        if "data:" not in streaming_response.text or "[DONE]" not in streaming_response.text:
+            fail("streaming chat response body was not valid SSE")
+        if direct_monitor_id in streaming_response.text:
+            fail("monitor id leaked into the streaming chat body")
         health = await client.get(f"{base_url}/healthz")
         if "X-Unsloth-Monitor-Id" in health.headers:
             fail("non-chat health response exposed a monitor id")
