@@ -551,15 +551,18 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
             )
 
         async def wait_for_monitor_poll(monitor_id: str, *, timeout_s: float = 15):
-            return await wait_until(
-                lambda: next(
+            async def exact_poll():
+                return next(
                     (
                         sample
                         for sample in reversed(monitor_samples)
                         if sample["url"].endswith(f"/monitor/{monitor_id}")
                     ),
                     None,
-                ),
+                )
+
+            return await wait_until(
+                exact_poll,
                 timeout_s=timeout_s,
                 message=f"browser never polled monitor {monitor_id}",
             )
