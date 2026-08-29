@@ -21,9 +21,9 @@ jobs:
             repository: unslothai/unsloth
             ref: 5be8f37dcf3f9295710f5b37051c7c1eacf915f0
             negative: true
-          - label: pr-head
-            repository: Sneakr/unsloth
-            ref: c73e1182f67a48263bb979e2674973fbd47e2756
+          - label: repaired-head
+            repository: mahiatlinux/unsloth
+            ref: pr-9922-fix-ci-1
             negative: false
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -64,3 +64,4 @@ jobs:
         run: |
           cp ../../../harness/.github/scripts/pr9922-selection-repro.test.ts tests/pr9922-selection-repro.test.ts
           node --experimental-strip-types --test tests/pr9922-selection-repro.test.ts
+          node --experimental-strip-types --test tests/hub-selection-resolution.test.ts
