@@ -22,7 +22,7 @@ jobs:
         target:
           - label: after
             repository: mahiatlinux/unsloth
-            ref: b0084a79579d91f74a302d69381997da154eaa26
+            ref: 3a50e3b117e38466ca9b854ec6f94d399e87da8d
             expect_attached: "true"
     env:
       UNSLOTH_STUDIO_HOME: ${{ github.workspace }}/.studio-live/${{ matrix.target.label }}/home
