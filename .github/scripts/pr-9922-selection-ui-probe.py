@@ -26,6 +26,7 @@ EXPECT_ATTACHED = os.environ["PR9922_EXPECT_ATTACHED"] == "true"
 HOME = Path(os.environ["UNSLOTH_STUDIO_HOME"])
 ARTIFACT_DIR = Path(os.environ["STUDIO_ARTIFACT_DIR"])
 DOWNLOAD_STORE_KEY = "unsloth.studio.downloads"
+DOWNLOAD_RESET_KEY = "pr9922.reset-download-store"
 
 
 def free_port() -> int:
@@ -193,8 +194,15 @@ def model_metadata(repo_id: str) -> dict:
 
 async def set_download_store(page, value: str | None) -> None:
     await page.evaluate(
-        "([key, value]) => value === null ? localStorage.removeItem(key) : localStorage.setItem(key, value)",
-        [DOWNLOAD_STORE_KEY, value],
+        """([key, resetKey, value]) => {
+          if (value === null) {
+            localStorage.removeItem(key);
+            localStorage.setItem(resetKey, "1");
+          } else {
+            localStorage.setItem(key, value);
+          }
+        }""",
+        [DOWNLOAD_STORE_KEY, DOWNLOAD_RESET_KEY, value],
     )
 
 
@@ -344,6 +352,12 @@ async def drive(base_url: str, init_script: str) -> dict:
         browser = await playwright.chromium.launch(headless=True)
         context = await browser.new_context(viewport={"width": 1500, "height": 1000})
         await context.add_init_script(init_script)
+        await context.add_init_script(
+            f"""if (localStorage.getItem({json.dumps(DOWNLOAD_RESET_KEY)}) === "1") {{
+              localStorage.removeItem({json.dumps(DOWNLOAD_STORE_KEY)});
+              localStorage.removeItem({json.dumps(DOWNLOAD_RESET_KEY)});
+            }}"""
+        )
         await context.route("**/*", route_api)
         page = await context.new_page()
 
