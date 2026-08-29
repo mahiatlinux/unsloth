@@ -170,6 +170,23 @@ def persisted_running_job(repo_id: str, variant: str | None = None) -> str:
     )
 
 
+def persisted_hybrid_running_jobs(repo_id: str) -> str:
+    store = json.loads(persisted_running_job(repo_id, "Q4_K_M"))
+    gguf_key, gguf_job = next(iter(store["state"]["jobs"].items()))
+    gguf_job["inventoryKind"] = "gguf"
+    scope_key = f"model:{repo_id.strip().lower()}#@diffusion"
+    store["state"]["jobs"][scope_key] = {
+        **gguf_job,
+        "key": scope_key,
+        "variant": "@diffusion",
+        "inventoryKind": "model",
+        "scopedFiles": ["transformer/model.safetensors"],
+        "startedAt": 2,
+    }
+    store["state"]["jobs"][gguf_key] = gguf_job
+    return json.dumps(store)
+
+
 def model_metadata(repo_id: str) -> dict:
     return {
         "id": repo_id,
@@ -460,6 +477,35 @@ async def drive(base_url: str, init_script: str) -> dict:
         )
         await page.get_by_text("Select a model", exact=True).wait_for(state="visible", timeout=20_000)
 
+        format_filter = page.get_by_role("button", name="Format filter")
+        await format_filter.click()
+        await page.get_by_role("option", name="All formats", exact=True).click()
+
+        state.update(phase="local", repo="unsloth/Hybrid-Live-Formats", raw_id=False, server_state="running")
+        hybrid_repo = state["repo"]
+        hybrid_leaf = hybrid_repo.split("/", 1)[1]
+        await set_download_store(page, persisted_hybrid_running_jobs(hybrid_repo))
+        gguf_live_id = encoded_id("download", "gguf", hybrid_repo)
+        await page.goto(
+            f"{base_url}/hub?tab=downloaded&model={urllib.parse.quote(gguf_live_id, safe='')}",
+            wait_until="domcontentloaded",
+        )
+        await wait_selected(page, hybrid_leaf)
+        hybrid_rows = page.get_by_role("button", name=hybrid_leaf, exact=True)
+        if await hybrid_rows.count() != 2:
+            raise AssertionError(f"expected two hybrid live rows, got {await hybrid_rows.count()}")
+        await wait_url_model(page, gguf_live_id)
+
+        model_live_id = encoded_id("download", "safetensors", hybrid_repo)
+        await page.goto(
+            f"{base_url}/hub?tab=downloaded&model={urllib.parse.quote(model_live_id, safe='')}",
+            wait_until="domcontentloaded",
+        )
+        await wait_selected(page, hybrid_leaf)
+        if await hybrid_rows.count() != 2:
+            raise AssertionError("hybrid live rows collapsed after selecting the model format")
+        await wait_url_model(page, model_live_id)
+
         state.update(phase="local", repo="unsloth/Selection-Safetensors-Model", raw_id=False, server_state="running")
         safetensors_repo = state["repo"]
         safetensors_leaf = safetensors_repo.split("/", 1)[1]
@@ -530,6 +576,7 @@ async def drive(base_url: str, init_script: str) -> dict:
                 "legacy_raw_id": True,
                 "malformed_id_rejected": True,
                 "ambiguous_unknown_rejected": True,
+                "hybrid_live_format_rows": 2,
                 "filtered_selection_retained": True,
                 "ui_resume_start_requests": state["start_requests"],
                 "cancel_requests": state["cancel_requests"],
