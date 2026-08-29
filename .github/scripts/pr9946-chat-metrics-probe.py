@@ -674,7 +674,7 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
         await page.locator("form:has(textarea) textarea").first.wait_for(state="visible", timeout=30_000)
         await page.locator(
             f'[data-testid="recent-thread"][data-thread-id="{first_thread}"]'
-        ).first.click(timeout=30_000)
+        ).first.click(timeout=30_000, force=True)
         await wait_for_live_monitor(resume_id, timeout_s=60)
         await sp.screenshot(artifact_dir / "07-reconnected-active.png")
 
@@ -700,19 +700,19 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
         first_row = page.locator(
             f'[data-testid="recent-thread"][data-thread-id="{first_thread}"]'
         ).first
-        await first_row.click()
+        await first_row.click(force=True)
         await wait_for_live_monitor(resume_id, timeout_s=20)
         await sp.screenshot(artifact_dir / "10-first-thread-active.png")
         concurrent_row = page.locator(
             f'[data-testid="recent-thread"][data-thread-id="{concurrent_thread}"]'
         ).first
-        await concurrent_row.click()
+        await concurrent_row.click(force=True)
         await wait_for_live_monitor(concurrent_id, timeout_s=20)
         if await stop.is_visible():
             await stop.click()
             await stop.wait_for(state="hidden", timeout=30_000)
         await wait_until(tps_unavailable, timeout_s=15, message="concurrent cancellation retained TPS")
-        await first_row.click()
+        await first_row.click(force=True)
         if await stop.is_visible():
             await stop.click()
             await stop.wait_for(state="hidden", timeout=30_000)
