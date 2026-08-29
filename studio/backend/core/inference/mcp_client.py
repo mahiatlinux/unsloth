@@ -72,7 +72,10 @@ def _split_windows_command_line(address: str) -> list[str]:
             backslashes = 0
             i += 1
             continue
-        if ch.isspace() and not in_quotes:
+        # subprocess.list2cmdline() implements the MS C runtime grammar: only
+        # space and tab delimit arguments. Other Unicode/control whitespace is
+        # ordinary argument data and must not be split here.
+        if ch in (" ", "\t") and not in_quotes:
             if backslashes:
                 current.extend("\\" * backslashes)
                 arg_started = True
@@ -82,7 +85,7 @@ def _split_windows_command_line(address: str) -> list[str]:
                 current = []
                 arg_started = False
             i += 1
-            while i < len(address) and address[i].isspace():
+            while i < len(address) and address[i] in (" ", "\t"):
                 i += 1
             continue
         if backslashes:
@@ -309,6 +312,13 @@ def _stdio_env(headers: Optional[dict], command: Optional[str] = None) -> Option
     """Process env for a stdio server: its own vars, plus the managed Node bin dir
     on PATH so ``npx ...`` servers spawn on hosts with no usable system Node."""
     env = dict(headers or {})
+    for key, value in env.items():
+        if not isinstance(key, str) or not isinstance(value, str):
+            raise ValueError("stdio environment names and values must be strings")
+        if "\x00" in key or "\x00" in value:
+            raise ValueError("stdio environment must not contain NUL characters")
+        if "=" in key:
+            raise ValueError("stdio environment variable names must not contain '='")
     key = _path_key(env)
     base = env.get(key)
     if isinstance(base, str) and not base:
@@ -342,7 +352,32 @@ def _stdio_argv(parts: list, env: Optional[dict]) -> list:
         resolved = shutil.which(parts[0], path = path)
     except OSError:
         resolved = None
-    return [resolved or parts[0], *parts[1:]]
+    executable = resolved or parts[0]
+    if _IS_WINDOWS and _launcher_name(executable) in {"npm", "npx"}:
+        suffix = os.path.splitext(executable)[1].lower()
+        if suffix in {".cmd", ".bat"}:
+            launcher_dir = os.path.dirname(executable)
+            cli = os.path.join(
+                launcher_dir,
+                "node_modules",
+                "npm",
+                "bin",
+                f"{_launcher_name(executable)}-cli.js",
+            )
+            sibling_node = os.path.join(launcher_dir, "node.exe")
+            try:
+                node = sibling_node if os.path.isfile(sibling_node) else shutil.which("node", path = path)
+                cli_exists = os.path.isfile(cli)
+            except OSError:
+                node = None
+                cli_exists = False
+            if node and cli_exists:
+                # bypass cmd.exe so shell metacharacters remain literal argv.
+                return [node, cli, *parts[1:]]
+            raise ValueError(
+                f"Cannot launch {executable!r} without its Node executable and npm CLI script"
+            )
+    return [executable, *parts[1:]]
 
 
 def _client(
