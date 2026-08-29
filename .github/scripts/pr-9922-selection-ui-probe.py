@@ -262,7 +262,11 @@ async def drive(base_url: str, init_script: str) -> dict:
             return
         if path == "/api/hub/cached-gguf":
             state["inventory_requests"] += 1
-            rows = [cached_row(repo_id, "gguf", False)] if phase == "hybrid" else []
+            rows = (
+                [cached_row(repo_id, "gguf", False)]
+                if phase in {"complete_gguf", "hybrid"}
+                else []
+            )
             await route.fulfill(json={"cached": rows})
             return
         if path == "/api/hub/active-downloads":
@@ -354,7 +358,7 @@ async def drive(base_url: str, init_script: str) -> dict:
 
         state["phase"] = "running"
         state["server_state"] = "running"
-        await set_download_store(page, persisted_running_job(repo_id))
+        await set_download_store(page, persisted_running_job(repo_id, "Q4_K_M"))
         await page.reload(wait_until="domcontentloaded")
 
         attached = True
@@ -383,9 +387,9 @@ async def drive(base_url: str, init_script: str) -> dict:
             return facts
 
         await assert_one_selected_row(page, leaf)
-        await wait_url_model(page, encoded_id("download", "safetensors", repo_id))
+        await wait_url_model(page, encoded_id("download", "gguf", repo_id))
 
-        stop = page.get_by_role("button", name=re.compile(r"^(Pause|Cancel) download$"))
+        stop = page.get_by_role("button", name="Pause download", exact=True).first
         await stop.wait_for(state="visible", timeout=20_000)
         await stop.click()
         deadline = time.time() + 10
@@ -400,17 +404,17 @@ async def drive(base_url: str, init_script: str) -> dict:
 
         state["phase"] = "running"
         state["server_state"] = "running"
-        await set_download_store(page, persisted_running_job(repo_id))
+        await set_download_store(page, persisted_running_job(repo_id, "Q4_K_M"))
         await page.reload(wait_until="domcontentloaded")
         await wait_selected(page, leaf)
         await assert_one_selected_row(page, leaf)
 
-        state["phase"] = "complete"
+        state["phase"] = "complete_gguf"
         state["server_state"] = "complete"
-        await set_download_store(page, persisted_running_job(repo_id))
+        await set_download_store(page, persisted_running_job(repo_id, "Q4_K_M"))
         await page.reload(wait_until="domcontentloaded")
         await wait_selected(page, leaf)
-        await wait_url_model(page, encoded_id("cache", "safetensors", repo_id))
+        await wait_url_model(page, encoded_id("cache", "gguf", repo_id))
         await assert_one_selected_row(page, leaf)
         completion_shot = ARTIFACT_DIR / f"{LABEL}_completed_selection.png"
         await page.screenshot(path=str(completion_shot), full_page=True)
@@ -419,11 +423,11 @@ async def drive(base_url: str, init_script: str) -> dict:
         await set_download_store(page, None)
         await page.reload(wait_until="domcontentloaded")
         await wait_selected(page, leaf)
-        await wait_url_model(page, encoded_id("cache", "safetensors", repo_id))
+        await wait_url_model(page, encoded_id("cache", "gguf", repo_id))
 
         format_filter = page.get_by_role("button", name="Format filter")
         await format_filter.click()
-        await page.get_by_role("option", name="GGUF", exact=True).click()
+        await page.get_by_role("option", name="Safetensors", exact=True).click()
         await page.get_by_text("Current selection is hidden by the active filters or search.", exact=True).wait_for(
             state="visible", timeout=10_000
         )
@@ -442,19 +446,19 @@ async def drive(base_url: str, init_script: str) -> dict:
         )
         await page.get_by_text("Select a model", exact=True).wait_for(state="visible", timeout=20_000)
 
-        state.update(phase="local", repo="unsloth/Selection-GGUF-Model", raw_id=False, server_state="running")
-        gguf_repo = state["repo"]
-        gguf_leaf = gguf_repo.split("/", 1)[1]
+        state.update(phase="local", repo="unsloth/Selection-Safetensors-Model", raw_id=False, server_state="running")
+        safetensors_repo = state["repo"]
+        safetensors_leaf = safetensors_repo.split("/", 1)[1]
         await set_download_store(page, None)
         await page.goto(f"{base_url}/hub?tab=downloaded", wait_until="domcontentloaded")
-        await page.get_by_role("button", name=gguf_leaf, exact=True).click()
-        await wait_selected(page, gguf_leaf)
+        await page.get_by_role("button", name=safetensors_leaf, exact=True).click()
+        await wait_selected(page, safetensors_leaf)
         state["phase"] = "running"
-        await set_download_store(page, persisted_running_job(gguf_repo, "Q4_K_M"))
+        await set_download_store(page, persisted_running_job(safetensors_repo))
         await page.reload(wait_until="domcontentloaded")
-        await wait_selected(page, gguf_leaf)
-        await wait_url_model(page, encoded_id("download", "gguf", gguf_repo))
-        await assert_one_selected_row(page, gguf_leaf)
+        await wait_selected(page, safetensors_leaf)
+        await wait_url_model(page, encoded_id("download", "safetensors", safetensors_repo))
+        await assert_one_selected_row(page, safetensors_leaf)
 
         state.update(phase="local", repo="unsloth/Legacy-Raw-Selection", raw_id=True, server_state="running")
         raw_repo = state["repo"]
@@ -485,7 +489,7 @@ async def drive(base_url: str, init_script: str) -> dict:
             raise AssertionError("Resume did not call the download start endpoint")
         await wait_selected(page, resume_leaf)
         await assert_one_selected_row(page, resume_leaf)
-        await page.get_by_role("button", name=re.compile(r"^(Pause|Cancel) download$")).click()
+        await page.get_by_role("button", name="Pause download", exact=True).first.click()
         deadline = time.time() + 10
         while state["cancel_requests"] < 2 and time.time() < deadline:
             await page.wait_for_timeout(100)
