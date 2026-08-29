@@ -29,7 +29,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install focused Python test dependencies
-        run: python -m pip install pytest typer setuptools
+        run: python -m pip install pytest typer setuptools pyyaml
 
       - name: Run staged updater and runtime gate tests
         run: >-
