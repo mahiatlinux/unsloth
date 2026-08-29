@@ -587,9 +587,19 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
             return (assistants[-1].get("metadata") or {}).get("contextUsage")
 
         async def assert_sidebar_matches_saved(thread_id: str):
-            usage = await newest_saved_usage(thread_id)
-            if not isinstance(usage, dict) or not isinstance(usage.get("totalTokens"), (int, float)):
-                fail(f"newest assistant for {thread_id} has no saved contextUsage: {usage!r}")
+            async def valid_saved_usage():
+                usage = await newest_saved_usage(thread_id)
+                if isinstance(usage, dict) and isinstance(
+                    usage.get("totalTokens"), (int, float)
+                ):
+                    return usage
+                return None
+
+            usage = await wait_until(
+                valid_saved_usage,
+                timeout_s=30,
+                message=f"newest assistant for {thread_id} has no saved contextUsage",
+            )
             text = await wait_until(
                 lambda: sidebar_usage_text(thread_id),
                 timeout_s=30,
