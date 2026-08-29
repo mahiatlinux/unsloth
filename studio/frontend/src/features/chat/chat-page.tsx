@@ -552,11 +552,16 @@ function useIsLoraCompare(): boolean | null {
   return useChatRuntimeStore((s) => {
     const cp = s.params.checkpoint;
     if (isExternalModelId(cp)) return false;
-    if (s.residentCheckpoint === undefined) return null;
+    if (s.residentCheckpoint === undefined && !s.loraInventorySettled) {
+      return null;
+    }
     if (!cp) return false;
     const activeModel = s.models.find((model) => model.id === cp);
-    if (activeModel) return activeModel.isLora;
-    return s.loras.find((lora) => lora.id === cp)?.exportType === "lora";
+    if (activeModel?.isLora) return true;
+    if (s.loras.find((lora) => lora.id === cp)?.exportType === "lora") {
+      return true;
+    }
+    return s.loraInventorySettled ? false : null;
   });
 }
 
@@ -569,15 +574,17 @@ function useCompareVariant(pairId: string): CompareVariant | null {
   }>();
 
   useEffect(() => {
-    if (checkpointIsLora === null || stored?.pairId === pairId) return;
+    if (stored?.pairId === pairId) return;
     let isActive = true;
     const settle = (threads: ThreadRecord[]) => {
       if (!isActive) return;
+      const variant = compareVariantForPair(threads, checkpointIsLora);
+      if (variant === null) return;
       setStored((previous) => {
         if (previous?.pairId === pairId) return previous;
         return {
           pairId,
-          variant: compareVariantForPair(threads, checkpointIsLora),
+          variant,
         };
       });
     };
@@ -790,9 +797,12 @@ const LoraCompareContent = memo(function LoraCompareContent({
   const handlesRef = useRef<Record<string, CompareHandle>>({});
   const [baseThreadId, setBaseThreadId] = useState<string>();
   const [loraThreadId, setLoraThreadId] = useState<string>();
+  const [pairLoraModelId, setPairLoraModelId] = useState<string>();
   const [threadsSettled, setThreadsSettled] = useState(false);
   const markInitialHistoryReady = useCompareReloadReadiness(pairId);
   const active = useChatActive();
+  const checkpoint = useChatRuntimeStore((s) => s.params.checkpoint);
+  const checkpointIsLora = useIsLoraCompare();
 
   // Global on purpose: a first compare run starts before either thread exists, so there is
   // no pair id to scope BY -- it files its handles under "__default" until initialize()
@@ -819,8 +829,11 @@ const LoraCompareContent = memo(function LoraCompareContent({
         // No model1/model2 fallback: useCompareVariant never routes a generalized
         // pair here, so adopting one could only mislabel it and write adapter
         // answers into its histories.
-        setBaseThreadId(threads.find((t) => t.modelType === "base")?.id);
-        setLoraThreadId(threads.find((t) => t.modelType === "lora")?.id);
+        const baseThread = threads.find((t) => t.modelType === "base");
+        const loraThread = threads.find((t) => t.modelType === "lora");
+        setBaseThreadId(baseThread?.id);
+        setLoraThreadId(loraThread?.id);
+        setPairLoraModelId(loraThread?.modelId ?? baseThread?.modelId);
       })
       .catch((error) => {
         if (!isExpectedBackgroundChatStorageError(error)) {
@@ -846,6 +859,15 @@ const LoraCompareContent = memo(function LoraCompareContent({
     threadsSettled,
   ]);
 
+  const sendUnavailableReason = !threadsSettled
+    ? "Loading comparison history."
+    : checkpointIsLora === null
+      ? "Checking the loaded model."
+      : !checkpointIsLora ||
+          (pairLoraModelId !== undefined && pairLoraModelId !== checkpoint)
+        ? "Load the LoRA saved with this comparison before sending."
+        : undefined;
+
   return (
     <CompareShell
       handlesRef={handlesRef}
@@ -856,6 +878,7 @@ const LoraCompareContent = memo(function LoraCompareContent({
             onExitCompare={onExitCompare}
             model1ThreadId={baseThreadId}
             model2ThreadId={loraThreadId}
+            sendUnavailableReason={sendUnavailableReason}
           />
         ) : (
           <></>
