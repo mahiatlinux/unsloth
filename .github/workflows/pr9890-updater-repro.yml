@@ -64,6 +64,12 @@ jobs:
           save-if: false
           workspaces: studio/src-tauri -> target
 
+      - name: Create the Tauri frontend fixture
+        run: >-
+          python -c "from pathlib import Path;
+          p=Path('studio/frontend/dist'); p.mkdir(parents=True, exist_ok=True);
+          (p/'index.html').write_text('<!doctype html>')"
+
       - name: Run activation, rollback, ownership, and updater tests
         shell: bash
         run: |
