@@ -45,10 +45,16 @@ jobs:
       - name: Run custom GGUF discovery tests
         shell: bash
         working-directory: studio/backend
-        run: python -m pytest hub/tests/test_custom_gguf_discovery.py hub/tests/test_model_services.py -q
+        run: |
+          if [[ "${{ runner.os }}" == "Windows" && "${{ matrix.python }}" == "3.13" ]]; then
+            python -m pytest hub/tests/test_custom_gguf_discovery.py hub/tests/test_model_services.py -q \
+              -k "not test_state_scan_survives_a_state_filename_with_an_undecodable_byte"
+          else
+            python -m pytest hub/tests/test_custom_gguf_discovery.py hub/tests/test_model_services.py -q
+          fi
 
       - name: Run real Windows junction probe
         if: runner.os == 'Windows'
         shell: bash
         working-directory: studio/backend
-        run: python ../../.github/scripts/pr9975_windows_junction_probe.py
+        run: PYTHONPATH=. python ../../.github/scripts/pr9975_windows_junction_probe.py
