@@ -483,7 +483,19 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
 
         async def current_thread_id():
             match = re.search(r"/chat/([^/?#]+)", page.url)
-            return match.group(1) if match else None
+            if match:
+                return match.group(1)
+            result = await browser_request(page, "/api/chat/threads?includeArchived=true")
+            if result["status"] != 200:
+                return None
+            threads = result["body"].get("threads") or []
+            if not threads:
+                return None
+            threads.sort(
+                key=lambda thread: thread.get("updatedAt") or thread.get("createdAt") or 0,
+                reverse=True,
+            )
+            return threads[0].get("id")
 
         async def wait_for_monitor(after: int, *, timeout_s: float = 45):
             async def find_monitor():
