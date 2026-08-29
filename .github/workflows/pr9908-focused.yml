@@ -1,0 +1,35 @@
+name: pr9908 focused compare checks
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr9908-focused-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  compare-state:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: studio/frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: studio/frontend/package-lock.json
+      - run: npm install -g npm@^11 --no-fund --no-audit
+      - run: npm ci --ignore-scripts --no-fund --no-audit
+      - name: Compare thread-shape regression tests
+        run: node --experimental-strip-types --test tests/compare-pane-thread-shapes.test.ts
+      - name: TypeScript checks
+        run: npm run typecheck
