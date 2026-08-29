@@ -58,7 +58,6 @@ jobs:
       - name: "Validate Playwright evidence contracts"
         shell: bash
         run: |
-          git merge-base --is-ancestor 6563d3d29 HEAD
           python - <<'PY'
           import json
           import struct
