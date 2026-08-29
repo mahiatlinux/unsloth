@@ -40,6 +40,7 @@ jobs:
           tests/python/test_studio_runtime_gate.py
           tests/python/test_windows_studio_update_launcher.py
           tests/python/test_windows_installer_concurrency_guard.py
+          tests/python/test_whisper_source_build_root.py
 
       - name: Run real isolated older-to-newer staging
         run: python .github/scripts/pr9890_updater_e2e.py
