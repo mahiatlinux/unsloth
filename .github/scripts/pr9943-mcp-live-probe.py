@@ -35,6 +35,17 @@ def find_unsloth_bin(home: Path) -> Path:
     raise AssertionError(f"could not find unsloth CLI under {home}")
 
 
+def find_studio_python(home: Path) -> Path:
+    candidates = [
+        home / "unsloth_studio" / "bin" / "python",
+        home / "unsloth_studio" / "Scripts" / "python.exe",
+    ]
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    raise AssertionError(f"could not find managed Studio Python under {home}")
+
+
 def wait_for_health(base_url: str, timeout: float = 180) -> None:
     deadline = time.time() + timeout
     while time.time() < deadline:
@@ -107,6 +118,7 @@ def main() -> int:
                 "BASE_URL": base_url,
                 "STUDIO_OLD_PW": read_bootstrap_password(home, log_path),
                 "STUDIO_NEW_PW": "McpArgumentCi!42",
+                "STUDIO_MCP_PYTHON": str(find_studio_python(home)),
                 "PW_ART_DIR": str(artifact_dir / "playwright"),
                 "STUDIO_PLAYWRIGHT_BROWSER": os.environ.get("STUDIO_BROWSER", "chromium"),
             }
