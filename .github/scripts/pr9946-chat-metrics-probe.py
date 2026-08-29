@@ -739,7 +739,6 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
         await sp.screenshot(artifact_dir / "10-first-thread-active.png")
         if await stop.is_visible():
             await stop.click()
-            await stop.wait_for(state="hidden", timeout=30_000)
         await wait_until(
             tps_unavailable,
             timeout_s=15,
