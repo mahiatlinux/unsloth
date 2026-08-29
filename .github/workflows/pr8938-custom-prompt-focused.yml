@@ -1,0 +1,86 @@
+# Disposable repro workflow. Delete after validation.
+
+name: "PR 8938 Custom Prompt Focused"
+
+on:
+  push:
+    branches:
+      - "pr-8938-custom-prompt-repro-ci-*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repro:
+    name: "Targeted repro"
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.12"
+
+      - name: "Install focused dependencies"
+        shell: bash
+        run: |
+          python -m pip install --disable-pip-version-check datasets==4.3.0 transformers==5.5.0 structlog==26.1.0 pytest==9.1.1 fastapi==0.141.1 pydantic==2.13.4 pyjwt==2.13.0 ruff==0.15.18
+
+      - name: "Run prompt template and caller regressions"
+        shell: bash
+        run: |
+          python -m pytest -q studio/backend/tests/test_dataset_custom_prompt_template.py studio/backend/tests/test_training_streaming.py::test_chat_template_mapping_omits_eager_kwargs_for_streaming studio/backend/tests/test_training_streaming.py::test_format_conversion_omits_eager_kwargs_for_streaming studio/backend/tests/test_training_raw_support.py::TestTrainingRawSupport::test_format_dataset_supports_raw_text studio/backend/tests/test_training_raw_support.py::TestTrainingRawSupport::test_format_and_template_dataset_supports_raw_text_without_template
+
+      - name: "Run real tokenizer preprocessing"
+        shell: bash
+        run: |
+          python - <<'PY'
+          import sys
+          import warnings
+          from datasets import Dataset
+          from transformers import AutoTokenizer, DataCollatorForLanguageModeling
+          sys.path.insert(0, 'studio/backend')
+          from utils.datasets import apply_chat_template_to_dataset, format_and_template_dataset
+          tokenizer = AutoTokenizer.from_pretrained('unsloth/SmolLM-135M-Instruct')
+          dataset = Dataset.from_dict({
+              'instruction': ['Explain {x}.\nUse Māori: kia ora.', '第二个问题', 'third'],
+              'input': ['context', '', 'literal {output:>10}'],
+              'output': ['answer {x}', '多行\n答案', 'done'],
+              'id': [1, 2, 3],
+          })
+          info = {
+              'dataset': dataset,
+              'detected_format': 'alpaca',
+              'final_format': 'alpaca',
+              'chat_column': None,
+              'is_standardized': True,
+              'warnings': [],
+          }
+          direct = apply_chat_template_to_dataset(info, tokenizer, add_eos_token=True, batch_size=2, num_proc=1)
+          assert direct['success'], direct['errors']
+          assert len(direct['dataset']) == 3
+          assert direct['dataset'].column_names == dataset.column_names + ['text']
+          tokenized = direct['dataset'].map(lambda batch: tokenizer(batch['text'], truncation=True, max_length=256), batched=True, batch_size=2)
+          features = [{'input_ids': tokenized[i]['input_ids'], 'attention_mask': tokenized[i]['attention_mask']} for i in range(3)]
+          batch = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False, return_tensors='np')(features)
+          assert batch['input_ids'].shape[0] == 3
+          assert batch['labels'].shape == batch['input_ids'].shape
+          high = format_and_template_dataset(dataset.remove_columns('input'), 'SmolLMForCausalLM', tokenizer, batch_size=2, num_proc=1)
+          assert high['success'], high['errors']
+          assert len(high['dataset']) == 3
+          with warnings.catch_warnings(record=True) as caught:
+              warnings.simplefilter('always')
+              rejected = format_and_template_dataset(dataset, 'SmolLMForCausalLM', tokenizer, custom_prompt_template='{instruction}\n{input}\n{output}')
+          assert not rejected['success']
+          assert any(item.category is DeprecationWarning for item in caught)
+          print('PASS real-tokenizer rows=3 shape=' + str(batch['input_ids'].shape))
+          PY
+
+      - name: "Lint changed files"
+        shell: bash
+        run: |
+          ruff check studio/backend/utils/datasets/chat_templates.py studio/backend/utils/datasets/dataset_utils.py studio/backend/tests/test_dataset_custom_prompt_template.py
