@@ -134,6 +134,22 @@ def test_local_higgs_companion_metadata_drives_security_and_download_plans(
     assert [entry["repo_id"] for entry in plan["entries"]] == [codec]
 
 
+def test_oversized_higgs_companion_metadata_fails_closed(tmp_path):
+    (tmp_path / "config.json").write_text(
+        json.dumps({"model_type": "higgs_audio_v2"}), encoding = "utf-8"
+    )
+    metadata = {
+        "audio_tokenizer": {"audio_tokenizer_name_or_path": "acme/unapproved-codec"},
+        "padding": "x" * 1_000_000,
+    }
+    (tmp_path / "processor_config.json").write_text(json.dumps(metadata), encoding = "utf-8")
+
+    with pytest.raises(ValueError, match = "security inspection limit"):
+        native_audio_security_targets(str(tmp_path), "higgs_tts2")
+    with pytest.raises(ValueError, match = "security inspection limit"):
+        native_audio_download_plan(str(tmp_path))
+
+
 def test_minimax_download_plan_excludes_unreferenced_legacy_weights(monkeypatch):
     siblings = [
         SimpleNamespace(rfilename = "modular_model_index.json", size = 10),
@@ -561,6 +577,76 @@ def test_minimax_loader_resolves_components_from_the_selected_checkpoint(monkeyp
     assert seen["components"]["pretrained_model_name_or_path"] == "/models/minimax-custom"
     assert seen["device"] == "cuda"
     assert entry["pipeline"] is pipeline
+
+
+def test_higgs_tts3_loader_uses_the_approved_codec_target_and_token(monkeypatch):
+    seen = {}
+
+    class Parameter:
+        frozen = False
+
+        def requires_grad_(self, value):
+            self.frozen = not value
+
+    class Codec:
+        parameter = Parameter()
+
+        def to(self, device):
+            seen["codec_device"] = device
+            return self
+
+        def eval(self):
+            seen["codec_eval"] = True
+            return self
+
+        def parameters(self):
+            return [self.parameter]
+
+    codec = Codec()
+
+    class Model:
+        config = SimpleNamespace(sample_rate = 24000)
+
+        def to(self, device):
+            seen["model_device"] = device
+            return self
+
+        def eval(self):
+            return self
+
+        def get_audio_codec(self):
+            raise AssertionError("the zero-argument publisher loader drops the token")
+
+    def load_codec(source, **kwargs):
+        seen["codec_load"] = (source, kwargs)
+        return codec
+
+    monkeypatch.setattr(
+        "core.inference.native_audio._higgs_tts3_codec_target",
+        lambda *_args: "acme/private-higgs3-codec",
+    )
+    monkeypatch.setitem(
+        sys.modules,
+        "transformers",
+        SimpleNamespace(
+            AutoModel = SimpleNamespace(from_pretrained = load_codec),
+            AutoModelForCausalLM = SimpleNamespace(from_pretrained = lambda *_args, **_kwargs: Model()),
+            AutoTokenizer = SimpleNamespace(from_pretrained = lambda *_args, **_kwargs: object()),
+        ),
+    )
+    backend = NativeAudioBackend.__new__(NativeAudioBackend)
+    backend.device = "cuda"
+    backend._dtype = lambda: torch.bfloat16
+    backend._token_kwargs = lambda _token: {"token": "secret"}
+
+    entry = {}
+    backend._load_higgs_tts3(entry, "/models/higgs3", "secret", True)
+    source, kwargs = seen["codec_load"]
+    assert source == "acme/private-higgs3-codec"
+    assert kwargs["token"] == "secret" and kwargs["trust_remote_code"] is True
+    assert kwargs["dtype"] is torch.float32
+    assert entry["model"]._audio_codec is codec
+    assert codec.parameter.frozen and seen["codec_device"] == "cuda" and seen["codec_eval"]
 
 
 def test_minimax_requires_a_separate_description():
