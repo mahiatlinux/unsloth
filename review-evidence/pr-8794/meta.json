@@ -1,0 +1,55 @@
+{
+  "pr": 8794,
+  "head_ref": "6563d3d29",
+  "base_sha": "8af9fb4d5b3d3bb372167c6dc7beed313c2409d0",
+  "head_sha": "6563d3d29ca93a6c3a2b6c262f1703dea3bc60f7",
+  "scene": "native_audio_controls",
+  "expect": "Using the original PR head as BEFORE and the reviewed head as AFTER: MiniMax changes from a 2048-token control and payload to a 30-second control and 750-frame payload; Higgs TTS 2 gains Scene description and sends it as audio_instructions; the reviewed controls expose real accessible labels and a delayed TTS selection cannot load after switching to Transcribe. Both sides must render generated WAV output and a backend error through actual Playwright interactions against their separately built Studio bundles.",
+  "facts": {
+    "BEFORE": {
+      "minimax_lyrics_label_count": 0,
+      "minimax_description_label_count": 0,
+      "minimax_disabled_without_description": true,
+      "minimax_control": "tokens",
+      "minimax_control_value": "2048",
+      "minimax_control_min": null,
+      "minimax_control_max": null,
+      "minimax_payload_max_tokens": 2048,
+      "minimax_payload_instructions": "Acoustic pop, 96 BPM, warm lead vocal",
+      "minimax_audio_players": 1,
+      "minimax_frame_aligned_payload": null,
+      "minimax_error_visible": true,
+      "higgs_scene_field_count": 0,
+      "higgs_payload_instructions": null,
+      "higgs_audio_players": 1,
+      "delayed_tts_loads_after_transcribe": 1,
+      "transcribe_mode_visible": 1
+    },
+    "AFTER": {
+      "minimax_lyrics_label_count": 1,
+      "minimax_description_label_count": 1,
+      "minimax_disabled_without_description": true,
+      "minimax_control": "duration",
+      "minimax_control_value": "30",
+      "minimax_control_min": null,
+      "minimax_control_max": null,
+      "minimax_payload_max_tokens": 750,
+      "minimax_payload_instructions": "Acoustic pop, 96 BPM, warm lead vocal",
+      "minimax_audio_players": 1,
+      "minimax_frame_aligned_payload": 29,
+      "minimax_error_visible": true,
+      "higgs_scene_field_count": 1,
+      "higgs_payload_instructions": "Close-mic studio recording in a quiet room",
+      "higgs_audio_players": 1,
+      "delayed_tts_loads_after_transcribe": 0,
+      "transcribe_mode_visible": 1
+    }
+  },
+  "studio_env": {},
+  "pairs": [
+    "/home/masher/unsloth-review/pr_ui/outputs/ui_diff_8794_review/combined/pr8794_pair_00.png",
+    "/home/masher/unsloth-review/pr_ui/outputs/ui_diff_8794_review/combined/pr8794_pair_01.png",
+    "/home/masher/unsloth-review/pr_ui/outputs/ui_diff_8794_review/combined/pr8794_pair_02.png",
+    "/home/masher/unsloth-review/pr_ui/outputs/ui_diff_8794_review/combined/pr8794_pair_03.png"
+  ]
+}
