@@ -429,7 +429,8 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
         if "X-Unsloth-Monitor-Id" in health.headers:
             fail("non-chat health response exposed a monitor id")
     (artifact_dir / "local-chat-response.json").write_text(json.dumps(body, indent=2), encoding="utf-8")
-    content = (((body.get("choices") or [{}])[0].get("message") or {}).get("content") or "").strip()
+    message = (body.get("choices") or [{}])[0].get("message") or {}
+    content = (message.get("content") or message.get("reasoning_content") or "").strip()
     if not content:
         fail("local-chat API returned no assistant content")
     pass_log("direct real-model chat returned content and an isolated monitor header")
