@@ -6,7 +6,7 @@ name: PR 9975 custom GGUF focused CI
 on:
   push:
     branches:
-      - pr-9975-custom-gguf-focused-ci
+      - pr-9975-custom-gguf-final-focused-ci
 
 permissions:
   contents: read
