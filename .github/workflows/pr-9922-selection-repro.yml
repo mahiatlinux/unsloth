@@ -1,0 +1,66 @@
+name: PR 9922 selection repro
+
+on:
+  push:
+    branches:
+      - pr-9922-selection-repro-ci-*
+
+permissions:
+  contents: read
+
+jobs:
+  selection:
+    name: ${{ matrix.target.label }} selection lifecycle
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - label: base
+            repository: unslothai/unsloth
+            ref: 5be8f37dcf3f9295710f5b37051c7c1eacf915f0
+            negative: true
+          - label: pr-head
+            repository: Sneakr/unsloth
+            ref: c73e1182f67a48263bb979e2674973fbd47e2756
+            negative: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: harness
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: ${{ matrix.target.repository }}
+          ref: ${{ matrix.target.ref }}
+          path: target
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+      - name: Audit lockfile
+        working-directory: target
+        run: python scripts/lockfile_supply_chain_audit.py
+      - name: Install frontend dependencies
+        working-directory: target/studio/frontend
+        run: npm ci --ignore-scripts --no-fund --no-audit
+      - name: Run focused negative control
+        if: matrix.target.negative
+        working-directory: target/studio/frontend
+        run: |
+          cp ../../../harness/.github/scripts/pr9922-selection-repro.test.ts tests/pr9922-selection-repro.test.ts
+          if node --experimental-strip-types --test tests/pr9922-selection-repro.test.ts; then
+            echo "base unexpectedly kept the selection"
+            exit 1
+          fi
+          echo "base reproduced the disappearing selection"
+      - name: Run focused regression proof
+        if: ${{ !matrix.target.negative }}
+        working-directory: target/studio/frontend
+        run: |
+          cp ../../../harness/.github/scripts/pr9922-selection-repro.test.ts tests/pr9922-selection-repro.test.ts
+          node --experimental-strip-types --test tests/pr9922-selection-repro.test.ts
