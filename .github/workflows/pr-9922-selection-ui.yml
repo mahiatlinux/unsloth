@@ -20,13 +20,9 @@ jobs:
       fail-fast: false
       matrix:
         target:
-          - label: before
-            repository: unslothai/unsloth
-            ref: 5be8f37dcf3f9295710f5b37051c7c1eacf915f0
-            expect_attached: "false"
           - label: after
             repository: mahiatlinux/unsloth
-            ref: 16bafc338f3ed6404418c873c4684e769ce323ff
+            ref: b7a8ae7efcac56fdb1ae42f756c91dc91c1d748d
             expect_attached: "true"
     env:
       UNSLOTH_STUDIO_HOME: ${{ github.workspace }}/.studio-live/${{ matrix.target.label }}/home
