@@ -32,11 +32,15 @@ jobs:
 
       - name: "Run planner simulations"
         shell: pwsh
+        env:
+          UNSLOTH_STUDIO_CHILD_RECORD: ${{ runner.temp }}/planner-child-records
         run: |
           python -m pytest -q studio/backend/tests/test_offload_cost_model.py studio/backend/tests/test_offload_planner.py studio/backend/tests/test_offload_planner_seam.py
 
       - name: "Run hardware path simulations"
         shell: pwsh
+        env:
+          UNSLOTH_STUDIO_CHILD_RECORD: ${{ runner.temp }}/hardware-child-records
         run: |
           python -m pytest -q studio/backend/tests/test_llama_cpp_windows_nvidia_path.py studio/backend/tests/test_amd_apu_unified_memory.py studio/backend/tests/test_llama_cpp_vulkan_probe.py studio/backend/tests/test_metal_explicit_context_guard.py studio/backend/tests/test_metal_never_starts_at_native_context.py
 
@@ -56,6 +60,7 @@ jobs:
             "test_the_windows_rocm_cap_is_what_pushes_a_load_into_the_fallback"
           )
           foreach ($test in $tests) {
+            $env:UNSLOTH_STUDIO_CHILD_RECORD = Join-Path $env:RUNNER_TEMP $test
             python -m pytest -q "studio/backend/tests/test_auto_offload_ctx_platform_matrix.py::$test"
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
