@@ -90,10 +90,19 @@ jobs:
           bash .github/scripts/boot-studio-api-only.sh --port "$STUDIO_PORT" --log "$STUDIO_LOG"
           bash .github/scripts/wait-for-health.sh --port "$STUDIO_PORT"
           PASSWORD=$(cat ~/.unsloth/studio/auth/.bootstrap_password)
+          NEW_PASSWORD="CIMedia-$(python -c 'import secrets; print(secrets.token_urlsafe(12))')"
           echo "::add-mask::$PASSWORD"
+          echo "::add-mask::$NEW_PASSWORD"
           TOKEN=$(curl -fs -X POST "http://127.0.0.1:${STUDIO_PORT}/api/auth/login" \
             -H 'content-type: application/json' \
             -d "{\"username\":\"unsloth\",\"password\":\"$PASSWORD\"}" | jq -r .access_token)
+          curl -fs -X POST "http://127.0.0.1:${STUDIO_PORT}/api/auth/change-password" \
+            -H "Authorization: Bearer $TOKEN" \
+            -H 'content-type: application/json' \
+            -d "{\"current_password\":\"$PASSWORD\",\"new_password\":\"$NEW_PASSWORD\"}" > /dev/null
+          TOKEN=$(curl -fs -X POST "http://127.0.0.1:${STUDIO_PORT}/api/auth/login" \
+            -H 'content-type: application/json' \
+            -d "{\"username\":\"unsloth\",\"password\":\"$NEW_PASSWORD\"}" | jq -r .access_token)
           echo "::add-mask::$TOKEN"
           echo "API_KEY=$TOKEN" >> "$GITHUB_ENV"
           curl -fs -X POST "http://127.0.0.1:${STUDIO_PORT}/api/inference/load" \
