@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright 2026-present the Unsloth AI Inc. team. All rights reserved.
+
+name: PR 9975 custom GGUF focused CI
+
+on:
+  push:
+    branches:
+      - pr-9975-custom-gguf-focused-ci
+
+permissions:
+  contents: read
+
+jobs:
+  discovery:
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+        python: ['3.9', '3.13']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825a76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install focused dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install \
+            pytest filelock httpx pillow pyjwt pyyaml python-multipart 'structlog>=24.1.0' \
+            'pydantic==2.13.4' \
+            'fastapi==0.141.1; python_version >= "3.10"' \
+            'fastapi==0.128.8; python_version < "3.10"' \
+            'huggingface-hub>=1.23.0,<2.0; python_version >= "3.10"' \
+            'huggingface-hub==0.36.2; python_version < "3.10"'
+
+      - name: Run custom GGUF discovery tests
+        shell: bash
+        working-directory: studio/backend
+        run: python -m pytest hub/tests/test_custom_gguf_discovery.py hub/tests/test_model_services.py -q
+
+      - name: Run real Windows junction probe
+        if: runner.os == 'Windows'
+        shell: bash
+        working-directory: studio/backend
+        run: python ../../.github/scripts/pr9975_windows_junction_probe.py
