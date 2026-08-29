@@ -279,7 +279,7 @@ async def wait_until(check, *, timeout_s: float = 30, interval_s: float = 0.2, m
 
 
 def run_id_from_events_url(url: str) -> str | None:
-    match = re.search(r"/api/chat/generations/([^/?]+)/events", url)
+    match = re.search(r"/api/inference/chat-runs/([^/?]+)/events", url)
     return match.group(1) if match else None
 
 
@@ -452,7 +452,7 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
 
         async def capture_response(response):
             url = response.url
-            if "/api/chat/generations/" in url and "/events" in url:
+            if "/api/inference/chat-runs/" in url and "/events" in url:
                 headers = await response.all_headers()
                 event_responses.append(
                     {
@@ -729,7 +729,7 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
         failed_run_id = failed_monitor["run_id"]
 
         async def failed_snapshot():
-            result = await browser_request(page, f"/api/chat/generations/{failed_run_id}")
+            result = await browser_request(page, f"/api/inference/chat-runs/{failed_run_id}")
             if result["status"] == 200 and result["body"].get("status") in {"failed", "cancelled"}:
                 return result["body"]
             return None
@@ -748,7 +748,7 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
 
         events_replay = await browser_request(
             page,
-            f"/api/chat/generations/{first_monitor['run_id']}/events?after=0",
+            f"/api/inference/chat-runs/{first_monitor['run_id']}/events?after=0",
             method="POST",
         )
         if events_replay["status"] != 200 or "event: chunk" not in events_replay["text"]:
@@ -762,7 +762,7 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
         )
         no_auth_events = await browser_request(
             page,
-            f"/api/chat/generations/{first_monitor['run_id']}/events?after=0",
+            f"/api/inference/chat-runs/{first_monitor['run_id']}/events?after=0",
             method="POST",
             authorize=False,
         )
