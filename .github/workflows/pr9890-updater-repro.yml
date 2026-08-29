@@ -39,6 +39,7 @@ jobs:
           unsloth_cli/tests/test_studio_update_stage.py
           tests/python/test_studio_runtime_gate.py
           tests/python/test_windows_studio_update_launcher.py
+          tests/python/test_windows_installer_concurrency_guard.py
 
       - name: Run real isolated older-to-newer staging
         run: python .github/scripts/pr9890_updater_e2e.py
@@ -76,7 +77,7 @@ jobs:
           cargo test --manifest-path studio/src-tauri/Cargo.toml staged_update::tests
           cargo test --manifest-path studio/src-tauri/Cargo.toml desktop_backend_owner::tests
           cargo test --manifest-path studio/src-tauri/Cargo.toml update::tests
-          cargo test --manifest-path studio/src-tauri/Cargo.toml pending_activation_requires_a_ready_backend_at_or_above_the_required_version
+          cargo test --manifest-path studio/src-tauri/Cargo.toml pending_activation_
 
   updater-frontend:
     name: updater frontend
