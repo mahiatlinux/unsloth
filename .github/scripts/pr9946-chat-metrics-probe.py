@@ -771,7 +771,7 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
         long_index = len(event_responses)
         await send_prompt(sp, long_prompt)
         await wait_for_monitor(long_index)
-        await wait_for_stream(sp, timeout_ms=240_000)
+        await stop.wait_for(state="hidden", timeout=240_000)
         long_total = await assert_sidebar_matches_saved(concurrent_thread)
         if long_total < 1000:
             fail(f"long-context saved usage was unexpectedly small: {long_total}")
