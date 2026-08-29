@@ -510,6 +510,19 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
                 message="durable event response never exposed its monitor id",
             )
 
+        async def wait_for_run_response(after: int, *, timeout_s: float = 30):
+            async def find_run():
+                for item in reversed(event_responses[after:]):
+                    if item["run_id"]:
+                        return item
+                return None
+
+            return await wait_until(
+                find_run,
+                timeout_s=timeout_s,
+                message="durable event response was never observed",
+            )
+
         async def wait_for_live_monitor(monitor_id: str, *, timeout_s: float = 60):
             async def matches_exact_poll():
                 label = await tps.get_attribute("aria-label") or ""
@@ -585,7 +598,7 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
             timeout_s=30,
             message="normal generation did not persist a thread id",
         )
-        first_monitor = await wait_for_monitor(first_event_index)
+        first_event = await wait_for_run_response(first_event_index)
         await wait_until(tps_unavailable, timeout_s=15, message="completed generation retained TPS")
         first_total = await assert_sidebar_matches_saved(first_thread)
         await sp.screenshot(artifact_dir / "02-completed-sidebar.png")
@@ -725,8 +738,8 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
         failed_index = len(event_responses)
         overflow_prompt = ("overflow " * 7000) + " Reply with exactly: should-not-run"
         await send_prompt(sp, overflow_prompt)
-        failed_monitor = await wait_for_monitor(failed_index)
-        failed_run_id = failed_monitor["run_id"]
+        failed_event = await wait_for_run_response(failed_index)
+        failed_run_id = failed_event["run_id"]
 
         async def failed_snapshot():
             result = await browser_request(page, f"/api/inference/chat-runs/{failed_run_id}")
@@ -748,7 +761,7 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
 
         events_replay = await browser_request(
             page,
-            f"/api/inference/chat-runs/{first_monitor['run_id']}/events?after=0",
+            f"/api/inference/chat-runs/{first_event['run_id']}/events?after=0",
             method="POST",
         )
         if events_replay["status"] != 200 or "event: chunk" not in events_replay["text"]:
@@ -757,12 +770,12 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
             fail("monitor response header leaked into the SSE body")
         no_auth_monitor = await browser_request(
             page,
-            f"/api/inference/monitor/{first_monitor['monitor_id']}",
+            f"/api/inference/monitor/{active_id}",
             authorize=False,
         )
         no_auth_events = await browser_request(
             page,
-            f"/api/inference/chat-runs/{first_monitor['run_id']}/events?after=0",
+            f"/api/inference/chat-runs/{first_event['run_id']}/events?after=0",
             method="POST",
             authorize=False,
         )
