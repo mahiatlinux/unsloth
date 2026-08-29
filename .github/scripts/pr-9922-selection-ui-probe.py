@@ -91,7 +91,9 @@ def encoded_id(source: str, model_format: str, repo_id: str) -> str:
     return f"{source}:{model_format}:{urllib.parse.quote(repo_id, safe='')}"
 
 
-def local_row(repo_id: str, raw_id: bool = False) -> dict:
+def local_row(
+    repo_id: str, raw_id: bool = False, partial_transport: str | None = "http"
+) -> dict:
     row = {
         "id": repo_id,
         "load_id": repo_id,
@@ -103,8 +105,8 @@ def local_row(repo_id: str, raw_id: bool = False) -> dict:
         "runtime": "unknown",
         "size_bytes": 50,
         "partial": True,
-        "partial_transport": "http",
-        "partial_resumable": True,
+        "partial_transport": partial_transport,
+        "partial_resumable": partial_transport is not None,
     }
     if not raw_id:
         row["inventory_id"] = encoded_id("hf_cache", "unknown", repo_id)
@@ -248,11 +250,27 @@ async def assert_one_selected_row(page, leaf: str) -> None:
         raise AssertionError(f"{leaf} row is not selected")
 
 
+async def assert_selected_row_count(page, leaf: str, expected_rows: int) -> None:
+    rows = page.get_by_role("button", name=leaf, exact=True)
+    if await rows.count() != expected_rows:
+        raise AssertionError(f"expected {expected_rows} {leaf} rows, got {await rows.count()}")
+    selected = 0
+    for index in range(expected_rows):
+        selection = await rows.nth(index).locator("xpath=..").get_attribute(
+            "data-selected"
+        )
+        if selection is not None:
+            selected += 1
+    if selected != 1:
+        raise AssertionError(f"expected one selected {leaf} row, got {selected}")
+
+
 async def drive(base_url: str, init_script: str) -> dict:
     state = {
         "phase": "local",
         "repo": "unsloth/Selection-Lifecycle-Model",
         "raw_id": False,
+        "partial_transport": "http",
         "server_state": "running",
         "inventory_requests": 0,
         "start_requests": 0,
@@ -271,7 +289,17 @@ async def drive(base_url: str, init_script: str) -> dict:
             return
         if path == "/api/hub/local":
             state["inventory_requests"] += 1
-            models = [] if phase == "cached_partial" else [local_row(repo_id, state["raw_id"])]
+            models = (
+                []
+                if phase == "cached_partial"
+                else [
+                    local_row(
+                        repo_id,
+                        state["raw_id"],
+                        state["partial_transport"],
+                    )
+                ]
+            )
             await route.fulfill(
                 json={"models_dir": "/tmp/models", "hf_cache_dir": "/tmp/hf", "lmstudio_dirs": [], "models": models}
             )
@@ -506,7 +534,33 @@ async def drive(base_url: str, init_script: str) -> dict:
             raise AssertionError("hybrid live rows collapsed after selecting the model format")
         await wait_url_model(page, model_live_id)
 
-        state.update(phase="local", repo="unsloth/Selection-Safetensors-Model", raw_id=False, server_state="running")
+        state.update(
+            phase="local",
+            repo="unsloth/Hybrid-Unrelated-Partial",
+            raw_id=False,
+            partial_transport=None,
+            server_state="running",
+        )
+        unrelated_repo = state["repo"]
+        unrelated_leaf = unrelated_repo.split("/", 1)[1]
+        unrelated_local_id = encoded_id("hf_cache", "unknown", unrelated_repo)
+        await set_download_store(page, None)
+        await page.goto(f"{base_url}/hub?tab=downloaded", wait_until="domcontentloaded")
+        await page.get_by_role("button", name=unrelated_leaf, exact=True).click()
+        await wait_url_model(page, unrelated_local_id)
+        await set_download_store(page, persisted_running_job(unrelated_repo))
+        await page.reload(wait_until="domcontentloaded")
+        await wait_selected(page, unrelated_leaf)
+        await assert_selected_row_count(page, unrelated_leaf, 2)
+        await wait_url_model(page, unrelated_local_id)
+
+        state.update(
+            phase="local",
+            repo="unsloth/Selection-Safetensors-Model",
+            raw_id=False,
+            partial_transport="http",
+            server_state="running",
+        )
         safetensors_repo = state["repo"]
         safetensors_leaf = safetensors_repo.split("/", 1)[1]
         await set_download_store(page, None)
@@ -577,6 +631,7 @@ async def drive(base_url: str, init_script: str) -> dict:
                 "malformed_id_rejected": True,
                 "ambiguous_unknown_rejected": True,
                 "hybrid_live_format_rows": 2,
+                "hybrid_unrelated_partial_retained": True,
                 "filtered_selection_retained": True,
                 "ui_resume_start_requests": state["start_requests"],
                 "cancel_requests": state["cancel_requests"],
