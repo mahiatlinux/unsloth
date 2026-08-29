@@ -66,6 +66,7 @@ import {
   INVENTORY_FRESHNESS_WINDOW_MS,
   useDeviceInventorySources,
 } from "@/features/hub/inventory";
+import { modelIdsMatch } from "@/features/hub/lib/model-identity";
 import { DeleteChatFilesSwitch } from "./components/delete-chat-files-switch";
 import { chatLocalModelOptions } from "./local-model-options";
 import {
@@ -218,7 +219,12 @@ import { useChatPreferencesStore } from "./stores/chat-preferences-store";
 import { useResearchRunStore } from "./stores/research-run-store";
 import { useExternalProvidersStore } from "./stores/external-providers-store";
 import { buildChatTourSteps } from "./tour";
-import type { ChatView, MessageRecord } from "./types";
+import type { ChatView, MessageRecord, ThreadRecord } from "./types";
+import {
+  type CompareVariant,
+  compareVariantForPair,
+  resolveComparePaneThreadIds,
+} from "./utils/compare-pane-threads";
 import { clearNewChatDraft } from "./utils/composer-draft";
 import { isChatThreadDeleted } from "./utils/chat-thread-tombstones";
 import {
@@ -543,12 +549,76 @@ function modelMatchesDeleted(
  * True when the loaded checkpoint is a LoRA, meaning a base-vs-fine-tuned
  * compare that uses the fast simultaneous adapter-toggle path.
  */
-function useIsLoraCompare(): boolean {
+function useIsLoraCompare(): boolean | null {
   return useChatRuntimeStore((s) => {
     const cp = s.params.checkpoint;
-    const selected = cp ? s.loras.find((l) => l.id === cp) : undefined;
-    return selected?.exportType === "lora";
+    if (isExternalModelId(cp)) return false;
+    if (s.residentCheckpoint === undefined && !s.loraInventorySettled) {
+      return null;
+    }
+    if (!cp) return false;
+    const activeModel = s.models.find((model) => modelIdsMatch(model.id, cp));
+    if (activeModel?.isLora) return true;
+    if (
+      s.loras.find((lora) => modelIdsMatch(lora.id, cp))?.exportType === "lora"
+    ) {
+      return true;
+    }
+    return s.loraInventorySettled ? false : null;
   });
+}
+
+/** `null` while the pair is still being read, so neither component hydrates first. */
+function useCompareVariant(pairId: string): CompareVariant | null {
+  const checkpointIsLora = useIsLoraCompare();
+  const [stored, setStored] = useState<{
+    pairId: string;
+    variant: CompareVariant;
+  }>();
+  const [storageRetry, setStorageRetry] = useState<{
+    pairId: string;
+    count: number;
+  }>();
+  const retryCount = storageRetry?.pairId === pairId ? storageRetry.count : 0;
+
+  useEffect(() => {
+    if (stored?.pairId === pairId) return;
+    let isActive = true;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    const settle = (threads: ThreadRecord[]) => {
+      if (!isActive) return;
+      const variant = compareVariantForPair(threads, checkpointIsLora);
+      if (variant === null) return;
+      setStored((previous) => {
+        if (previous?.pairId === pairId) return previous;
+        return {
+          pairId,
+          variant,
+        };
+      });
+    };
+    listStoredChatThreads({ pairId })
+      .then(settle)
+      .catch((error) => {
+        if (!isActive || isExpectedBackgroundChatStorageError(error)) return;
+        if (retryCount === 0) {
+          retryTimer = setTimeout(() => {
+            if (isActive) setStorageRetry({ pairId, count: 1 });
+          }, 250);
+          return;
+        }
+        toast.error("Could not load comparison history", {
+          description: error instanceof Error ? error.message : "Storage failed",
+        });
+      });
+    return () => {
+      isActive = false;
+      if (retryTimer !== null) clearTimeout(retryTimer);
+    };
+  }, [pairId, checkpointIsLora, retryCount, stored?.pairId]);
+
+  if (stored?.pairId !== pairId) return null;
+  return stored.variant;
 }
 
 const CompareContent = memo(function CompareContent({
@@ -574,9 +644,11 @@ const CompareContent = memo(function CompareContent({
   deleteDisabled?: boolean;
   onExitCompare?: () => void;
 }): ReactElement {
-  const isLoraCompare = useIsLoraCompare();
+  const compareVariant = useCompareVariant(pairId);
 
-  return isLoraCompare ? (
+  if (compareVariant === null) return <></>;
+
+  return compareVariant === "lora" ? (
     <LoraCompareContent
       pairId={pairId}
       onExitCompare={onExitCompare}
@@ -739,9 +811,12 @@ const LoraCompareContent = memo(function LoraCompareContent({
   const handlesRef = useRef<Record<string, CompareHandle>>({});
   const [baseThreadId, setBaseThreadId] = useState<string>();
   const [loraThreadId, setLoraThreadId] = useState<string>();
+  const [pairLoraModelId, setPairLoraModelId] = useState<string>();
   const [threadsSettled, setThreadsSettled] = useState(false);
   const markInitialHistoryReady = useCompareReloadReadiness(pairId);
   const active = useChatActive();
+  const checkpoint = useChatRuntimeStore((s) => s.params.checkpoint);
+  const checkpointIsLora = useIsLoraCompare();
 
   // Global on purpose: a first compare run starts before either thread exists, so there is
   // no pair id to scope BY -- it files its handles under "__default" until initialize()
@@ -749,7 +824,7 @@ const LoraCompareContent = memo(function LoraCompareContent({
   // `initialThreadId`, so learning them mid-run points ThreadAutoSwitch at a thread that is
   // still generating.
   const anyRunning = useChatRuntimeStore(
-    (s) => Object.keys(s.runningByThreadId).length > 0,
+    (s) => Object.keys(s.localRunByThreadId).length > 0,
   );
   // ...but only RE-lists wait. The shared provider (#8908) keeps a base chat's run alive
   // across the switch into compare, so `anyRunning` is true on arrival for a reason that has
@@ -765,8 +840,16 @@ const LoraCompareContent = memo(function LoraCompareContent({
     listStoredChatThreads({ pairId })
       .then((threads) => {
         if (!isActive) return;
-        setBaseThreadId(threads.find((t) => t.modelType === "base")?.id);
-        setLoraThreadId(threads.find((t) => t.modelType === "lora")?.id);
+        // No model1/model2 fallback: useCompareVariant never routes a generalized
+        // pair here, so adopting one could only mislabel it and write adapter
+        // answers into its histories.
+        const baseThread = threads.find((t) => t.modelType === "base");
+        const loraThread = threads.find((t) => t.modelType === "lora");
+        setBaseThreadId(baseThread?.id);
+        setLoraThreadId(loraThread?.id);
+        setPairLoraModelId(
+          loraThread?.modelId?.trim() || baseThread?.modelId?.trim() || undefined,
+        );
       })
       .catch((error) => {
         if (!isExpectedBackgroundChatStorageError(error)) {
@@ -792,6 +875,16 @@ const LoraCompareContent = memo(function LoraCompareContent({
     threadsSettled,
   ]);
 
+  const sendUnavailableReason = !threadsSettled
+    ? "Loading comparison history."
+    : checkpointIsLora === null
+      ? "Checking the loaded model."
+      : !checkpointIsLora ||
+          (pairLoraModelId !== undefined &&
+            !modelIdsMatch(pairLoraModelId, checkpoint))
+        ? "Load the LoRA saved with this comparison before sending."
+        : undefined;
+
   return (
     <CompareShell
       handlesRef={handlesRef}
@@ -802,6 +895,8 @@ const LoraCompareContent = memo(function LoraCompareContent({
             onExitCompare={onExitCompare}
             model1ThreadId={baseThreadId}
             model2ThreadId={loraThreadId}
+            sendUnavailableReason={sendUnavailableReason}
+            requireStableCheckpoint={true}
           />
         ) : (
           <></>
@@ -993,16 +1088,9 @@ const GeneralCompareContent = memo(function GeneralCompareContent({
     listStoredChatThreads({ pairId })
       .then((threads) => {
         if (!isActive) return;
-        setModel1ThreadId(
-          threads.find(
-            (t) => t.modelType === "model1" || t.modelType === "base",
-          )?.id,
-        );
-        setModel2ThreadId(
-          threads.find(
-            (t) => t.modelType === "model2" || t.modelType === "lora",
-          )?.id,
-        );
+        const pair = resolveComparePaneThreadIds(threads);
+        setModel1ThreadId(pair.first);
+        setModel2ThreadId(pair.second);
       })
       .catch((error) => {
         if (!isExpectedBackgroundChatStorageError(error)) {
