@@ -29,7 +29,9 @@ jobs:
           python-version: '3.12'
 
       - name: Install focused Python test dependencies
-        run: python -m pip install pytest typer setuptools pyyaml
+        run: >-
+          python -m pip install pytest setuptools typer rich pydantic pyyaml
+          nest-asyncio structlog click
 
       - name: Run staged updater and runtime gate tests
         run: >-
