@@ -701,6 +701,15 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
             f'[data-testid="recent-thread"][data-thread-id="{first_thread}"]'
         ).first
         await first_row.click(force=True)
+        await page.wait_for_function(
+            "threadId => new URL(location.href).searchParams.get('thread') === threadId",
+            arg=first_thread,
+            timeout=15_000,
+        )
+        pass_log(
+            f"first-thread switch route={page.url} debug="
+            f"{await page.evaluate('window.__pr9946LiveTps')!r}"
+        )
         await wait_for_live_monitor(resume_id, timeout_s=20)
         await sp.screenshot(artifact_dir / "10-first-thread-active.png")
         concurrent_row = page.locator(

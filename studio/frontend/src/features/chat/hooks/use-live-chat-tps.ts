@@ -39,6 +39,25 @@ export function useLiveChatTps(routedThreadId?: string): number | null {
   );
 
   useEffect(() => {
+    const state = useChatRuntimeStore.getState();
+    (window as Window & { __pr9946LiveTps?: unknown }).__pr9946LiveTps = {
+      routedThreadId,
+      activeThreadId,
+      threadKey,
+      entries: Object.fromEntries(
+        Object.entries(state.liveTpsByThreadId).map(([key, entries]) => [
+          key,
+          entries.map((entry) => ({
+            monitorId: entry.monitorId,
+            phase: entry.phase,
+            lastRunningTps: entry.lastRunningTps,
+          })),
+        ]),
+      ),
+    };
+  }, [activeThreadId, lastRunningTps, monitorId, phase, routedThreadId, threadKey]);
+
+  useEffect(() => {
     if (!owner || !monitorId || phase !== "running") return;
 
     const controller = new AbortController();
