@@ -10,10 +10,12 @@ import {
 } from "../src/features/chat/tool-call-arguments.ts";
 import {
   type StreamedToolCallPart,
+  bindStreamedToolCallBackendIds,
   findDelayedStableToolCallPartIndex,
   findOldestUnownedStreamedToolCallPartIndex,
   findStreamedToolCallPartIndex,
   fragmentStartsNewToolCall,
+  isRepeatedJsonSnapshot,
   mergeStreamedToolCallName,
   mintStreamedToolCallId,
   sameJsonDocument,
@@ -105,6 +107,12 @@ function accumulate(
     const exactId = Boolean(
       partId && matchedPart?.toolCallId === partId,
     );
+    if (
+      exactId &&
+      isRepeatedJsonSnapshot(matchedPart?.argsText ?? "", fragment.arguments)
+    ) {
+      fragment = { ...fragment, arguments: "" };
+    }
     const settled = matchedPart
       ? splitTopLevelJsonDocuments(matchedPart.argsText)
       : null;
@@ -504,6 +512,19 @@ test("a delayed id carrying an exact snapshot does not duplicate the call", () =
   );
 });
 
+test("an existing stable id ignores a repeated cumulative snapshot", () => {
+  const parts = accumulate([
+    { id: "call-a", index: 0, name: "alpha", arguments: '{"a":1}' },
+    { id: "call-a", index: 0, name: "alpha", arguments: '{"a":1}' },
+  ]);
+
+  assert.deepEqual(
+    parts.map((part) => [part.toolCallId, part.argsText]),
+    [["call-a", '{"a":1}']],
+  );
+  assert.equal(isRepeatedJsonSnapshot('{"a":', '{"a":'), false);
+});
+
 test("a delayed id adopts a semantically equal JSON snapshot", () => {
   const parts = accumulate([
     { index: 0, name: "alpha", arguments: '{ "a": 1, "nested": {"x": 2} }' },
@@ -525,6 +546,30 @@ test("a delayed id adopts a semantically equal JSON snapshot", () => {
   );
 });
 
+test("JSON snapshot matching does not round unsafe integers", () => {
+  assert.equal(
+    sameJsonDocument(
+      '{"id":9007199254740992}',
+      '{"id":9007199254740993}',
+    ),
+    false,
+  );
+  assert.equal(
+    sameJsonDocument(
+      ' {"id":9007199254740993} ',
+      '{"id":9007199254740993}',
+    ),
+    true,
+  );
+  assert.equal(
+    sameJsonDocument(
+      '{"id":"9007199254740993","ok":true}',
+      '{"ok":true,"id":"9007199254740993"}',
+    ),
+    true,
+  );
+});
+
 test("a stable id collision mints a distinct stream id", () => {
   const parts = accumulate([
     { index: 0, name: "alpha", arguments: '{"a":1}' },
@@ -535,6 +580,17 @@ test("a stable id collision mints a distinct stream id", () => {
     parts.map((part) => part.toolCallId),
     ["tool_call_0", "tool_call_1"],
   );
+
+  const backendIds = new Map([["tool_call_0", "tool_call_0"]]);
+  bindStreamedToolCallBackendIds(
+    backendIds,
+    "tool_call_0",
+    "tool_call_1",
+  );
+  assert.deepEqual([...backendIds], [
+    ["tool_call_0", "tool_call_0"],
+    ["tool_call_1", "tool_call_1"],
+  ]);
 });
 
 test("decoded object arguments preserve their JSON payload", () => {
