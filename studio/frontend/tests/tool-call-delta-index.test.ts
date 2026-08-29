@@ -7,43 +7,102 @@ import test from "node:test";
 import { toolCallReplayArguments } from "../src/features/chat/tool-call-arguments.ts";
 import {
   type StreamedToolCallPart,
+  findOldestUnownedStreamedToolCallPartIndex,
   findStreamedToolCallPartIndex,
+  fragmentStartsNewToolCall,
+  mintStreamedToolCallId,
+  splitTopLevelJsonDocuments,
 } from "../src/features/chat/tool-call-id.ts";
 
 interface DeltaFragment {
   id?: string;
   index?: number;
+  name?: string;
   arguments: string;
 }
 
 /** Accumulate `delta.tool_calls[]` fragments the way the chat adapter does. */
 function accumulate(
   fragments: DeltaFragment[],
-): (StreamedToolCallPart & { argsText: string })[] {
-  const parts: (StreamedToolCallPart & { argsText: string })[] = [];
+): (StreamedToolCallPart & { argsText: string; toolName?: string })[] {
+  const parts: (StreamedToolCallPart & {
+    argsText: string;
+    toolName?: string;
+  })[] = [];
+  const usedIds = new Set<string>();
+  const append = (
+    fragment: DeltaFragment,
+    argsText: string,
+    id = fragment.id,
+  ) => {
+    parts.push({
+      toolCallId:
+        id ?? mintStreamedToolCallId(parts, fragment.index, usedIds),
+      toolName: fragment.name,
+      argsText,
+      ...(id ? { _has_stable_id: true } : {}),
+      ...(fragment.index !== undefined ? { _delta_index: fragment.index } : {}),
+    });
+    usedIds.add(parts[parts.length - 1].toolCallId);
+  };
   for (const fragment of fragments) {
-    const target = findStreamedToolCallPartIndex(
-      parts,
-      fragment.id,
-      fragment.index,
+    const exact = fragment.id
+      ? parts.findIndex((part) => part.toolCallId === fragment.id)
+      : -1;
+    const matched =
+      exact !== -1
+        ? exact
+        : fragment.id && !fragment.name && !fragment.arguments
+          ? findOldestUnownedStreamedToolCallPartIndex(parts, fragment.index)
+          : findStreamedToolCallPartIndex(parts, fragment.id, fragment.index);
+    const matchedPart = matched === -1 ? undefined : parts[matched];
+    const exactId = Boolean(
+      fragment.id && matchedPart?.toolCallId === fragment.id,
     );
+    const settled = matchedPart
+      ? splitTopLevelJsonDocuments(matchedPart.argsText)
+      : null;
+    const target =
+      matched !== -1 &&
+      !exactId &&
+      settled?.complete.length === 1 &&
+      !settled.tail &&
+      Boolean(fragment.name) &&
+      !fragment.arguments
+        ? -1
+        : matched;
+    if (!exactId) {
+      const split = splitTopLevelJsonDocuments(
+        (matchedPart?.argsText ?? "") + fragment.arguments,
+      );
+      const segments = [...split.complete, ...(split.tail ? [split.tail] : [])];
+      if (segments.length > 1) {
+        const firstNewSegment = matchedPart ? 1 : 0;
+        if (matchedPart)
+          parts[matched] = { ...matchedPart, argsText: segments[0] };
+        for (const [segmentIndex, segment] of segments
+          .slice(firstNewSegment)
+          .entries()) {
+          append(
+            fragment,
+            segment,
+            segmentIndex === 0 ? fragment.id : undefined,
+          );
+        }
+        continue;
+      }
+    }
     if (target === -1) {
-      parts.push({
-        toolCallId:
-          fragment.id ?? `tool_call_${fragment.index ?? parts.length}`,
-        argsText: fragment.arguments,
-        ...(fragment.id ? { _has_stable_id: true } : {}),
-        ...(fragment.index !== undefined
-          ? { _delta_index: fragment.index }
-          : {}),
-      });
+      append(fragment, fragment.arguments);
       continue;
     }
     parts[target] = {
       ...parts[target],
       ...(fragment.id ? { toolCallId: fragment.id, _has_stable_id: true } : {}),
+      ...(fragment.name ? { toolName: fragment.name } : {}),
       argsText: parts[target].argsText + fragment.arguments,
     };
+    if (fragment.id) usedIds.add(fragment.id);
   }
   return parts;
 }
@@ -154,11 +213,181 @@ test("replayed arguments keep parsable text and fall back otherwise", () => {
     toolCallReplayArguments('{"query":"first"}{"query":"second"}', {
       _raw: '{"query":"first"}{"query":"second"}',
     }),
-    '{"_raw":"{\\"query\\":\\"first\\"}{\\"query\\":\\"second\\"}"}',
+    "{}",
   );
   assert.equal(
     toolCallReplayArguments("", { query: "first" }),
     '{"query":"first"}',
   );
   assert.equal(toolCallReplayArguments(undefined, undefined), "{}");
+  assert.equal(
+    toolCallReplayArguments(undefined, { _raw: "user supplied" }),
+    '{"_raw":"user supplied"}',
+  );
+});
+
+test("id-less parallel calls renumbered to index 0 stay separate calls", () => {
+  // LiteLLM's proxy can strip ids and renumber every parallel call's index to
+  // 0. Each opening fragment then "continues" the newest slot-0 part and the
+  // argument JSONs concatenate into one malformed string that poisons the
+  // thread on replay (#9807).
+  const parts = accumulate([
+    { index: 0, arguments: '{"url":"https://example.com/1"}' },
+    { index: 0, arguments: '{"url":"https://example.com/2"}' },
+    { index: 0, arguments: '{"query":"example search"}' },
+    { index: 0, arguments: '{"url":"https://example.com/3"}' },
+  ]);
+
+  assert.deepEqual(
+    parts.map((part) => part.argsText),
+    [
+      '{"url":"https://example.com/1"}',
+      '{"url":"https://example.com/2"}',
+      '{"query":"example search"}',
+      '{"url":"https://example.com/3"}',
+    ],
+  );
+  assert.equal(new Set(parts.map((part) => part.toolCallId)).size, 4);
+});
+
+test("an id-less chunked continuation still merges into its own call", () => {
+  const parts = accumulate([
+    { index: 0, arguments: '{"url":' },
+    { index: 0, arguments: '"https://example.com/1"}' },
+    { index: 0, arguments: '{"url":"https://example.com/2"}' },
+  ]);
+
+  assert.deepEqual(
+    parts.map((part) => part.argsText),
+    ['{"url":"https://example.com/1"}', '{"url":"https://example.com/2"}'],
+  );
+});
+
+test("JSON document boundaries survive strings, nesting, whitespace, and Unicode", () => {
+  const documents = [
+    JSON.stringify({ nested: { items: [1, { text: '} ] { " \\\\ 雪' }] } }),
+    "[]",
+    "{}",
+    '[{"emoji":"🦥"}]',
+  ];
+  const split = splitTopLevelJsonDocuments(` \n${documents.join(" \t\r\n")}  `);
+
+  assert.deepEqual(split.complete, documents);
+  assert.equal(split.tail, "");
+});
+
+test("JSON document boundaries keep an incomplete final document as the tail", () => {
+  assert.deepEqual(splitTopLevelJsonDocuments('{"a":1} \n ["open"'), {
+    complete: ['{"a":1}'],
+    tail: '["open"',
+  });
+});
+
+test("JSON document boundaries reject mismatched or non-document text", () => {
+  for (const text of [
+    '{"a":1]',
+    '{"a":1}suffix',
+    '"{\\"a\\":1}"',
+    'true{"a":1}',
+  ]) {
+    assert.deepEqual(splitTopLevelJsonDocuments(text), {
+      complete: [],
+      tail: text,
+    });
+  }
+});
+
+test("new-call detection works when the SSE boundary lands inside either document", () => {
+  const first = '{"path":"C:\\\\tmp","nested":[{"text":"{x}"}]}';
+  const second = '{"query":"雪 🦥"}';
+  for (let firstCut = 1; firstCut <= first.length; firstCut += 1) {
+    const existing = first.slice(0, firstCut);
+    const remainder = first.slice(firstCut) + second;
+    assert.equal(
+      fragmentStartsNewToolCall(existing, remainder),
+      true,
+      `missed boundary after first character ${firstCut}`,
+    );
+  }
+  for (let secondCut = 1; secondCut <= second.length; secondCut += 1) {
+    assert.equal(
+      fragmentStartsNewToolCall(first, second.slice(0, secondCut)),
+      true,
+      `missed partial second document at character ${secondCut}`,
+    );
+  }
+});
+
+test("a document-looking continuation is not split while the first document is open", () => {
+  assert.equal(
+    fragmentStartsNewToolCall('{"text":"prefix', '{\\"nested\\":true}"}'),
+    false,
+  );
+});
+
+test("a name-only opening does not rename the completed call before it", () => {
+  const parts = accumulate([
+    { index: 0, name: "alpha", arguments: '{"a":1}' },
+    { index: 0, name: "beta", arguments: "" },
+    { index: 0, arguments: '{"b":2}' },
+  ]);
+
+  assert.deepEqual(
+    parts.map((part) => [part.toolName, part.argsText]),
+    [
+      ["alpha", '{"a":1}'],
+      ["beta", '{"b":2}'],
+    ],
+  );
+});
+
+test("one fragment can close a call and open the next call", () => {
+  const parts = accumulate([
+    { index: 0, name: "alpha", arguments: '{"a":' },
+    { index: 0, name: "beta", arguments: '1}{"b":2}' },
+  ]);
+
+  assert.deepEqual(
+    parts.map((part) => [part.toolName, part.argsText]),
+    [
+      ["alpha", '{"a":1}'],
+      ["beta", '{"b":2}'],
+    ],
+  );
+});
+
+test("one fresh fragment can contain several complete calls", () => {
+  const parts = accumulate([
+    { index: 0, name: "alpha", arguments: '{"a":1}{"b":2}[]' },
+  ]);
+
+  assert.deepEqual(
+    parts.map((part) => part.argsText),
+    ['{"a":1}', '{"b":2}', "[]"],
+  );
+  assert.equal(new Set(parts.map((part) => part.toolCallId)).size, 3);
+});
+
+test("delayed ids claim same-index calls in announcement order", () => {
+  const parts = accumulate([
+    { index: 0, name: "alpha", arguments: '{"a":1}' },
+    { index: 0, name: "beta", arguments: '{"b":2}' },
+    { id: "call-a", index: 0, arguments: "" },
+    { id: "call-b", index: 0, arguments: "" },
+  ]);
+
+  assert.deepEqual(
+    parts.map((part) => [part.toolCallId, part.toolName, part.argsText]),
+    [
+      ["call-a", "alpha", '{"a":1}'],
+      ["call-b", "beta", '{"b":2}'],
+    ],
+  );
+});
+
+test("minted ids never reuse an adopted or stable id", () => {
+  const reserved = new Set(["tool_call_0", "tool_call_2"]);
+  const parts = [{ toolCallId: "stable" }, { toolCallId: "tool_call_1" }];
+
+  assert.equal(mintStreamedToolCallId(parts, 0, reserved), "tool_call_3");
 });

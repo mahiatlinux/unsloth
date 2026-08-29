@@ -23,6 +23,65 @@ export interface StreamedToolCallPart {
   _has_stable_id?: boolean;
 }
 
+export interface JsonDocumentSplit {
+  complete: string[];
+  tail: string;
+}
+
+/** split a stream slot into complete top-level JSON documents and its open tail. */
+export function splitTopLevelJsonDocuments(text: string): JsonDocumentSplit {
+  const unsplit = { complete: [], tail: text };
+  const complete: string[] = [];
+  const closing: string[] = [];
+  let start = -1;
+  let inString = false;
+  let escaped = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (character === "\\") escaped = true;
+      else if (character === '"') inString = false;
+      continue;
+    }
+    if (closing.length === 0) {
+      if (character === "{" || character === "[") {
+        start = index;
+        closing.push(character === "{" ? "}" : "]");
+        continue;
+      }
+      if (/\s/u.test(character)) continue;
+      return unsplit;
+    }
+    if (character === '"') {
+      inString = true;
+      continue;
+    }
+    if (character === "{" || character === "[") {
+      closing.push(character === "{" ? "}" : "]");
+      continue;
+    }
+    if (character !== "}" && character !== "]") continue;
+    if (closing.pop() !== character) return unsplit;
+    if (closing.length !== 0) continue;
+
+    const document = text.slice(start, index + 1);
+    try {
+      JSON.parse(document);
+    } catch {
+      return unsplit;
+    }
+    complete.push(document);
+    start = -1;
+  }
+
+  return {
+    complete,
+    tail: start === -1 ? "" : text.slice(start),
+  };
+}
+
 /**
  * Newest part holding `deltaIndex`, or -1. `unownedOnly` restricts the match to
  * a slot no provider id has claimed yet.
@@ -40,9 +99,26 @@ function findDeltaIndexSlot(
     if (part._delta_index !== deltaIndex) {
       continue;
     }
-    return unownedOnly && part._has_stable_id ? -1 : i;
+    if (unownedOnly && part._has_stable_id) {
+      continue;
+    }
+    return i;
   }
   return -1;
+}
+
+/** oldest id-less part holding `deltaIndex`, or -1. */
+export function findOldestUnownedStreamedToolCallPartIndex(
+  parts: readonly StreamedToolCallPart[],
+  deltaIndex: number | undefined,
+): number {
+  if (deltaIndex === undefined) {
+    return -1;
+  }
+  return parts.findIndex(
+    (part) =>
+      part._delta_index === deltaIndex && part._has_stable_id !== true,
+  );
 }
 
 /**
@@ -66,4 +142,46 @@ export function findStreamedToolCallPartIndex(
   }
   const byId = parts.findIndex((part) => part.toolCallId === partId);
   return byId === -1 ? findDeltaIndexSlot(parts, deltaIndex, true) : byId;
+}
+
+/**
+ * True when an id-less fragment cannot be a continuation of the arguments a
+ * slot has already accumulated: the accumulated text forms a complete JSON
+ * document and the fragment opens another one.
+ *
+ * Some proxies strip tool-call ids AND renumber every parallel call's index
+ * to 0 (LiteLLM), so slot matching alone lands each call's opening fragment
+ * on the previous call's part and the argument JSONs concatenate into one
+ * malformed string, which then poisons the thread on replay (#9807). A
+ * complete JSON document never continues into another `{`/`[`, so this
+ * boundary is safe for genuinely chunked arguments.
+ */
+export function fragmentStartsNewToolCall(
+  existingArgsText: string | undefined,
+  fragmentArguments: string,
+): boolean {
+  const existing = existingArgsText ?? "";
+  if (!existing.trim() || !fragmentArguments.trim()) return false;
+  const split = splitTopLevelJsonDocuments(existing + fragmentArguments);
+  return (
+    split.complete.length > 1 ||
+    (split.complete.length === 1 && Boolean(split.tail))
+  );
+}
+
+/** a `tool_call_<n>` id no existing part already carries. */
+export function mintStreamedToolCallId(
+  parts: readonly StreamedToolCallPart[],
+  _deltaIndex: number | undefined,
+  reservedIds: Iterable<string> = [],
+): string {
+  const taken = new Set(reservedIds);
+  for (const part of parts) {
+    taken.add(part.toolCallId);
+  }
+  let next = 0;
+  while (taken.has(`tool_call_${next}`)) {
+    next += 1;
+  }
+  return `tool_call_${next}`;
 }
