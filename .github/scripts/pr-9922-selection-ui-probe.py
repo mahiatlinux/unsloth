@@ -466,7 +466,15 @@ async def drive(base_url: str, init_script: str) -> dict:
         await set_download_store(page, None)
         await page.goto(f"{base_url}/hub?tab=downloaded", wait_until="domcontentloaded")
         await page.get_by_role("button", name=raw_leaf, exact=True).click()
-        await wait_selected(page, raw_leaf)
+        try:
+            await wait_selected(page, raw_leaf)
+        except Exception:
+            ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
+            await page.screenshot(path=str(ARTIFACT_DIR / "after_legacy_raw_failure.png"), full_page=True)
+            headings = await page.get_by_role("heading").all_inner_texts()
+            raise AssertionError(
+                f"legacy raw selection failed: url={page.url!r}, headings={headings!r}"
+            )
         await wait_url_model(page, raw_repo)
         state["phase"] = "running"
         await set_download_store(page, persisted_running_job(raw_repo))
