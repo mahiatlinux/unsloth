@@ -30,8 +30,32 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check pytest psutil structlog httpx fastapi pydantic huggingface-hub filelock numpy requests aiofiles gguf PyJWT python-multipart cryptography
 
-      - name: "Run planner and platform simulations"
+      - name: "Run planner simulations"
         shell: pwsh
         run: |
-          python -m pytest -q studio/backend/tests/test_offload_cost_model.py studio/backend/tests/test_offload_planner.py studio/backend/tests/test_offload_planner_seam.py studio/backend/tests/test_auto_offload_ctx_platform_matrix.py studio/backend/tests/test_llama_cpp_windows_nvidia_path.py studio/backend/tests/test_amd_apu_unified_memory.py studio/backend/tests/test_llama_cpp_vulkan_probe.py studio/backend/tests/test_metal_explicit_context_guard.py studio/backend/tests/test_metal_never_starts_at_native_context.py
+          python -m pytest -q studio/backend/tests/test_offload_cost_model.py studio/backend/tests/test_offload_planner.py studio/backend/tests/test_offload_planner_seam.py
 
+      - name: "Run hardware path simulations"
+        shell: pwsh
+        run: |
+          python -m pytest -q studio/backend/tests/test_llama_cpp_windows_nvidia_path.py studio/backend/tests/test_amd_apu_unified_memory.py studio/backend/tests/test_llama_cpp_vulkan_probe.py studio/backend/tests/test_metal_explicit_context_guard.py studio/backend/tests/test_metal_never_starts_at_native_context.py
+
+      - name: "Run context matrix in isolated processes"
+        shell: pwsh
+        run: |
+          $tests = @(
+            "test_an_overflowing_model_reaches_the_expected_arm_and_pins_nothing",
+            "test_a_model_that_fits_never_reaches_either_site",
+            "test_wsl_is_indistinguishable_from_native_linux",
+            "test_the_file_size_only_arm_relabels_the_context_without_moving_a_device",
+            "test_metal_auto_still_floors_at_the_fit_minimum",
+            "test_manual_memory_mode_bypasses_both_sites_on_a_gpu_box",
+            "test_the_rocm_arch_gate_drops_an_amd_host_onto_the_cpu_path",
+            "test_the_shared_memory_cells_carry_a_zero_total_and_a_reduced_free",
+            "test_windows_rocm_feeds_a_smaller_free_reading_into_the_planner",
+            "test_the_windows_rocm_cap_is_what_pushes_a_load_into_the_fallback"
+          )
+          foreach ($test in $tests) {
+            python -m pytest -q "studio/backend/tests/test_auto_offload_ctx_platform_matrix.py::$test"
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
