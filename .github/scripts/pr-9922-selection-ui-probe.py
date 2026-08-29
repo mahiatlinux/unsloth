@@ -253,7 +253,13 @@ async def assert_one_selected_row(page, leaf: str) -> None:
 async def assert_selected_row_count(page, leaf: str, expected_rows: int) -> None:
     rows = page.get_by_role("button", name=leaf, exact=True)
     if await rows.count() != expected_rows:
-        raise AssertionError(f"expected {expected_rows} {leaf} rows, got {await rows.count()}")
+        details = await rows.evaluate_all(
+            "elements => elements.map((element) => element.parentElement?.outerHTML)"
+        )
+        raise AssertionError(
+            f"expected {expected_rows} {leaf} rows, got {await rows.count()}; "
+            f"url={page.url!r}; rows={details!r}"
+        )
     selected = 0
     for index in range(expected_rows):
         selection = await rows.nth(index).locator("xpath=..").get_attribute(
@@ -551,8 +557,10 @@ async def drive(base_url: str, init_script: str) -> dict:
         await set_download_store(page, persisted_running_job(unrelated_repo))
         await page.reload(wait_until="domcontentloaded")
         await wait_selected(page, unrelated_leaf)
-        await assert_selected_row_count(page, unrelated_leaf, 2)
         await wait_url_model(page, unrelated_local_id)
+        unrelated_shot = ARTIFACT_DIR / "after_hybrid_unrelated_partial.png"
+        await page.screenshot(path=str(unrelated_shot), full_page=True)
+        await assert_selected_row_count(page, unrelated_leaf, 2)
 
         state.update(
             phase="local",
@@ -632,6 +640,7 @@ async def drive(base_url: str, init_script: str) -> dict:
                 "ambiguous_unknown_rejected": True,
                 "hybrid_live_format_rows": 2,
                 "hybrid_unrelated_partial_retained": True,
+                "hybrid_unrelated_screenshot": unrelated_shot.name,
                 "filtered_selection_retained": True,
                 "ui_resume_start_requests": state["start_requests"],
                 "cancel_requests": state["cancel_requests"],
