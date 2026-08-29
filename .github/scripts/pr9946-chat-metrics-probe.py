@@ -672,6 +672,9 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
         await wait_for_live_monitor(resume_id)
         await page.reload(wait_until="domcontentloaded")
         await page.locator("form:has(textarea) textarea").first.wait_for(state="visible", timeout=30_000)
+        await page.locator(
+            f'[data-testid="recent-thread"][data-thread-id="{first_thread}"]'
+        ).first.click(timeout=30_000)
         await wait_for_live_monitor(resume_id, timeout_s=60)
         await sp.screenshot(artifact_dir / "07-reconnected-active.png")
 
