@@ -23,7 +23,7 @@ jobs:
             negative: true
           - label: repaired-head
             repository: mahiatlinux/unsloth
-            ref: 71e474b6bde48f1130ae6ea70c851edb9f5df473
+            ref: 7e487aa96ac70f299feb35e97a3fcd799573c8f0
             negative: false
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
