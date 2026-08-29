@@ -270,7 +270,7 @@ async def drive(base_url: str, init_script: str) -> dict:
         "phase": "local",
         "repo": "unsloth/Selection-Lifecycle-Model",
         "raw_id": False,
-        "partial_transport": "http",
+        "partial_transport": None,
         "server_state": "running",
         "inventory_requests": 0,
         "start_requests": 0,
