@@ -25,6 +25,10 @@ jobs:
         with:
           python-version: "3.13"
 
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: "22"
+
       - name: "Install focused backend dependencies"
         shell: bash
         run: |
@@ -45,3 +49,9 @@ jobs:
         shell: bash
         run: |
           ruff check studio/backend/routes/inference.py studio/backend/routes/models.py studio/backend/core/inference/media_model_index.py studio/backend/core/inference/media_locality.py studio/backend/core/inference/stt_sidecar.py studio/backend/tests/test_openai_models_media.py
+
+      - name: "Run chat catalog frontend regression"
+        shell: bash
+        working-directory: studio/frontend
+        run: |
+          node --experimental-strip-types --test tests/openai-model-catalog.test.ts
