@@ -760,7 +760,7 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
         await send_prompt(sp, long_prompt)
         await wait_for_monitor(long_index)
         await wait_for_stream(sp, timeout_ms=240_000)
-        long_total = await assert_sidebar_matches_saved(first_thread)
+        long_total = await assert_sidebar_matches_saved(concurrent_thread)
         if long_total < 1000:
             fail(f"long-context saved usage was unexpectedly small: {long_total}")
         await sp.screenshot(artifact_dir / "11-long-context-completed.png")
@@ -783,7 +783,7 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
             message="overflow generation did not reach a failed terminal state",
         )
         await wait_until(tps_unavailable, timeout_s=15, message="failed generation retained TPS")
-        if not (await sidebar_usage_text(first_thread)).endswith("—"):
+        if not (await sidebar_usage_text(concurrent_thread)).endswith("—"):
             fail("failed newest assistant fell back to an older sidebar total")
         await sp.screenshot(artifact_dir / "12-failed.png")
         if "monitor" in json.dumps(failed_run).lower():
