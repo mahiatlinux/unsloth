@@ -28,6 +28,8 @@ _SHUTDOWN_GRACE_SECONDS = 10.0
 # Second budget, after task.cancel(). Shorter than the grace period: by this point the
 # run is already being abandoned, and the only question is whether shutdown returns.
 _SHUTDOWN_CANCEL_SECONDS = 5.0
+_MONITOR_ID_RESPONSE_HEADER = "X-Unsloth-Monitor-Id"
+_MONITOR_CORRELATION_GRACE_SECONDS = 30.0
 
 
 class _SSEDecoder:
@@ -105,8 +107,28 @@ class ChatGenerationSupervisor:
         self._cancel_events: dict[str, threading.Event] = {}
         self._active_registrations: dict[str, active_generations.ActiveGeneration] = {}
         self._activities: dict[str, InferenceActivityReservation] = {}
+        self._monitor_ids: dict[str, str | None] = {}
+        self._monitor_cleanup: dict[str, asyncio.TimerHandle] = {}
         self._shutdown_runs: set[str] = set()
         self._stopping = False
+
+    def _prepare_monitor_correlation(self, run_id: str) -> None:
+        cleanup = self._monitor_cleanup.pop(run_id, None)
+        if cleanup is not None:
+            cleanup.cancel()
+        self._monitor_ids.pop(run_id, None)
+
+    def _publish_monitor_correlation(self, run_id: str, value: object) -> None:
+        monitor_id = str(value or "").strip()
+        self._monitor_ids[run_id] = monitor_id or None
+
+    def _drop_monitor_correlation(self, run_id: str) -> None:
+        self._monitor_cleanup.pop(run_id, None)
+        self._monitor_ids.pop(run_id, None)
+
+    def monitor_id(self, run_id: str) -> str | None:
+        """Return correlation already published without delaying an event subscriber."""
+        return self._monitor_ids.get(run_id)
 
     def _ensure_reservation(
         self,
@@ -156,6 +178,7 @@ class ChatGenerationSupervisor:
             or not self._ensure_reservation(run_id, thread_id = thread_id, model = model)
         ):
             return
+        self._prepare_monitor_correlation(run_id)
         cancel_event = self._cancel_events[run_id]
         activity = self._activities[run_id]
         try:
@@ -182,6 +205,14 @@ class ChatGenerationSupervisor:
         self._tasks.pop(run_id, None)
         self._cleanup_registration(run_id)
         self._shutdown_runs.discard(run_id)
+        cleanup = self._monitor_cleanup.pop(run_id, None)
+        if cleanup is not None:
+            cleanup.cancel()
+        self._monitor_cleanup[run_id] = task.get_loop().call_later(
+            _MONITOR_CORRELATION_GRACE_SECONDS,
+            self._drop_monitor_correlation,
+            run_id,
+        )
         if task.cancelled():
             return
         try:
@@ -304,6 +335,10 @@ class ChatGenerationSupervisor:
                 _background_request(self.app, run_id, cancel_event),
                 owner,
                 cancel_on_disconnect = False,
+            )
+            self._publish_monitor_correlation(
+                run_id,
+                getattr(response, "headers", {}).get(_MONITOR_ID_RESPONSE_HEADER),
             )
             if int(getattr(response, "status_code", 200)) >= 400:
                 raise RuntimeError(f"Local generation returned HTTP {response.status_code}")

@@ -20,14 +20,18 @@ import {
   type ModelRuntime,
   withModelLoadNotice,
 } from "@/lib/model-lifecycle-events";
+import {
+  type SidebarAssistantUsageUpdate,
+  newestSidebarAssistantUsageUpdate,
+} from "../lib/sidebar-last-request-usage";
 import type {
   MessageRecord,
   ModelType,
   ProjectRecord,
   ThreadRecord,
+  ThreadSidebarSummaryRecord,
 } from "../types";
 import type {
-  ApiMonitorEntry,
   ApiMonitorResponse,
   AudioGenerationResponse,
   GgufVariantsResponse,
@@ -42,23 +46,24 @@ import type {
   ValidateModelResponse,
 } from "../types/api";
 import { publishChatHistoryRevision } from "../utils/chat-history-revision";
+import { CHAT_MONITOR_ID_RESPONSE_HEADER } from "./chat-monitor";
+import { maxTokensIsTheLimit } from "./generation-length.ts";
 import {
   type GgufVariantsRequestOptions,
   ggufVariantsQuery,
   runBoundedVariantsRequest,
 } from "./gguf-variants-request";
 import { assertCompletedPaddedBody } from "./padded-response";
-import { maxTokensIsTheLimit } from "./generation-length.ts";
 
 export const CHAT_HISTORY_UPDATED_EVENT = "unsloth-chat-history-updated";
 // Bumped alongside that event so other tabs, which never receive it, can drop caches
 // they built from a history this one has just changed.
 export { CHAT_HISTORY_REVISION_KEY } from "../utils/chat-history-revision";
 export const CHAT_PROJECTS_UPDATED_EVENT = "unsloth-chat-projects-updated";
-
 export type ChatHistoryUpdatedDetail = {
   thread?: ThreadRecord;
   coalesce?: boolean;
+  sidebarAssistant?: SidebarAssistantUsageUpdate;
 };
 
 // bounds the request itself so a wedged socket cannot stall every reader waiting on the write
@@ -247,12 +252,11 @@ export async function getApiMonitor(): Promise<ApiMonitorResponse> {
   return parseJsonOrThrow<ApiMonitorResponse>(response);
 }
 
-export async function getApiMonitorEntry(id: string): Promise<ApiMonitorEntry> {
-  const response = await authFetch(
-    `/api/inference/monitor/${encodeURIComponent(id)}`,
-  );
-  return parseJsonOrThrow<ApiMonitorEntry>(response);
-}
+export {
+  ApiMonitorEntryRequestError,
+  getApiMonitorEntry,
+  isPermanentApiMonitorEntryError,
+} from "./chat-monitor";
 
 export async function clearApiMonitor(): Promise<void> {
   const response = await authFetch("/api/inference/monitor", {
@@ -749,14 +753,14 @@ export async function removeScanFolder(id: number): Promise<void> {
   await parseJsonOrThrow<unknown>(response);
 }
 
-export async function listChatThreads(
-  args: {
-    modelType?: ModelType;
-    pairId?: string;
-    projectId?: string | null;
-    includeArchived?: boolean;
-  } = {},
-): Promise<ThreadRecord[]> {
+type ChatThreadListArgs = {
+  modelType?: ModelType;
+  pairId?: string;
+  projectId?: string | null;
+  includeArchived?: boolean;
+};
+
+function chatThreadListQuery(args: ChatThreadListArgs): string {
   const params = new URLSearchParams();
   if (args.modelType) params.set("model_type", args.modelType);
   if (args.pairId) params.set("pair_id", args.pairId);
@@ -764,10 +768,29 @@ export async function listChatThreads(
   if (args.includeArchived !== undefined) {
     params.set("include_archived", String(args.includeArchived));
   }
-  const qs = params.toString();
+  return params.toString();
+}
+
+export async function listChatThreads(
+  args: ChatThreadListArgs = {},
+): Promise<ThreadRecord[]> {
+  const qs = chatThreadListQuery(args);
   const response = await authFetch(`/api/chat/threads${qs ? `?${qs}` : ""}`);
   const data = await parseJsonOrThrow<{ threads: ThreadRecord[] }>(response);
   // Always hand back an array: an older or misbehaving backend may omit it or send a non-array.
+  return Array.isArray(data.threads) ? data.threads : [];
+}
+
+export async function listChatThreadSidebarSummaries(
+  args: ChatThreadListArgs = {},
+): Promise<ThreadSidebarSummaryRecord[]> {
+  const qs = chatThreadListQuery(args);
+  const response = await authFetch(
+    `/api/chat/threads/sidebar-summaries${qs ? `?${qs}` : ""}`,
+  );
+  const data = await parseJsonOrThrow<{
+    threads: ThreadSidebarSummaryRecord[];
+  }>(response);
   return Array.isArray(data.threads) ? data.threads : [];
 }
 
@@ -1146,7 +1169,16 @@ export async function saveChatMessage(
   const savedMessage = await parseJsonOrThrow<MessageRecord>(response);
   // Coalescing is the streaming autosave's alone, since it lands here per chunk. A manual
   // edit is one deliberate change and publishes at once.
-  notifyChatHistoryUpdated({ coalesce: options.coalesce === true });
+  const coalesce = options.coalesce === true;
+  notifyChatHistoryUpdated({
+    coalesce,
+    sidebarAssistant:
+      coalesce && savedMessage.role === "assistant"
+        ? newestSidebarAssistantUsageUpdate(savedMessage.threadId, [
+            savedMessage,
+          ])
+        : undefined,
+  });
   return savedMessage;
 }
 
@@ -1170,7 +1202,13 @@ export async function syncChatMessages(
   const data = await parseJsonOrThrow<{ messages: MessageRecord[] }>(response);
   // Pruning is how a message is deleted, which no other tab should keep matching for a
   // whole unrelated generation. Without it this is the batched streaming autosave.
-  notifyChatHistoryUpdated({ coalesce: options.pruneMissing !== true });
+  notifyChatHistoryUpdated({
+    coalesce: options.pruneMissing !== true,
+    sidebarAssistant: newestSidebarAssistantUsageUpdate(
+      threadId,
+      data.messages,
+    ),
+  });
   return data.messages;
 }
 
@@ -1517,6 +1555,7 @@ export async function* streamChatCompletions(
    * context length -- the two need opposite advice when generation stops on length.
    */
   loadedContextLength?: number | null,
+  onMonitorId?: (monitorId: string | null) => void,
 ): AsyncGenerator<OpenAIChatChunk> {
   const response = await authFetch("/v1/chat/completions", {
     method: "POST",
@@ -1529,6 +1568,10 @@ export async function* streamChatCompletions(
     const body = await response.json().catch(() => null);
     throw new Error(parseErrorText(response.status, body));
   }
+
+  onMonitorId?.(
+    response.headers.get(CHAT_MONITOR_ID_RESPONSE_HEADER)?.trim() || null,
+  );
 
   if (!response.body) {
     throw new Error("Stream response missing body");
@@ -1651,7 +1694,8 @@ export async function* streamChatCompletions(
           separatorIndex = buffer.search(/\r?\n\r?\n/);
           continue;
         }
-        const parsedUsage = (parsed as { usage?: { prompt_tokens?: number } }).usage;
+        const parsedUsage = (parsed as { usage?: { prompt_tokens?: number } })
+          .usage;
         if (typeof parsedUsage?.prompt_tokens === "number") {
           promptTokens = parsedUsage.prompt_tokens;
         }

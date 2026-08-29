@@ -67,6 +67,7 @@ _SQLITE_MAX_INTEGER = 9_223_372_036_854_775_807
 _ENVELOPE_MAX_DEPTH = 64
 _ENVELOPE_MAX_NODES = 20_000
 _ENVELOPE_MAX_JSON_CHARS = 1_000_000
+_MONITOR_ID_RESPONSE_HEADER = "X-Unsloth-Monitor-Id"
 
 
 class CreateChatGenerationRun(BaseModel):
@@ -211,8 +212,8 @@ def _sanitize_request(payload: CreateChatGenerationRun) -> dict[str, Any]:
     return sanitized
 
 
-def _require_run(run_id: str) -> dict[str, Any]:
-    run = db.get_run(run_id)
+def _require_run(run_id: str, owner_subject: str) -> dict[str, Any]:
+    run = db.get_run(run_id, owner_subject)
     if run is None:
         raise HTTPException(status_code = 404, detail = "Chat generation run not found")
     return run
@@ -279,12 +280,12 @@ async def create_chat_generation_run(
 def active_chat_generation_runs(
     thread_id: str = Query(alias = "threadId"), current_subject: str = Depends(get_current_subject)
 ):
-    return {"runs": db.list_active(thread_id)}
+    return {"runs": db.list_active(thread_id, current_subject)}
 
 
 @router.get("/{run_id}")
 def get_chat_generation_run(run_id: str, current_subject: str = Depends(get_current_subject)):
-    return _require_run(run_id)
+    return _require_run(run_id, current_subject)
 
 
 @router.post("/{run_id}/cancel")
@@ -293,11 +294,12 @@ def cancel_chat_generation_run(
     request: Request,
     current_subject: str = Depends(get_current_subject),
 ):
-    _require_run(run_id)
-    run = db.request_cancel(run_id)
+    _require_run(run_id, current_subject)
+    run = db.request_cancel(run_id, current_subject)
     if run is None:
         raise HTTPException(status_code = 404, detail = "Chat generation run not found")
-    supervisor = getattr(request.app.state, "chat_generation_supervisor", None)
+    app_state = getattr(getattr(request, "app", None), "state", None)
+    supervisor = getattr(app_state, "chat_generation_supervisor", None)
     if supervisor is not None and run["status"] in {"cancelling", "cancelled"}:
         supervisor.cancel(run_id)
     return run
@@ -311,8 +313,11 @@ async def chat_generation_events(
     last_event_id: str | None = Header(None, alias = "Last-Event-ID"),
     current_subject: str = Depends(get_current_subject),
 ):
-    _require_run(run_id)
+    _require_run(run_id, current_subject)
     cursor = _event_cursor(after, last_event_id)
+    app_state = getattr(getattr(request, "app", None), "state", None)
+    supervisor = getattr(app_state, "chat_generation_supervisor", None)
+    monitor_id = supervisor.monitor_id(run_id) if supervisor is not None else None
 
     async def stream():
         nonlocal cursor
@@ -322,7 +327,7 @@ async def chat_generation_events(
         # as still generating and an event-wait worker is tied up meanwhile. Only the first
         # wait needs this guard, since every later pass already returns on the same test
         # against the snapshot it read after waiting.
-        opening = await asyncio.to_thread(db.get_run, run_id)
+        opening = await asyncio.to_thread(db.get_run, run_id, current_subject)
         if opening is None:
             return
         if opening["status"] in db.TERMINAL_STATUSES and cursor >= int(opening["lastEventSeq"]):
@@ -335,7 +340,7 @@ async def chat_generation_events(
                 cursor,
                 15,
             )
-            snapshot = await asyncio.to_thread(db.get_run, run_id)
+            snapshot = await asyncio.to_thread(db.get_run, run_id, current_subject)
             if snapshot is None:
                 return
             for event in events:
@@ -359,8 +364,11 @@ async def chat_generation_events(
             if not events:
                 yield ": keep-alive\n\n"
 
+    headers = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
+    if monitor_id:
+        headers[_MONITOR_ID_RESPONSE_HEADER] = monitor_id
     return StreamingResponse(
         stream(),
         media_type = "text/event-stream",
-        headers = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+        headers = headers,
     )

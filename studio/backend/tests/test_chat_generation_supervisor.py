@@ -71,6 +71,12 @@ def _route_request(supervisor):
     )
 
 
+async def _wait_for_monitor_id(supervisor, run_id):
+    while supervisor.monitor_id(run_id) is None:
+        await asyncio.sleep(0)
+    return supervisor.monitor_id(run_id)
+
+
 @pytest.mark.asyncio
 async def test_public_chat_wrapper_keeps_cancel_on_disconnect(monkeypatch):
     observed = []
@@ -190,6 +196,86 @@ async def test_background_producer_persists_chunks_and_completes(durable_run, mo
     assert [
         event["payload"] for event in runs_db.list_events("run-1") if event["type"] == "chunk"
     ] == chunks
+
+
+@pytest.mark.asyncio
+async def test_durable_event_stream_forwards_request_monitor_id(durable_run, monkeypatch):
+    release = asyncio.Event()
+
+    async def body():
+        await release.wait()
+        yield 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n'
+        yield "data: [DONE]\n\n"
+
+    async def fake(*_args, **_kwargs):
+        return SimpleNamespace(
+            status_code = 200,
+            headers = {"X-Unsloth-Monitor-Id": "monitor-123"},
+            body_iterator = body(),
+        )
+
+    monkeypatch.setattr(inference, "produce_openai_chat_completions", fake)
+    supervisor = ChatGenerationSupervisor(SimpleNamespace(state = SimpleNamespace()))
+    supervisor._prepare_monitor_correlation("run-1")
+    producer = asyncio.create_task(supervisor._produce("run-1"))
+
+    assert await asyncio.wait_for(_wait_for_monitor_id(supervisor, "run-1"), timeout = 1) == (
+        "monitor-123"
+    )
+    response = await run_routes.chat_generation_events(
+        "run-1",
+        SimpleNamespace(
+            app = SimpleNamespace(state = SimpleNamespace(chat_generation_supervisor = supervisor)),
+            is_disconnected = AsyncMock(return_value = True),
+        ),
+        after = 0,
+        last_event_id = None,
+        current_subject = "alice",
+    )
+    assert response.headers["X-Unsloth-Monitor-Id"] == "monitor-123"
+
+    release.set()
+    await producer
+
+
+@pytest.mark.asyncio
+async def test_durable_event_stream_does_not_wait_for_monitor_id(durable_run):
+    supervisor = ChatGenerationSupervisor(SimpleNamespace(state = SimpleNamespace()))
+    supervisor._prepare_monitor_correlation("run-1")
+
+    response = await asyncio.wait_for(
+        run_routes.chat_generation_events(
+            "run-1",
+            SimpleNamespace(
+                app = SimpleNamespace(state = SimpleNamespace(chat_generation_supervisor = supervisor)),
+                is_disconnected = AsyncMock(return_value = True),
+            ),
+            after = 0,
+            last_event_id = None,
+            current_subject = "alice",
+        ),
+        timeout = 0.1,
+    )
+
+    assert "X-Unsloth-Monitor-Id" not in response.headers
+    assert supervisor.monitor_id("run-1") is None
+
+
+@pytest.mark.asyncio
+async def test_durable_monitor_id_records_when_monitoring_is_unavailable(durable_run, monkeypatch):
+    async def body():
+        yield 'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\n'
+        yield "data: [DONE]\n\n"
+
+    async def fake(*_args, **_kwargs):
+        return SimpleNamespace(status_code = 200, headers = {}, body_iterator = body())
+
+    monkeypatch.setattr(inference, "produce_openai_chat_completions", fake)
+    supervisor = ChatGenerationSupervisor(SimpleNamespace(state = SimpleNamespace()))
+    supervisor._prepare_monitor_correlation("run-1")
+    await supervisor._produce("run-1")
+
+    assert supervisor.monitor_id("run-1") is None
 
 
 async def _subscriber_sequences(after = 0):
