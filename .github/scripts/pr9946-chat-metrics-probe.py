@@ -565,7 +565,7 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
         await wait_for_stream(sp, timeout_ms=180_000)
         await page.wait_for_function(
             "want => document.querySelectorAll('[data-role=\"assistant\"]').length > want",
-            first_assistant_count,
+            arg=first_assistant_count,
             timeout=30_000,
         )
         first_thread = await wait_until(
