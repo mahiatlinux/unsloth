@@ -39,7 +39,7 @@ MODEL = "gemini-2.5-flash"
 PROMPT = "List the integers from 1 through 120, one per line."
 TURNS = ["Translate 'good morning' into Japanese.", "Now answer in a pirate voice.", "Summarize this thread in 5 words."]
 RECORD_VIDEO = True
-LOCAL_MODEL = "unsloth/gemma-3-270m-it-GGUF"
+LOCAL_MODEL = "unsloth/Qwen3-1.7B-GGUF"
 LOCAL_GGUF_VARIANT = "UD-Q4_K_XL"
 LOCAL_MAX_SEQ_LENGTH = 4096
 LOCAL_PARALLEL = 2
@@ -392,32 +392,38 @@ async def scenario_vision_upload(base_url: str, password: str, browser_name: str
 
 
 async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, artifact_dir: Path, password: str | None) -> None:
-    payload = {
-        "model": LOCAL_MODEL,
-        "messages": [{"role": "user", "content": PROMPT}],
-        "stream": False,
-        "max_tokens": 64,
-        "temperature": 0,
-    }
-    async with httpx.AsyncClient(timeout=180) as client:
-        response = await client.post(
-            f"{base_url}/v1/chat/completions",
-            headers={"Authorization": f"Bearer {api_key}"},
-            json=payload,
+    baseline_ui = os.environ.get("PR9946_BASELINE_UI") == "1"
+    if not baseline_ui:
+        payload = {
+            "model": LOCAL_MODEL,
+            "messages": [{"role": "user", "content": PROMPT}],
+            "stream": False,
+            "max_tokens": 64,
+            "temperature": 0,
+        }
+        async with httpx.AsyncClient(timeout=180) as client:
+            response = await client.post(
+                f"{base_url}/v1/chat/completions",
+                headers={"Authorization": f"Bearer {api_key}"},
+                json=payload,
+            )
+            response.raise_for_status()
+            body = response.json()
+            direct_monitor_id = response.headers.get("X-Unsloth-Monitor-Id")
+            if not direct_monitor_id:
+                fail("direct chat response omitted X-Unsloth-Monitor-Id")
+            health = await client.get(f"{base_url}/healthz")
+            if "X-Unsloth-Monitor-Id" in health.headers:
+                fail("non-chat health response exposed a monitor id")
+        (artifact_dir / "local-chat-response.json").write_text(
+            json.dumps(body, indent=2), encoding="utf-8"
         )
-        response.raise_for_status()
-        body = response.json()
-        direct_monitor_id = response.headers.get("X-Unsloth-Monitor-Id")
-        if not direct_monitor_id:
-            fail("direct chat response omitted X-Unsloth-Monitor-Id")
-        health = await client.get(f"{base_url}/healthz")
-        if "X-Unsloth-Monitor-Id" in health.headers:
-            fail("non-chat health response exposed a monitor id")
-    (artifact_dir / "local-chat-response.json").write_text(json.dumps(body, indent=2), encoding="utf-8")
-    content = (((body.get("choices") or [{}])[0].get("message") or {}).get("content") or "").strip()
-    if not content:
-        fail("local-chat API returned no assistant content")
-    pass_log("direct real-model chat returned content and an isolated monitor header")
+        content = (
+            ((body.get("choices") or [{}])[0].get("message") or {}).get("content") or ""
+        ).strip()
+        if not content:
+            fail("local-chat API returned no assistant content")
+        pass_log("direct real-model chat returned content and an isolated monitor header")
 
     init_scripts = [await auth_init(base_url, password)] if password else []
     if not init_scripts:
@@ -432,6 +438,25 @@ async def scenario_local_chat(base_url: str, api_key: str, browser_name: str, ar
         browser_name=browser_name,
     ) as sp:
         page = sp.page
+        if baseline_ui:
+            await send_prompt(
+                sp,
+                "Count from 1 to 900, one integer per line. Do not stop early.",
+            )
+            stop = page.locator('button[aria-label="Stop generating"]').first
+            await stop.wait_for(state="visible", timeout=30_000)
+            await page.wait_for_timeout(1_500)
+            widget = page.locator(
+                'div[role="status"][aria-label^="Live generation speed"]'
+            )
+            if await widget.count():
+                fail("merge-base UI unexpectedly rendered the TPS widget")
+            await sp.screenshot(artifact_dir / "00-before-live-generation.png")
+            await stop.click()
+            await stop.wait_for(state="hidden", timeout=30_000)
+            pass_log("merge-base real generation rendered without the TPS widget")
+            return
+
         event_responses: list[dict] = []
         monitor_samples: list[dict] = []
 
