@@ -1491,6 +1491,16 @@ def test_a_non_finite_tensor_split_declines_instead_of_raising(value):
     assert _plan(_Stub(), gpus = two_cards, extra_args = ["-ts", "3,1"]) is not None
 
 
+def test_a_cumulative_float32_tensor_split_overflow_declines_instead_of_raising():
+    from core.inference.llama_cpp import _extra_args_tensor_split
+
+    value = "3e38,3e38"
+    assert _extra_args_tensor_split(["-ts", value], {}) is None
+    two_cards = [(0, 14 * 1024), (1, 14 * 1024)]
+    assert _plan(_Stub(), gpus = two_cards, extra_args = ["-ts", value]) is None
+    assert _plan(_Stub(), gpus = two_cards, env = {"LLAMA_ARG_TENSOR_SPLIT": value}) is None
+
+
 def test_the_vector_refuses_a_cache_the_estimator_prices_on_another_path():
     """_estimate_kv_cache_bytes picks its path BEFORE it looks at the window, and
     the earlier paths price a different quantity: path 1 (MLA) caches one
@@ -2058,7 +2068,7 @@ def test_linux_hybrid_affinity_probe_failure_matches_physical_fallback(tmp_path,
     )
 
 
-def test_linux_hybrid_affinity_restore_failure_does_not_escape(tmp_path, monkeypatch):
+def test_linux_hybrid_affinity_restore_failure_stays_in_worker(tmp_path, monkeypatch):
     import core.inference.llama_cpp as llama_mod
 
     cpu_root = tmp_path / "cpu"
@@ -2074,8 +2084,11 @@ def test_linux_hybrid_affinity_restore_failure_does_not_escape(tmp_path, monkeyp
     monkeypatch.setattr(
         llama_mod.os, "sched_getaffinity", lambda _pid: set(range(8)), raising = False
     )
+    caller_thread = llama_mod.threading.get_ident()
+    affinity_threads = []
 
     def restore_fails(_pid, cpus):
+        affinity_threads.append(llama_mod.threading.get_ident())
         if len(cpus) > 1:
             raise OSError("restore failed")
 
@@ -2089,6 +2102,8 @@ def test_linux_hybrid_affinity_restore_failure_does_not_escape(tmp_path, monkeyp
         )
         == 2
     )
+    assert affinity_threads
+    assert all(thread != caller_thread for thread in affinity_threads)
 
 
 def test_linux_hybrid_with_unreadable_core_mask_is_conservative(tmp_path):
