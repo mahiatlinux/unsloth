@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           persist-credentials: false
-          ref: 44eb5c30d176e6e45fe75544a4aa01a45d79f58e
+          ref: 31de44250b408858be063b0661171ad810ace1e1
 
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
@@ -30,7 +30,7 @@ jobs:
         shell: pwsh
         run: |
           $actual = git rev-parse HEAD
-          if ($actual -ne '44eb5c30d176e6e45fe75544a4aa01a45d79f58e') { throw "wrong source $actual" }
+          if ($actual -ne '31de44250b408858be063b0661171ad810ace1e1') { throw "wrong source $actual" }
 
       - name: "Install focused dependencies"
         shell: pwsh
