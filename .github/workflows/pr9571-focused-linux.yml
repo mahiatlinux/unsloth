@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           persist-credentials: false
-          ref: 2bf23774277f93357036c64cafe0b6367aee303a
+          ref: 26ee01cf5678c79f5b6869744b5e429340f5f371
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         with:
@@ -33,7 +33,7 @@ jobs:
       - name: "Verify source commit"
         shell: bash
         run: |
-          test "$(git rev-parse HEAD)" = "2bf23774277f93357036c64cafe0b6367aee303a"
+          test "$(git rev-parse HEAD)" = "26ee01cf5678c79f5b6869744b5e429340f5f371"
 
       - name: "Install focused dependencies"
         shell: bash
@@ -45,7 +45,7 @@ jobs:
       - name: "Run focused backend and platform tests"
         shell: bash
         run: |
-          PYTHONPATH=studio/backend pytest studio/backend/tests/test_model_memory_settings.py studio/backend/tests/test_rocm_windows_model_memory_9549.py studio/backend/tests/test_server_tuning_flags.py studio/backend/tests/test_gpu_arch_gate_os_matrix_7624.py -q -k 'model_memory_settings or rocm_windows_model_memory_9549 or server_tuning_flags or memory or mlock or load_mode or vulkan or cpu'
+          PYTHONPATH=studio/backend pytest studio/backend/tests/test_model_memory_settings.py studio/backend/tests/test_rocm_windows_model_memory_9549.py studio/backend/tests/test_server_tuning_flags.py studio/backend/tests/test_gpu_arch_gate_os_matrix_7624.py studio/backend/tests/test_load_mode_fit_matrix.py -q -k 'model_memory_settings or rocm_windows_model_memory_9549 or server_tuning_flags or memory or mlock or load_mode or vulkan or cpu'
 
       - name: "Run focused frontend checks"
         shell: bash

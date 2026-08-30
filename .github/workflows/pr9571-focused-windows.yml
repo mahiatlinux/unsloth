@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           persist-credentials: false
-          ref: 2bf23774277f93357036c64cafe0b6367aee303a
+          ref: 26ee01cf5678c79f5b6869744b5e429340f5f371
 
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
@@ -30,7 +30,7 @@ jobs:
         shell: pwsh
         run: |
           $actual = git rev-parse HEAD
-          if ($actual -ne '2bf23774277f93357036c64cafe0b6367aee303a') { throw "wrong source $actual" }
+          if ($actual -ne '26ee01cf5678c79f5b6869744b5e429340f5f371') { throw "wrong source $actual" }
 
       - name: "Install focused dependencies"
         shell: pwsh
@@ -43,4 +43,4 @@ jobs:
         shell: pwsh
         run: |
           $env:PYTHONPATH = 'studio/backend'
-          pytest studio/backend/tests/test_model_memory_settings.py studio/backend/tests/test_rocm_windows_model_memory_9549.py studio/backend/tests/test_server_tuning_flags.py -q
+          pytest studio/backend/tests/test_model_memory_settings.py studio/backend/tests/test_rocm_windows_model_memory_9549.py studio/backend/tests/test_server_tuning_flags.py studio/backend/tests/test_load_mode_fit_matrix.py -q
