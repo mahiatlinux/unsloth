@@ -5,7 +5,7 @@ name: "PR 9571 focused Linux"
 on:
   push:
     branches:
-      - "ci-pr-9571-final-2"
+      - "ci-pr-9571-placement-focused"
   workflow_dispatch:
 
 permissions:
