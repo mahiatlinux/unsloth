@@ -105,6 +105,8 @@ def _backend(tmp_path: Path, *, vulkan: bool, memory):
     backend._wait_for_health = lambda timeout, **_kw: True
     backend._detect_audio_type_strict = lambda: None
     backend._apply_detected_audio = lambda _detected: True
+    backend._record_server_pid = lambda _pid: None
+    backend._clear_server_pid = lambda: None
     return backend, gguf
 
 
@@ -2711,7 +2713,7 @@ def test_the_launched_load_mode_is_recorded_in_the_memory_state(tmp_path, monkey
     assert backend._memory_state == (False, True)
 
     # Both consumers now see the child contradicting the setting.
-    monkeypatch.setattr(mm, "get_no_ram_reserve", lambda: True)
+    monkeypatch.setattr(mm, "get_model_memory_settings", lambda: (False, True))
     assert (
         memory_state_satisfies_settings(
             backend._memory_state,
@@ -2750,7 +2752,7 @@ def test_a_fit_derived_load_mode_is_recorded_too(tmp_path, monkeypatch):
     assert backend._fit_load_mode_flags == ["--load-mode", "none"]
     assert backend._memory_state == (False, True)
 
-    monkeypatch.setattr(mm, "get_no_ram_reserve", lambda: True)
+    monkeypatch.setattr(mm, "get_model_memory_settings", lambda: (False, True))
     assert (
         memory_state_satisfies_settings(
             backend._memory_state,
@@ -3044,9 +3046,9 @@ def test_the_text_only_fallback_reprices_the_projector_it_dropped(tmp_path, monk
     assert "--mmproj" in captured["cmds"][0], captured["cmds"][0]
     assert "--mmproj" not in captured["cmds"][-1], captured["cmds"][-1]
     warning = backend.last_load_warning or ""
-    assert "unified-memory APU" not in warning, (
-        "the response still warns about a shortfall the resident model does not have: " f"{warning}"
-    )
+    assert (
+        "unified-memory APU" not in warning
+    ), f"the response still warns about a shortfall the resident model does not have: {warning}"
     if unmapped:
         # The one thing that IS still true of the running child.
         assert "memory mapping instead" in warning, warning
@@ -3265,10 +3267,9 @@ def test_a_model_that_fits_vram_but_not_ram_is_warned_once_it_lands_on_cpu(tmp_p
     _launch_with_vulkan_cpu_replay(backend, gguf)
 
     warning = backend.last_load_warning or ""
-    assert "does not fit in GPU memory" in warning, (
-        "the CPU-only child pages the whole model from disk and says nothing about it: "
-        f"{warning!r}"
-    )
+    assert (
+        "does not fit in GPU memory" in warning
+    ), f"the CPU-only child pages the whole model from disk and says nothing about it: {warning!r}"
     assert "About 20 GB" in warning, warning
 
 
