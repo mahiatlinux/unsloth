@@ -20,6 +20,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           persist-credentials: false
+          ref: 2bf23774277f93357036c64cafe0b6367aee303a
 
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
@@ -28,8 +29,8 @@ jobs:
       - name: "Verify source commit"
         shell: pwsh
         run: |
-          $actual = git rev-parse HEAD^
-          if ($actual -ne '2e97b277c4a3de2eb35a86fe002b3c9b2c6aa12c') { throw "wrong source $actual" }
+          $actual = git rev-parse HEAD
+          if ($actual -ne '2bf23774277f93357036c64cafe0b6367aee303a') { throw "wrong source $actual" }
 
       - name: "Install focused dependencies"
         shell: pwsh
