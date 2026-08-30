@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           persist-credentials: false
-          ref: 336d961c9283d735a475cc07dfcb368b544488ea
+          ref: f81be6c0c292f94952926384546ecc06ebc83af5
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         with:
@@ -33,7 +33,7 @@ jobs:
       - name: "Verify source commit"
         shell: bash
         run: |
-          test "$(git rev-parse HEAD)" = "336d961c9283d735a475cc07dfcb368b544488ea"
+          test "$(git rev-parse HEAD)" = "f81be6c0c292f94952926384546ecc06ebc83af5"
 
       - name: "Install focused dependencies"
         shell: bash
