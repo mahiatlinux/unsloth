@@ -43,4 +43,4 @@ jobs:
         shell: pwsh
         run: |
           $env:PYTHONPATH = 'studio/backend'
-          pytest studio/backend/tests/test_model_memory_settings.py studio/backend/tests/test_rocm_windows_model_memory_9549.py studio/backend/tests/test_server_tuning_flags.py studio/backend/tests/test_load_mode_fit_matrix.py -q
+          pytest studio/backend/tests/test_model_memory_settings.py studio/backend/tests/test_rocm_windows_model_memory_9549.py studio/backend/tests/test_server_tuning_flags.py studio/backend/tests/test_load_mode_fit_matrix.py::test_the_cpu_fallback_drops_the_fits_load_mode studio/backend/tests/test_load_mode_fit_matrix.py::test_the_cpu_fallback_keeps_a_load_mode_the_user_asked_for studio/backend/tests/test_load_mode_fit_matrix.py::test_the_crash_path_cpu_fallback_recomputes_the_memory_record studio/backend/tests/test_load_mode_fit_matrix.py::test_the_replayed_cpu_fallback_recomputes_the_memory_record -q
