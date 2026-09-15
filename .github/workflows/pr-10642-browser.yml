@@ -1,0 +1,71 @@
+name: pr 10642 native browser evidence
+on:
+  push:
+    branches: [pr-10642-browser-ci-20260916]
+permissions:
+  contents: read
+jobs:
+  browser:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - side: base
+            sha: 9bef060ea4200fb679067c4fca406087c1c14a4b
+          - side: repaired
+            sha: 8f4b97edc26b9e66c1a2ac15c87dd7194f4a9877
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: driver
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: unslothai/unsloth
+          ref: ${{ matrix.sha }}
+          path: source
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install and build isolated Studio
+        working-directory: source
+        env:
+          UV_CACHE_DIR: ${{ github.workspace }}/source/.cache/uv
+          UV_PYTHON_INSTALL_DIR: ${{ github.workspace }}/source/.cache/python
+          npm_config_cache: ${{ github.workspace }}/source/.cache/npm
+        run: |
+          python -m pip install uv
+          uv venv --python python .venv
+          uv pip install --python .venv -r studio/backend/requirements/studio.txt paramiko==5.0.0 requests sqlalchemy python-multipart aiofiles psutil pyyaml playwright selenium
+          cd studio/frontend
+          npm ci --ignore-scripts
+          npm run build
+      - name: Enable native Safari automation
+        run: sudo safaridriver --enable
+      - name: Execute SSH and capture three branded browsers
+        working-directory: source
+        env:
+          HOME: ${{ github.workspace }}/source/.home
+          UNSLOTH_STUDIO_HOME: ${{ github.workspace }}/source/.home/studio
+          XDG_CACHE_HOME: ${{ github.workspace }}/source/.cache
+          HF_HOME: ${{ github.workspace }}/source/.cache/huggingface
+          PYTHONPATH: ${{ github.workspace }}/source/studio/backend
+          UNSLOTH_STUDIO_DISABLE_DEVICE_PROBE: '1'
+        run: |
+          python ../driver/probes/prepare.py
+          .venv/bin/python .review-probes/live_ssh.py
+          .venv/bin/python .review-probes/ui_scene.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pr10642-native-browsers-${{ matrix.side }}
+          path: |
+            source/ui-evidence/*.png
+            source/ui-evidence/*.json
+            source/live-result.json
