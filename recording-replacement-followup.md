@@ -100,3 +100,13 @@ Commit: `10759a80d`.
 Clear all completion could invoke an older deletion callback after the user selected an archived transcript. That old callback could clear the newly selected transcript. Mutation completion now reads the current deletion callback from the existing selection ref.
 
 The callback regression failed before the fix because the stale callback ran. It now covers both per-record mutations and Clear all with a new archived selection. All 11 focused frontend tests, both TypeScript checks, and gallery ESLint passed. This verifies callback selection and ordering, without a new browser or model run.
+
+## Unsaved transcript logout protection
+
+Commit: `3bbfc9944`.
+
+Web logout uses client-side navigation, so beforeunload alone did not warn before the audio page unmounted. Both logout entry points now dispatch a cancellable event before token revocation. An unsaved transcript asks for confirmation; declining keeps the session and transcript intact. Saved or exported transcripts do not prompt, and the listener is removed on unmount.
+
+The regression executes both actual sidebar logout handlers and the audio protection effect. It failed before the fix with logout/navigation occurring without confirmation. After the fix, ten scenarios pass across menu and shortcut handlers: decline, accept, saved, exported, and unmounted. The focused frontend run passed all 12 tests. Both TypeScript checks passed. ESLint matches the existing audio-page and sidebar baseline (16 errors and two warnings), with no findings in the auth event modules.
+
+[TanStack documents client-side navigation blocking separately from beforeunload](https://tanstack.com/router/latest/docs/guide/navigation-blocking). This guard runs before logout because blocking only the subsequent navigation would leave authentication already revoked. These are executed callback/event tests; no new browser recording was captured for this follow-up.
