@@ -44,3 +44,17 @@ node --experimental-strip-types --test studio/frontend/tests/audio-transcript-li
 Results: 53 backend tests passed; six transcript lifecycle tests passed. The frontend test TypeScript check and repository formatter/checker with Ruff 0.6.9 also passed.
 
 [Apple's termination delegate documentation](https://developer.apple.com/documentation/appkit/nsapplicationdelegate/applicationshouldterminate%28_%3A%29) describes the immediate, deferred, and cancelled termination replies used by the native path.
+
+## Quantized image recall with selected adapters
+
+Commit: `26296a370`.
+
+Ejecting a quantized image model clears its resident identity but retains the LoRA selection. Recall previously derived advanced load parameters as if this were a different model, dropping those adapters from the build. Recall now explicitly preserves the selection while pinning the advanced load parameters. Regular model picks retain their same-target filtering.
+
+The regression executes the actual recall and advanced-parameter callbacks from `images-page.tsx`. It failed before the fix because the load did not carry the selected adapter. It passes for int8 and fp8 settings after the fix, including adapter ID normalization, disabled-adapter filtering, exact GGUF filename retention, and isolation from an unrelated model pick.
+
+```sh
+node --experimental-strip-types --test studio/frontend/tests/image-model-recall.test.ts
+```
+
+All three image recall tests passed. Application and test TypeScript checks also passed. This verifies load parameters at the callback boundary; a new GPU generation run with a quantized model and LoRA was not performed.
