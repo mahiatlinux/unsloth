@@ -1,0 +1,23 @@
+{
+  "pr": 9666,
+  "repository": "unslothai/unsloth",
+  "fork": "mahiatlinux/unsloth",
+  "branch": "pr-9666-native-clearance-repro-ci-20260915",
+  "base": "5c44c8c96b7fad0777cb6ea1240e5427f81e6fe4",
+  "head": "6227fc8b5249b16b97701e17be6963f130efa4ef",
+  "scene": "native_mac_interface_scale_and_toolbar",
+  "expect": "Before fix: head125 and head200 overlap native macOS window buttons. After fix: the identical sources with only the mobile Navbar inset correction clear all three native buttons at 125% and 200%. Existing scale, persistence, and reset checks remain enabled.",
+  "evidence_scope": "Production AppearanceTab, Navbar, SidebarProvider and SidebarInset in a controlled Tauri native window; production appearance effect and Mac chrome styles extracted verbatim from each side. This is not a complete Studio backend/session or installer test.",
+  "scales": [
+    50,
+    100,
+    125,
+    200
+  ],
+  "window_points": {
+    "width": 900,
+    "height": 600
+  },
+  "verified": null,
+  "before": "70775b3bdf147d10e941306c17c25d51d98a4bca"
+}
