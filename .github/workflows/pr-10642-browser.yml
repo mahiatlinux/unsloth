@@ -47,7 +47,9 @@ jobs:
           npm ci --ignore-scripts
           npm run build
       - name: Enable native Safari automation
-        run: sudo safaridriver --enable
+        run: |
+          sudo safaridriver --enable
+          sudo ifconfig lo0 alias 127.0.0.2 up
       - name: Execute SSH and capture three branded browsers
         working-directory: source
         env:
