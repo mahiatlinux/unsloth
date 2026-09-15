@@ -13,7 +13,7 @@ jobs:
           - side: base
             sha: 9bef060ea4200fb679067c4fca406087c1c14a4b
           - side: repaired
-            sha: 8f4b97edc26b9e66c1a2ac15c87dd7194f4a9877
+            sha: e84f15b4de5ba7766ca1637c0aa3df9fabdb71e3
     runs-on: macos-15
     timeout-minutes: 25
     steps:

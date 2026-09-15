@@ -67,7 +67,7 @@ session = 'ssh-live'
 root = Path(_get_workdir(session))
 client_key.write_private_key_file(str(root/'review-key'))
 (root/'review-key').chmod(0o600)
-command = f'ssh -p {port} -i review-key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o IdentitiesOnly=yes review@127.0.0.2 uptime'
+command = f'ssh -F none -p {port} -i review-key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o IdentitiesOnly=yes review@127.0.0.2 uptime'
 result_before = _bash_exec(command, session_id=session, timeout=10)
 assert len(connections) == 0, (result_before, connections)
 approve_hosts(session, ['127.0.0.2'])
