@@ -70,3 +70,11 @@ A direct reproduction ran the actual stream generator and route coroutine, with 
 This agrees with the previously published [real Whisper cancellation and recovery](real-whisper/report.md) and [real Qwen/whisper.cpp results](real-native/checks.json). The existing implementation already handles the reported case.
 
 [Python's task cancellation documentation](https://docs.python.org/3/library/asyncio-task.html#task-cancellation) specifies that cancellation raises CancelledError inside the task, allowing this explicit cleanup path to run. The code does not rely on cancelling an asyncio task to stop a thread by itself.
+
+## Clear-all error handling
+
+Checked at `26296a370`; no source change was needed. The proposed 500-to-503 mapping would improve the message for unavailable archive metadata. Destructive clearing already stops before deleting records, and the UI already catches the failed request.
+
+[Executed callback probe](check-clear-error.mjs) extracted the actual API wrapper, shared error parser, and gallery mutation callback. Both 500 and 503 responses displayed an error without calling the deletion callback or refreshing away the current history. Two scenarios passed. Existing backend regression checks also establish that corrupt or recovery-tainted archive flags preserve transcript records.
+
+This suggestion was declined as error-message polish, rather than a demonstrated data-loss or UI-state defect.
