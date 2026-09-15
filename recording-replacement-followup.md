@@ -78,3 +78,17 @@ Checked at `26296a370`; no source change was needed. The proposed 500-to-503 map
 [Executed callback probe](check-clear-error.mjs) extracted the actual API wrapper, shared error parser, and gallery mutation callback. Both 500 and 503 responses displayed an error without calling the deletion callback or refreshing away the current history. Two scenarios passed. Existing backend regression checks also establish that corrupt or recovery-tainted archive flags preserve transcript records.
 
 This suggestion was declined as error-message polish, rather than a demonstrated data-loss or UI-state defect.
+
+## Archive-view mutation race
+
+Commit: `1dec588b0`.
+
+An Archive/Delete request that finished after switching History/Archived previously called the old render's refresh function. The completed request could replace Archived rows with History rows, or vice versa. Mutation completion now calls the latest committed refresh callback.
+
+The regression executes the component's actual hook statements with deferred mutation completion. It failed before the fix with fetches `[true, false]` after switching to Archived, and passes after the fix. It covers both switching directions and remaining in the same view.
+
+```sh
+node --experimental-strip-types --test studio/frontend/tests/transcript-gallery-mutation.test.ts studio/frontend/tests/audio-transcript-lifecycle.test.ts studio/frontend/tests/transcript-stream.test.ts
+```
+
+Result: 11 focused tests passed. Application and test TypeScript checks passed. The changed gallery component passed ESLint. This was a callback-order regression check; a new browser recording was not captured for the race fix.
