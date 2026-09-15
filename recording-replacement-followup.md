@@ -92,3 +92,11 @@ node --experimental-strip-types --test studio/frontend/tests/transcript-gallery-
 ```
 
 Result: 11 focused tests passed. Application and test TypeScript checks passed. The changed gallery component passed ESLint. This was a callback-order regression check; a new browser recording was not captured for the race fix.
+
+## Current selection after clear-all completion
+
+Commit: `10759a80d`.
+
+Clear all completion could invoke an older deletion callback after the user selected an archived transcript. That old callback could clear the newly selected transcript. Mutation completion now reads the current deletion callback from the existing selection ref.
+
+The callback regression failed before the fix because the stale callback ran. It now covers both per-record mutations and Clear all with a new archived selection. All 11 focused frontend tests, both TypeScript checks, and gallery ESLint passed. This verifies callback selection and ordering, without a new browser or model run.
