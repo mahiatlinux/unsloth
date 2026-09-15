@@ -110,3 +110,17 @@ Web logout uses client-side navigation, so beforeunload alone did not warn befor
 The regression executes both actual sidebar logout handlers and the audio protection effect. It failed before the fix with logout/navigation occurring without confirmation. After the fix, ten scenarios pass across menu and shortcut handlers: decline, accept, saved, exported, and unmounted. The focused frontend run passed all 12 tests. Both TypeScript checks passed. ESLint matches the existing audio-page and sidebar baseline (16 errors and two warnings), with no findings in the auth event modules.
 
 [TanStack documents client-side navigation blocking separately from beforeunload](https://tanstack.com/router/latest/docs/guide/navigation-blocking). This guard runs before logout because blocking only the subsequent navigation would leave authentication already revoked. These are executed callback/event tests; no new browser recording was captured for this follow-up.
+
+## Recovery after authentication expiry
+
+Commit: `6292f05db`.
+
+Clearing tokens unmounts AudioPage through CredentialBootstrapGate before the authentication redirect can invoke beforeunload. Unsaved completed transcripts now keep a temporary, account-scoped session-storage copy. Returning to Audio after signing into the same account restores text, title, and model. Export, saved gallery results, and confirmed logout remove the copy. The existing account-transition purge clears session content before a different account signs in. No automatic folder export was added.
+
+Both recovery regressions failed against the prior audio page: the temporary draft was absent, and remount initialized empty fields. They pass with the fix. The account-transition test also executes same-account reauthentication followed by an account switch and verifies recovery then removal.
+
+```sh
+node --experimental-strip-types --test studio/frontend/tests/audio-transcript-lifecycle.test.ts studio/frontend/tests/account-transition.test.ts studio/frontend/tests/transcript-gallery-mutation.test.ts studio/frontend/tests/transcript-stream.test.ts
+```
+
+Result: 43 focused tests passed. Both TypeScript checks passed. ESLint has no added findings, and the recovery module is clean. Tests execute the component effects/state initializers, storage helper, and real account-transition function; this follow-up did not include a new browser login session or model run.
