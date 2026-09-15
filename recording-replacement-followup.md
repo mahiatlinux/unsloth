@@ -27,3 +27,20 @@ node node_modules/typescript/bin/tsc -p tsconfig.test.json --pretty false
 Both passed. No model download or repeated inference was needed for this control-flow correction. Existing screenshots and recordings document the feature at `4f8cfdf58`; this report documents the subsequent recording guard fix.
 
 The formatting commit `588130be9` changed seven Python files; all seven had identical parsed syntax trees before and after.
+
+## macOS termination and archive-flag recovery
+
+Commit: `6641484f6`.
+
+The AppKit termination predicate now includes the unsaved-transcript flag, so an unsaved transcript alone enters the shared confirmation sequence. A source-wiring regression failed on the missing flag and passed after adding it. This checks the connection between the predicate and confirmation path; it does not execute a native macOS dialog.
+
+Transcript listing now uses the existing display-only archive-flag reader. Malformed flags and valid recovery-tainted flags both previously caused listing to fail while intact transcript records remained on disk. Both regression cases now pass, and Clear all still refuses to delete when the flags cannot be trusted.
+
+```sh
+python -m pytest studio/backend/tests/test_transcript_gallery.py studio/backend/tests/test_gallery_flags.py -q
+node --experimental-strip-types --test studio/frontend/tests/audio-transcript-lifecycle.test.ts
+```
+
+Results: 53 backend tests passed; six transcript lifecycle tests passed. The frontend test TypeScript check and repository formatter/checker with Ruff 0.6.9 also passed.
+
+[Apple's termination delegate documentation](https://developer.apple.com/documentation/appkit/nsapplicationdelegate/applicationshouldterminate%28_%3A%29) describes the immediate, deferred, and cancelled termination replies used by the native path.
