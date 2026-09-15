@@ -10,10 +10,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - side: base
-            sha: 9bef060ea4200fb679067c4fca406087c1c14a4b
           - side: repaired
-            sha: e84f15b4de5ba7766ca1637c0aa3df9fabdb71e3
+            sha: 2d645a1addf73a50b26510beefdddee173033f7f
     runs-on: macos-15
     timeout-minutes: 25
     steps:
