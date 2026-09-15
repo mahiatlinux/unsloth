@@ -1,0 +1,637 @@
+1789454126.448695876
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 401 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454126.675971022
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 401 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454126.904022718
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 401 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454127.131504593
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 401 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454127.360369708
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 401 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454127.589460468
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 424 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454127.814491264
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 424 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454128.039886775
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 493 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454128.270076682
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 493 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454128.497496851
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 493 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454128.724109702
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 493 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454128.950144435
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 493 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454129.176679469
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 493 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454129.402755019
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 460 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454129.628933393
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 460 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454129.856874581
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 460 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454130.086023691
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 460 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454130.313217905
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 458 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454130.541033116
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 459 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454130.769442815
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 459 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454130.996190169
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 459 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 426 MiB
+1789454131.223865287
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 457 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454131.449356108
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 457 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454131.675344895
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 457 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454131.898872614
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 457 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454132.125455509
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 457 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454132.349957701
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 456 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454132.573572484
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 456 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454132.798501418
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 456 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454133.023867104
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 424 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454133.246853445
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 424 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454133.470331944
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 424 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454133.693055731
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 424 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454133.915893062
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 424 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454134.138969362
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 424 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454134.363977946
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 418 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454134.587558595
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 418 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454134.811683307
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 418 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454135.038136678
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 400 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454135.263561344
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 400 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454135.488717175
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 399 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454135.714201624
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 393 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454135.940595492
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 393 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454136.165758657
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 393 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454136.390826973
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 393 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454136.616695174
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 393 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454136.844187699
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 393 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454137.069272716
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 394 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454137.295039777
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 394 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454137.521183315
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 388 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454137.746690125
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 388 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454137.971917761
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454138.197348058
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454138.422603917
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454138.648067888
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454138.872835118
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454139.098564267
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454139.324472282
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454139.550019799
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454139.775473140
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454140.000736162
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454140.226283549
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454140.451662720
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+1789454140.678226719
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 248 MiB
+1789454140.901324309
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 286 MiB
+1789454141.127101238
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 354 MiB
+1789454141.353043468
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454141.580753431
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454141.805187996
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 387 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454142.030235462
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454142.252886734
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454142.476286252
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454142.699256623
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454142.921524354
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454143.145049388
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454143.370200721
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454143.594941181
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454143.819836201
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454144.044399107
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454144.268891540
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454144.493384283
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454144.717319960
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454144.941309327
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454145.165688667
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454145.391236386
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454145.615696929
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454145.840335487
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454146.065073673
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454146.289757987
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454146.514683966
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454146.738826101
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454146.963189092
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454147.187768118
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454147.412598327
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454147.637170099
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454147.862349284
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454148.087021646
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454148.312297733
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454148.537596443
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB
+1789454148.761950456
+6534, /opt/brave.com/brave/brave --type=gpu-process --ozone-platform=wayland --render-node-override=/dev/dri/renderD128 --crashpad-handler-pid=6496 --enable-crash-reporter=e8694307-1956-4d3c-8f24-810db9d58871? --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAABAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=4?i?12211031388971225945?7975859206638618013?262144 --field-trial-handle=3?i?3623651235820875422?4263622354285772120?262144 --disable-features=EyeDropper --variations-seed-version=main@65f4dfa00d9f8a513c2617a7c22b40a322c6b544 --pseudonymization-salt-handle=7?i?12840389218230579433?14185256450899405993?4 --trace-process-track-uuid=3190708988185955192, 381 MiB
+7239, <isolated-worker>, 128 MiB
+9618, /usr/bin/nautilus, 42 MiB
+12140, ptyxis, 35 MiB
+371029, <task>/native/whisper.cpp/whisper-server, 444 MiB
+373762, <task>/real-whisper/venv/bin/python, 358 MiB

@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "calls": [
+    {
+      "path": "/api/inference/images/load",
+      "body": "{\"model_path\":\"<task>/real-image/segmind-vega-sdxl\",\"model_kind\":\"pipeline\",\"cpu_offload\":false}"
+    },
+    {
+      "path": "/api/inference/images/generate",
+      "body": "{\"prompt\":\"A red ceramic teapot on a wooden table, soft daylight, photograph\",\"negative_prompt\":\"blurry, low quality\",\"width\":512,\"height\":512,\"steps\":20,\"guidance\":7,\"seed\":412727124,\"batch_size\":1}"
+    }
+  ],
+  "page_errors": []
+}

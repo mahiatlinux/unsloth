@@ -1,0 +1,3 @@
+{"elapsed": 0.05, "type": "progress", "text": ""}
+{"elapsed": 1.323, "type": "progress", "text": "and so my fellow Americans ask not what your country can do for you ask what you can do for your country and so my fellow Americans ask not what your country can do for you ask what you can do for your country and so my fellow Americans ask not what your country can do for you", "processed_seconds": 30.0, "duration": 220.0}
+{"elapsed": 4.334, "post_cancel_state": {"loaded_model": "openai/whisper-tiny", "device": "cpu", "worker_pid": 27, "worker_alive": true, "request_lock_free": true}}

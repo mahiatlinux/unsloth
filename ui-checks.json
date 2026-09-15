@@ -1,0 +1,94 @@
+[
+  {
+    "check": "History restores on a fresh page with no model loaded",
+    "passed": true
+  },
+  {
+    "check": "Manual text download contains the exact transcript",
+    "passed": true
+  },
+  {
+    "check": "Copy writes the exact transcript to the clipboard",
+    "passed": true
+  },
+  {
+    "check": "Upload recalls the last ASR model",
+    "passed": true
+  },
+  {
+    "check": "Progress has exactly five bars and a running elapsed timer",
+    "passed": true
+  },
+  {
+    "check": "Waveform animates only its bar height, with constant opacity",
+    "passed": true
+  },
+  {
+    "check": "System reduced motion disables the waveform",
+    "passed": true
+  },
+  {
+    "check": "Studio reduced-motion setting disables the waveform",
+    "passed": true
+  },
+  {
+    "check": "Transcription finishes and saves while Audio is hidden",
+    "passed": true
+  },
+  {
+    "check": "Final-text-only inference shows timer without inventing partial text",
+    "passed": true
+  },
+  {
+    "check": "Final-text-only result is saved normally",
+    "passed": true
+  },
+  {
+    "check": "Elapsed timer stops after completion",
+    "passed": true
+  },
+  {
+    "check": "Cancelling final-text-only inference reaches the backend",
+    "passed": true
+  },
+  {
+    "check": "A failed transcription keeps existing history",
+    "passed": true
+  },
+  {
+    "check": "Mobile page has no horizontal overflow",
+    "passed": true
+  },
+  {
+    "check": "Mobile history actions are reachable by touch",
+    "passed": true
+  },
+  {
+    "check": "Image Generate recalls the exact GGUF before generation",
+    "passed": true
+  },
+  {
+    "check": "Image recall preserves the saved size, steps and guidance",
+    "passed": true
+  },
+  {
+    "check": "Dismissing replacement warning preserves unsaved text",
+    "passed": true
+  },
+  {
+    "check": "Downloading an unsaved transcript clears its discard warning",
+    "passed": true
+  },
+  {
+    "check": "Clear all removes history and preserves archived transcripts",
+    "passed": true
+  },
+  {
+    "check": "Unarchive and Delete update real persisted history",
+    "passed": true
+  },
+  {
+    "check": "Pagination retrieves all 75 transcripts without duplicate rows",
+    "passed": true
+  }
+]

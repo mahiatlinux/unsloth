@@ -1,0 +1,6 @@
+[
+  {
+    "engine": "whisper.cpp",
+    "memory": "444 MiB"
+  }
+]

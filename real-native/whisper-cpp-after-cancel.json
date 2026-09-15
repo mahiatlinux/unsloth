@@ -1,0 +1,29 @@
+[
+  {
+    "elapsed": 0.0013,
+    "event": {
+      "type": "progress",
+      "text": ""
+    }
+  },
+  {
+    "elapsed": 0.116,
+    "event": {
+      "type": "complete",
+      "text": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+      "language": null,
+      "duration": 11.0,
+      "model": "tiny",
+      "record": {
+        "id": "685db99e38c042f19ac1619a5312e381",
+        "title": "whisper-cpp-after-cancel",
+        "text": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country.",
+        "model": "tiny",
+        "duration": 11.0,
+        "language": null,
+        "created_at": "2026-09-15T06:34:02.178686+00:00",
+        "archived": false
+      }
+    }
+  }
+]

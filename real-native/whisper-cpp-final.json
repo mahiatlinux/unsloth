@@ -1,0 +1,29 @@
+[
+  {
+    "elapsed": 0.0029,
+    "event": {
+      "type": "progress",
+      "text": ""
+    }
+  },
+  {
+    "elapsed": 1.0146,
+    "event": {
+      "type": "complete",
+      "text": "And so my fellow Americans ask not what your country can do for you ask what you can do for your country. And so my fellow Americans ask not what your country can do for you ask what you can do for your country. And so my fellow Americans ask not what your country can do for you ask what you can do for your country. And so my fellow Americans ask not what your country can do for you ask what you can do for your country.",
+      "language": null,
+      "duration": 44.0,
+      "model": "tiny",
+      "record": {
+        "id": "251aec2cf74640bf9188cce7f39614be",
+        "title": "whisper-cpp-final",
+        "text": "And so my fellow Americans ask not what your country can do for you ask what you can do for your country. And so my fellow Americans ask not what your country can do for you ask what you can do for your country. And so my fellow Americans ask not what your country can do for you ask what you can do for your country. And so my fellow Americans ask not what your country can do for you ask what you can do for your country.",
+        "model": "tiny",
+        "duration": 44.0,
+        "language": null,
+        "created_at": "2026-09-15T06:34:00.955720+00:00",
+        "archived": false
+      }
+    }
+  }
+]

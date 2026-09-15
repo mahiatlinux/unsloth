@@ -1,0 +1,22 @@
+[
+  {
+    "check": "Real Qwen cancellation after partial text saves no incomplete transcript",
+    "passed": true
+  },
+  {
+    "check": "Real Qwen completes and saves after cancellation",
+    "passed": true
+  },
+  {
+    "check": "Real whisper.cpp returns final text without partial updates and saves history",
+    "passed": true
+  },
+  {
+    "check": "Real whisper.cpp cancellation saves no incomplete transcript",
+    "passed": true
+  },
+  {
+    "check": "Real whisper.cpp completes and saves after cancellation",
+    "passed": true
+  }
+]

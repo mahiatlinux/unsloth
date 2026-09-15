@@ -1,0 +1,10 @@
+[
+  {
+    "side": "before",
+    "retained_after_mode_switch": false
+  },
+  {
+    "side": "after",
+    "retained_after_mode_switch": true
+  }
+]

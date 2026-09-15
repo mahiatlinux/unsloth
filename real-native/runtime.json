@@ -1,0 +1,9 @@
+{
+  "engine": "whisper.cpp",
+  "device": "whisper.cpp",
+  "loaded_model": "tiny",
+  "llama_build": "0.4.0-dev build10909 commit329b6160f",
+  "qwen_revision": "a663ee7cae110eead2f1236fbceb48960abf880f",
+  "speech_fixture": "https://github.com/ggml-org/whisper.cpp/blob/master/samples/jfk.wav",
+  "fixture_sha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e"
+}

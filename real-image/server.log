@@ -1,0 +1,94 @@
+INFO:     Started server process [2]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:39195 (Press CTRL+C to quit)
+INFO:     127.0.0.1:59958 - "GET /test/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59966 - "GET /api/settings/generation-presets/image HTTP/1.1" 200 OK
+2026-09-15 18:53:48 [info     ] TrainingBackend initialized (subprocess mode)
+2026-09-15 18:53:48 [warning  ] diffusion.size_estimate_failed: Repo id must be in the form 'repo_name' or 'namespace/repo_name': '<task>/real-image/segmind-vega-sdxl'. Use `repo_type` argument if needed.
+INFO:     127.0.0.1:59974 - "POST /api/inference/images/download-plan HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46022 - "PUT /api/settings/generation-presets/image HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46026 - "GET /api/settings/generation-presets/image HTTP/1.1" 200 OK
+Hardware detected: CUDA -- NVIDIA GeForce RTX 5060 Ti
+2026-09-15 18:54:57 [info     ] diffusion engine: diffusers (non-GGUF load (pipeline) requires diffusers)
+INFO:     127.0.0.1:46034 - "POST /api/inference/images/load HTTP/1.1" 200 OK
+2026-09-15 18:54:57 [warning  ] diffusion.size_estimate_failed: Repo id must be in the form 'repo_name' or 'namespace/repo_name': '<task>/real-image/segmind-vega-sdxl'. Use `repo_type` argument if needed.
+`CLIPImageProcessor` requires torchvision (not installed); falling back to `CLIPImageProcessorPil` for backward compatibility. Install torchvision to use the default backend, or import `CLIPImageProcessorPil` directly to silence this warning.
+`SiglipImageProcessor` requires torchvision (not installed); falling back to `SiglipImageProcessorPil` for backward compatibility. Install torchvision to use the default backend, or import `SiglipImageProcessorPil` directly to silence this warning.
+<task>/real-image/venv/lib/python3.12/site-packages/diffusers/utils/deprecation_utils.py:23: FutureWarning: `torch_dtype` is deprecated and will be removed in version 1.0.0. Please use `dtype` instead.
+  deprecate("torch_dtype", "1.0.0", _TORCH_DTYPE_DEPRECATION_MESSAGE)
+2026-09-15 18:55:02 [info     ] diffusion.loaded: repo=<task>/real-image/segmind-vega-sdxl base=<task>/real-image/segmind-vega-sdxl device=cuda offload=model tiling=True reasons=companions exceed budget; whole-module offload of every component
+INFO:     127.0.0.1:59582 - "GET /api/inference/images/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59584 - "GET /api/inference/images/load-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45250 - "POST /api/inference/images/generate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45258 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45266 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44192 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44196 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44208 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44224 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44238 - "GET /api/inference/images/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44244 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50414 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50418 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50420 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50428 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50438 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38298 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38314 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38324 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38328 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38330 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49636 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49638 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49652 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49656 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49394 - "POST /api/inference/images/unload HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49404 - "GET /api/inference/images/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49412 - "GET /api/settings/generation-presets/image HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49420 - "GET /api/inference/images/gallery?limit=10&offset=0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49426 - "GET /api/settings/generation-presets/image HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49428 - "DELETE /api/inference/images/gallery HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49434 - "GET /api/inference/images/gallery?limit=10&offset=0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49438 - "GET /api/inference/images/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49460 - "GET /api/inference/images/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49450 - "GET /api/inference/images/gallery?offset=0&limit=50&archived=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49434 - "GET /api/settings/generation-presets/image HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49438 - "GET /api/inference/images/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49460 - "GET /api/inference/images/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49486 - "GET /api/inference/images/gallery?offset=0&limit=50&archived=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49472 - "GET /api/settings/generation-presets/image HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49486 - "GET /api/inference/images/load-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49472 - "GET /api/inference/images/load-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49486 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49472 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49472 - "PUT /api/settings/generation-presets/image HTTP/1.1" 200 OK
+2026-09-15 18:56:55 [info     ] diffusion engine: diffusers (non-GGUF load (pipeline) requires diffusers)
+INFO:     127.0.0.1:49472 - "POST /api/inference/images/load HTTP/1.1" 200 OK
+2026-09-15 18:56:55 [warning  ] diffusion.size_estimate_failed: Repo id must be in the form 'repo_name' or 'namespace/repo_name': '<task>/real-image/segmind-vega-sdxl'. Use `repo_type` argument if needed.
+2026-09-15 18:56:55 [info     ] diffusion_load_progress        percent=0 phase=downloading
+INFO:     127.0.0.1:49472 - "GET /api/inference/images/load-progress HTTP/1.1" 200 OK
+2026-09-15 18:56:56 [info     ] diffusion.loaded: repo=<task>/real-image/segmind-vega-sdxl base=<task>/real-image/segmind-vega-sdxl device=cuda offload=model tiling=True reasons=companions exceed budget; whole-module offload of every component
+INFO:     127.0.0.1:49472 - "GET /api/inference/images/load-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49472 - "GET /api/inference/images/status HTTP/1.1" 200 OK
+2026-09-15 18:56:57 [info     ] image_generation_progress      percent=0 phase=denoise step=0 total_steps=20
+INFO:     127.0.0.1:49486 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49486 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+2026-09-15 18:56:57 [info     ] image_generation_progress      eta_seconds=0.6 percent=20 phase=denoise step=4 total_steps=20
+INFO:     127.0.0.1:49486 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49486 - "GET /api/inference/images/load-progress HTTP/1.1" 200 OK
+2026-09-15 18:56:58 [info     ] image_generation_progress      eta_seconds=0.4 percent=50 phase=denoise step=11 total_steps=20
+INFO:     127.0.0.1:49486 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+2026-09-15 18:56:58 [info     ] image_generation_progress      eta_seconds=0.0 percent=90 phase=denoise step=19 total_steps=20
+INFO:     127.0.0.1:49486 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+2026-09-15 18:56:58 [info     ] image_generation_progress      eta_seconds=0.0 percent=100 phase=denoise step=20 total_steps=20
+INFO:     127.0.0.1:49486 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49486 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49486 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49472 - "POST /api/inference/images/generate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49486 - "GET /api/inference/images/status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49472 - "GET /api/inference/images/gallery/d80198de6e844ecaad4539b77ea969b8/file HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34850 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37478 - "GET /api/inference/images/generate-progress HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37492 - "GET /api/inference/images/gallery?limit=10&offset=0 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37498 - "GET /api/inference/images/gallery/d80198de6e844ecaad4539b77ea969b8/file HTTP/1.1" 200 OK

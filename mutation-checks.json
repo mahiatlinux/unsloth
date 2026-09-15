@@ -1,0 +1,22 @@
+[
+  {
+    "mutation": "client partial updates",
+    "caught": true,
+    "exit_code": 1
+  },
+  {
+    "mutation": "exact image quantization",
+    "caught": true,
+    "exit_code": 1
+  },
+  {
+    "mutation": "archive preservation",
+    "caught": true,
+    "exit_code": 1
+  },
+  {
+    "mutation": "save before complete",
+    "caught": true,
+    "exit_code": 1
+  }
+]

@@ -1,0 +1,33 @@
+[
+  {
+    "file": "real-qwen-demo.webm",
+    "time": 0.294962,
+    "error": null
+  },
+  {
+    "file": "real-whisper-demo.webm",
+    "time": 0.306436,
+    "error": null
+  },
+  {
+    "file": "real-whisper-cpp-demo.webm",
+    "time": 0.305735,
+    "error": null
+  },
+  {
+    "file": "real-recording-demo.webm",
+    "time": 0.305788,
+    "error": null
+  },
+  {
+    "file": "transcription-demo.webm",
+    "time": 0.289113,
+    "error": null
+  },
+  {
+    "file": "real-image-demo.webm",
+    "time": 0.491701,
+    "duration": 11.36,
+    "error": null
+  }
+]

@@ -1,0 +1,222 @@
+[
+  {
+    "file": "01-before-empty.png",
+    "title": "Before: full Transcribe screen",
+    "side": "before"
+  },
+  {
+    "file": "02-before-progress.png",
+    "title": "Before: transcription spinner",
+    "side": "before"
+  },
+  {
+    "file": "03-before-complete.png",
+    "title": "Before: completed transcript without history",
+    "side": "before"
+  },
+  {
+    "file": "04-after-generate.png",
+    "title": "After: existing Audio Generate screen",
+    "side": "after"
+  },
+  {
+    "file": "05-after-empty.png",
+    "title": "After: Transcribe with empty history",
+    "side": "after"
+  },
+  {
+    "file": "06-after-progress.png",
+    "title": "After: live partial transcript, subtle waveform, timer and Cancel",
+    "side": "after"
+  },
+  {
+    "file": "07-after-complete.png",
+    "title": "After: completed transcript saved in history",
+    "side": "after"
+  },
+  {
+    "file": "08-after-actions.png",
+    "title": "History actions: download, copy, archive and delete",
+    "side": "after"
+  },
+  {
+    "file": "09-after-history-menu.png",
+    "title": "Switch between History and Archived transcripts",
+    "side": "after"
+  },
+  {
+    "file": "10-after-archived.png",
+    "title": "Archived transcript remains readable",
+    "side": "after"
+  },
+  {
+    "file": "11-after-archive-actions.png",
+    "title": "Archived transcript actions include Unarchive",
+    "side": "after"
+  },
+  {
+    "file": "12-after-recording.png",
+    "title": "Microphone recording controls",
+    "side": "after"
+  },
+  {
+    "file": "13-after-record-transcribing.png",
+    "title": "Recorded microphone audio transcribing",
+    "side": "after"
+  },
+  {
+    "file": "14-after-cancelled.png",
+    "title": "Cancelled transcription with earlier history preserved",
+    "side": "after"
+  },
+  {
+    "file": "15-after-mode-return.png",
+    "title": "Transcript survives switching Generate and Transcribe",
+    "side": "after"
+  },
+  {
+    "file": "16-after-save-failure.png",
+    "title": "Save failure keeps text and manual download available",
+    "side": "after"
+  },
+  {
+    "file": "17-after-dark-history.png",
+    "title": "Dark mode: transcript and history",
+    "side": "after"
+  },
+  {
+    "file": "18-after-dark-progress.png",
+    "title": "Dark mode: minimal progress and timer",
+    "side": "after"
+  },
+  {
+    "file": "19-mobile-dark.png",
+    "title": "Mobile: dark transcript and history",
+    "side": "after"
+  },
+  {
+    "file": "19-mobile-light.png",
+    "title": "Mobile: light transcript and history",
+    "side": "after"
+  },
+  {
+    "file": "20-images-remembered.png",
+    "title": "Images: unloaded model with saved generation settings",
+    "side": "after"
+  },
+  {
+    "file": "21-images-recalled.png",
+    "title": "Images: exact saved GGUF model recalled by Generate",
+    "side": "after"
+  },
+  {
+    "file": "22-reduced-motion.png",
+    "title": "Reduced motion: fixed bars, timer and Cancel",
+    "side": "after"
+  },
+  {
+    "file": "23-background-return.png",
+    "title": "Transcription completed while visiting Images",
+    "side": "after"
+  },
+  {
+    "file": "24-final-only-progress.png",
+    "title": "Final-text-only model: waveform and timer, no partial text",
+    "side": "after"
+  },
+  {
+    "file": "25-transcription-error.png",
+    "title": "Transcription failure preserves earlier history",
+    "side": "after"
+  },
+  {
+    "file": "26-mobile-history-scrolled.png",
+    "title": "Mobile: history after scrolling the page",
+    "side": "after"
+  },
+  {
+    "file": "27-mobile-history-actions.png",
+    "title": "Mobile: transcript actions menu",
+    "side": "after"
+  },
+  {
+    "file": "28-unsaved-warning.png",
+    "title": "Native browser confirmation before discarding an unsaved transcript",
+    "side": "after"
+  },
+  {
+    "file": "29-clear-history-warning.png",
+    "title": "Clear history confirmation explains that archived transcripts are kept",
+    "side": "after"
+  },
+  {
+    "file": "30-cleared-history.png",
+    "title": "History is empty after Clear all",
+    "side": "after"
+  },
+  {
+    "file": "31-history-many.png",
+    "title": "Transcript history with multiple saved sessions",
+    "side": "after"
+  },
+  {
+    "file": "32-history-scroll.png",
+    "title": "Older transcripts remain reachable by scrolling",
+    "side": "after"
+  },
+  {
+    "file": "33-real-qwen-streaming.png",
+    "title": "REAL Qwen3-ASR 0.6B: partial transcript during decoding",
+    "side": "after"
+  },
+  {
+    "file": "34-real-qwen-complete.png",
+    "title": "REAL Qwen3-ASR 0.6B: complete transcript saved to history",
+    "side": "after"
+  },
+  {
+    "file": "35-real-whisper-cpp-progress.png",
+    "title": "REAL whisper.cpp Tiny: timer and Cancel during final-only decoding",
+    "side": "after"
+  },
+  {
+    "file": "36-real-whisper-cpp-complete.png",
+    "title": "REAL whisper.cpp Tiny: completed transcript and history",
+    "side": "after"
+  },
+  {
+    "file": "37-real-whisper-progress.png",
+    "title": "REAL Transformers Whisper Tiny: partial text after audio chunks",
+    "side": "after"
+  },
+  {
+    "file": "38-real-whisper-complete.png",
+    "title": "REAL Transformers Whisper Tiny: completed transcript and history",
+    "side": "after"
+  },
+  {
+    "file": "39-real-microphone.png",
+    "title": "Browser microphone capture of a speech fixture before real Whisper decoding",
+    "side": "after"
+  },
+  {
+    "file": "40-real-recording-transcript.png",
+    "title": "Recorded browser audio decoded by real Whisper and saved in history",
+    "side": "after"
+  },
+  {
+    "file": "41-real-image-remembered.png",
+    "title": "REAL image generation: unloaded model and saved recipe",
+    "side": "after"
+  },
+  {
+    "file": "42-real-image-loading.png",
+    "title": "REAL image generation: recalled model is generating with the saved recipe",
+    "side": "after"
+  },
+  {
+    "file": "44-real-image-complete.png",
+    "title": "REAL Segmind Vega: generated image in Studio history",
+    "side": "after"
+  }
+]

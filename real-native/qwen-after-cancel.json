@@ -1,0 +1,36 @@
+[
+  {
+    "elapsed": 0.0016,
+    "event": {
+      "type": "progress",
+      "text": ""
+    }
+  },
+  {
+    "elapsed": 0.1459,
+    "event": {
+      "type": "progress",
+      "text": ""
+    }
+  },
+  {
+    "elapsed": 0.2137,
+    "event": {
+      "type": "complete",
+      "text": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country.",
+      "language": null,
+      "duration": 11.0,
+      "model": "qwen3-asr-0.6b",
+      "record": {
+        "id": "e951a4dbfd7746e1bd588ad9e65c7823",
+        "title": "qwen-after-cancel",
+        "text": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country.",
+        "model": "qwen3-asr-0.6b",
+        "duration": 11.0,
+        "language": null,
+        "created_at": "2026-09-15T06:33:59.940714+00:00",
+        "archived": false
+      }
+    }
+  }
+]

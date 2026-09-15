@@ -1,0 +1,35 @@
+[
+  {
+    "file": "direct-api-teapot.png",
+    "size": [
+      512,
+      512
+    ],
+    "mode": "RGB",
+    "pixel_sha256": "a5c943f4f1313cd655e89405be922dffc61a4f2c9aed20ff935f71b6b19e9618",
+    "remaining_metadata": {},
+    "file_sha256": "ad6824fe584041d969422631eaee0026a93d8de2e3c5713514002029140c6e07"
+  },
+  {
+    "file": "ui-recall-teapot-first.png",
+    "size": [
+      512,
+      512
+    ],
+    "mode": "RGB",
+    "pixel_sha256": "f8bdf2c6890dbda7b991064d0f62dcbd881c20912dcf9ad39be0f5b4a2863746",
+    "remaining_metadata": {},
+    "file_sha256": "7b88deae0fb6c1a5855f8430c6dfe148e1aa3dec352e166e64495f02e3425e9a"
+  },
+  {
+    "file": "ui-recall-teapot-via-route.png",
+    "size": [
+      512,
+      512
+    ],
+    "mode": "RGB",
+    "pixel_sha256": "f8bdf2c6890dbda7b991064d0f62dcbd881c20912dcf9ad39be0f5b4a2863746",
+    "remaining_metadata": {},
+    "file_sha256": "7b88deae0fb6c1a5855f8430c6dfe148e1aa3dec352e166e64495f02e3425e9a"
+  }
+]
