@@ -74,15 +74,15 @@ try:
         driver.execute_script("localStorage.setItem('unsloth_auth_token',arguments[0]);localStorage.setItem('unsloth_auth_refresh_token',arguments[1]);",auth['access_token'],auth['refresh_token'])
         driver.get(base+'/chat?thread='+thread)
         wait=WebDriverWait(driver,45)
-        wait.until(lambda d:'Connect to the approved deployment server' in d.find_element(By.TAG_NAME,'body').text)
+        wait.until(lambda d:'Connect to the approved deployment server' in d.execute_script("return document.body ? document.body.innerText : ''"))
         marker='Blocked command(s) for safety: ssh' if report['connections']==0 else 'pr10642-live-ssh-ok'
-        if marker not in driver.find_element(By.TAG_NAME,'body').text:
+        if marker not in driver.execute_script("return document.body ? document.body.innerText : ''"):
             buttons=driver.find_elements(By.TAG_NAME,'button')
             for button in buttons:
                 if 'ssh' in button.text:
                     button.click()
                     break
-        wait.until(lambda d:marker in d.find_element(By.TAG_NAME,'body').text)
+        wait.until(lambda d:marker in d.execute_script("return document.body ? document.body.innerText : ''"))
         driver.save_screenshot(str(out/'safari.png'))
         (out/'safari.json').write_text(json.dumps({'browser':'Safari','version':driver.capabilities['browserVersion'],'marker':marker,'viewport':driver.execute_script('return [innerWidth,innerHeight]')},indent=2))
     finally:
