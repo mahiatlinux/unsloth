@@ -4,7 +4,7 @@ Source: `4f8cfdf58`. Base: `02751d21`. 44 original full screenshots, two before/
 
 Download this branch and open `index.html` for the interactive gallery. Screenshots labelled REAL use actual model inference. Other states use controlled responses. Desktop: 1600 × 1100; mobile: 390 × 844. Browser confirmations include the complete test browser window.
 
-[Verification commands and scope](verification.md)
+[Verification commands and scope](verification.md) · [Recording replacement follow-up](recording-replacement-followup.md)
 
 ## Before and after
 
