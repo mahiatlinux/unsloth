@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Souravrajvi0/unsloth
-          ref: 308b23607a5febaaa4972a86f904fb3d0ad6309c
+          ref: fb6e4dcb5f93dee2b3dbd0b97c092a1779c6e2dc
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
