@@ -58,3 +58,15 @@ node --experimental-strip-types --test studio/frontend/tests/image-model-recall.
 ```
 
 All three image recall tests passed. Application and test TypeScript checks also passed. This verifies load parameters at the callback boundary; a new GPU generation run with a quantized model and LoRA was not performed.
+
+## Streaming cancellation refutation
+
+Checked at `26296a370`; no source change was needed.
+
+The streaming call passes `request=None` but supplies `on_progress`, so `_transcribe_audio_result` creates a real cancellation event. Closing `stream_transcript` cancels its producer task. The route catches `asyncio.CancelledError` and calls `sidecar.cancel_transcription(cancel_event)` on a short-lived thread. Every supported sidecar sets that event before checking its owned load.
+
+A direct reproduction ran the actual stream generator and route coroutine, with real cancellation methods from WhisperSttSidecar, MtmdSttSidecar, and GgmlSttSidecar. Only model loading and transcription work were replaced by a bounded blocking worker. Each worker received its cancellation event, exited, and produced no saved transcript. Result: three tests passed in 0.85 seconds. [Executable probe](test_stream_cancel_refutation.py).
+
+This agrees with the previously published [real Whisper cancellation and recovery](real-whisper/report.md) and [real Qwen/whisper.cpp results](real-native/checks.json). The existing implementation already handles the reported case.
+
+[Python's task cancellation documentation](https://docs.python.org/3/library/asyncio-task.html#task-cancellation) specifies that cancellation raises CancelledError inside the task, allowing this explicit cleanup path to run. The code does not rely on cancelling an asyncio task to stop a thread by itself.
