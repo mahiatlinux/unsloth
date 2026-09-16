@@ -17,6 +17,9 @@ jobs:
           - side: head
             sha: 318746441f80064c1275ce59b6351d5b8f421418
             mode: --negative
+          - side: fix
+            sha: 318746441f80064c1275ce59b6351d5b8f421418
+            mode: --fixed
     runs-on: windows-2022
     timeout-minutes: 15
     steps:
@@ -30,6 +33,10 @@ jobs:
           ref: ${{ matrix.sha }}
           path: source
           persist-credentials: false
+      - name: Apply candidate repair
+        if: matrix.side == 'fix'
+        working-directory: source
+        run: git apply ../driver/probes/round29.patch
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
