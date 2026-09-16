@@ -36,7 +36,11 @@ jobs:
       - name: Apply candidate repair
         if: matrix.side == 'fix'
         working-directory: source
-        run: git apply ../driver/probes/round29.patch
+        run: |
+          python -c "from pathlib import Path; paths = ['../driver/probes/round29.patch','studio/backend/core/inference/tools.py','studio/backend/tests/test_ssh_policy.py']; [(lambda p: p.write_bytes(p.read_bytes().replace(bytes([13,10]),bytes([10]))))(Path(s)) for s in paths]"
+          git apply ../driver/probes/round29.patch
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git hash-object --no-filters studio/backend/core/inference/tools.py studio/backend/tests/test_ssh_policy.py
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
