@@ -61,7 +61,9 @@ try:
                     button.click()
                     break
             page.get_by_text(marker,exact=False).first.wait_for(state='visible',timeout=5000)
-        page.screenshot(path=str(out/(engine+'.png')),full_page=True)
+        page.wait_for_timeout(500)
+        page.get_by_text(marker,exact=False).first.wait_for(state='visible',timeout=5000)
+        page.screenshot(path=str(out/(engine+'.png')),full_page=True,animations='disabled')
         (out/(engine+'.json')).write_text(json.dumps({'browser':engine,'version':browser.version,'marker':marker,'result':output,'url':page.url,'viewport':[1280,900]},indent=2))
         context.close(); browser.close()
     from selenium import webdriver
