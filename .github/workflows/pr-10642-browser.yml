@@ -11,7 +11,7 @@ jobs:
       matrix:
         include:
           - side: repaired
-            sha: d76ee3ea2e28cfe8d04c9e3c520838ca71246c6b
+            sha: ef983da5095ba3d5d0672def1eb49738d77a9ca2
     runs-on: macos-15
     timeout-minutes: 25
     steps:
