@@ -81,7 +81,10 @@ ssh_path=Path(os.environ['SystemRoot'])/'System32'/'OpenSSH'/'ssh.exe'
 assert ssh_path.is_file()
 command = f'{ssh_path.with_suffix("")} -F none -p {port} -i review-key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o IdentitiesOnly=yes review@127.0.0.1 uptime'
 command='echo ok&'+command
-print('ssh version:',subprocess.run([str(ssh_path),'-V'],env=tools_mod._build_safe_env(str(root)),capture_output=True,text=True).__dict__.get('stderr'),flush=True)
+safe_env=tools_mod._build_safe_env(str(root))
+for label,extra in [('original',{}),('programdata',{'ProgramData':os.environ.get('ProgramData',r'C:\ProgramData')}),('profile',{'USERPROFILE':str(root),'USERNAME':os.environ['USERNAME']})]:
+ probe=subprocess.run([str(ssh_path),'-V'],env=safe_env|extra,capture_output=True,text=True)
+ print(json.dumps({'probe':label,'returncode':probe.returncode,'stdout':probe.stdout,'stderr':probe.stderr}),flush=True)
 command=command.replace('LogLevel=ERROR','LogLevel=DEBUG3')
 result=_bash_exec(command,session_id=session,timeout=10)
 print(json.dumps({'platform':sys.platform,'shell':tools_mod._get_shell_cmd(command)[:2],'command':command,'before':result,'connections':len(connections)}),flush=True)
