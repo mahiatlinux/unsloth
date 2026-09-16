@@ -1,0 +1,59 @@
+name: pr 10642 windows cmd ssh control
+on:
+  push:
+    branches: [pr-10642-review-ci-20260916]
+    paths: ['.github/workflows/pr-10642-windows-live.yml', 'probes/round29_windows_live.py']
+permissions:
+  contents: read
+jobs:
+  cmd-ssh:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - side: base
+            sha: 9bef060ea4200fb679067c4fca406087c1c14a4b
+            mode: --base
+          - side: head
+            sha: 318746441f80064c1275ce59b6351d5b8f421418
+            mode: --negative
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: driver
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: unslothai/unsloth
+          ref: ${{ matrix.sha }}
+          path: source
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install scoped dependencies
+        working-directory: source
+        shell: pwsh
+        env:
+          UV_CACHE_DIR: ${{ github.workspace }}/source/.cache/uv
+        run: |
+          python -m pip install uv
+          uv venv --python python .venv
+          uv pip install --python .venv pytest httpx fastapi==0.141.1 pydantic==2.13.4 structlog packaging==26.3 requests pyyaml jinja2 psutil cryptography pyjwt==2.13.0 sqlalchemy python-multipart aiofiles diceware 'huggingface-hub>=1.23,<2' paramiko==5.0.0
+      - name: Execute real cmd fallback and SSH
+        working-directory: source
+        shell: pwsh
+        env:
+          UNSLOTH_STUDIO_HOME: ${{ github.workspace }}/source/.home/studio
+          XDG_CACHE_HOME: ${{ github.workspace }}/source/.cache
+          PYTHONPATH: ${{ github.workspace }}/source/studio/backend
+        run: |
+          .venv/Scripts/python ../driver/probes/round29_windows_live.py ${{ matrix.mode }} 2>&1 | Tee-Object -FilePath windows-live.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pr10642-windows-cmd-${{ matrix.side }}
+          path: source/windows-live.log
