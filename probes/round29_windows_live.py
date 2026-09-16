@@ -80,7 +80,7 @@ subprocess.run(['icacls',str(root/'review-key'),'/inheritance:r','/grant:r',os.e
 ssh_path=Path(os.environ['SystemRoot'])/'System32'/'OpenSSH'/'ssh.exe'
 assert ssh_path.is_file()
 command = f'{ssh_path.with_suffix("")} -F none -p {port} -i review-key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o IdentitiesOnly=yes review@127.0.0.1 uptime'
-command='echo ok&'+command
+command='set "PROGRAMDATA='+os.environ.get('ProgramData',r'C:\ProgramData')+'"&echo ok&'+command
 safe_env=tools_mod._build_safe_env(str(root))
 for label,extra in [('original',{}),('programdata',{'ProgramData':os.environ.get('ProgramData',r'C:\ProgramData')}),('profile',{'USERPROFILE':str(root),'USERNAME':os.environ['USERNAME']})]:
  probe=subprocess.run([str(ssh_path),'-V'],env=safe_env|extra,capture_output=True,text=True)
