@@ -1,0 +1,6 @@
+{
+  "external_installed_before_apt": "0.1.811",
+  "installed_after_helper": "0.1.811",
+  "helper_exit": 1,
+  "error": "Debian package installation failed (exit status: 100): Installed Unsloth changed during the update. Retry the update.\nE: Problem executing scripts DPkg::Pre-Invoke 'test \"$(/usr/bin/dpkg-query --show --showformat='${Version}' unsloth)\" = '0.1.810-beta' || { echo 'Installed Unsloth changed during the update. Retry the update.' >&2; exit 1; }'\nE: Sub-process returned an error code"
+}

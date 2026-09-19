@@ -1,0 +1,5 @@
+{
+  "exit_code": 1,
+  "error": "The signed update does not match the installed Unsloth package, version, or architecture.",
+  "installed_version": "0.1.810-beta"
+}

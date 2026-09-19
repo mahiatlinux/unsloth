@@ -1,0 +1,23 @@
+{
+  "before_sha256": "440817888b15ef68f3ad45932a3ab70966cf052fe3db84cef6cfd1370d762d80",
+  "after_sha256": "ab7ebbeeb944108efaf7584a89ab906b77f65a99398837ec74a83888b7a8e834",
+  "matches_published_appimage": true,
+  "debian_version_before": "0.1.811-beta",
+  "debian_version_after": "0.1.811-beta",
+  "authentication_prompt_seen": false,
+  "pkexec_seen": false,
+  "backend_health": {
+    "status": "healthy",
+    "timestamp": "2026-09-19T21:16:36.041454",
+    "service": "Unsloth UI Backend",
+    "chat_only": true,
+    "desktop_protocol_version": 1,
+    "desktop_manageability_version": 2,
+    "supports_desktop_auth": true,
+    "supports_desktop_backend_ownership": true,
+    "native_path_leases_supported": true,
+    "hf_endpoint": "https://huggingface.co",
+    "hf_datasets_server": "https://datasets-server.huggingface.co"
+  },
+  "relaunched_processes": "  61635  1000 /tmp/.mount_UnslotpGaGEJ/usr/bin/unsloth-studio\n"
+}

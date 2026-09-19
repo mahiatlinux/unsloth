@@ -1,0 +1,5 @@
+{
+  "exit_code": 1,
+  "error": "The Debian update must be newer than the installed Unsloth package.",
+  "installed_version": "0.1.810-beta"
+}

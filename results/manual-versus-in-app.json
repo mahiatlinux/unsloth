@@ -1,0 +1,21 @@
+{
+  "same_baseline": true,
+  "same_target_deb": true,
+  "target_version": "0.1.811-beta",
+  "package_files_compared": 5,
+  "installed_packages_compared": 1575,
+  "checks_equal": {
+    "package": true,
+    "package_files": true,
+    "dpkg_verify": true,
+    "all_packages": true,
+    "manual_packages": true,
+    "saved_data": true,
+    "sentinels": true,
+    "launchers": true,
+    "installer_tempdirs": true
+  },
+  "differences": {},
+  "in_app_automatically_relaunched": true,
+  "manual_app_launched_after_install": true
+}

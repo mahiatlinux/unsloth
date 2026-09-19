@@ -1,0 +1,26 @@
+        Info Looking up installed tauri packages to check mismatched versions...
+   Compiling unsloth-studio v0.1.810-beta (<test-home>/studio/src-tauri)
+warning: unused variable: `reply_pending`
+    --> src/main.rs:1562:17
+     |
+1562 |             let reply_pending = guard.finish();
+     |                 ^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_reply_pending`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `build_managed_cli_command` is never used
+    --> src/process.rs:1716:15
+     |
+1716 | pub(crate) fn build_managed_cli_command(
+     |               ^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `unsloth-studio` (bin "unsloth-studio") generated 2 warnings (run `cargo fix --bin "unsloth-studio" -p unsloth-studio` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 53.23s
+       Built application at: <test-home>/studio/src-tauri/target/release/unsloth-studio
+        Info Patching <test-home>/studio/src-tauri/target/release/unsloth-studio with bundle type information: deb
+    Bundling Unsloth_0.1.810-beta_amd64.deb (<test-home>/studio/src-tauri/target/release/bundle/deb/Unsloth_0.1.810-beta_amd64.deb)
+    Finished 1 bundle at:
+        <test-home>/studio/src-tauri/target/release/bundle/deb/Unsloth_0.1.810-beta_amd64.deb
+

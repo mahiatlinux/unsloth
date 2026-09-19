@@ -1,0 +1,12 @@
+{
+  "chat_title": "Update preservation check",
+  "settings_json": "{\"temperature\": 0.4}",
+  "sentinels_match": true,
+  "visible_launchers": [
+    "Unsloth.desktop"
+  ],
+  "hidden_protocol_handlers": [
+    "unsloth-studio-handler.desktop"
+  ],
+  "installer_temp_directories": 0
+}

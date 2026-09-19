@@ -1,0 +1,10 @@
+        Info Patching <test-home>/studio/src-tauri/target/release/unsloth-studio with bundle type information: appimage
+ Downloading https://github.com/tauri-apps/binary-releases/releases/download/apprun-old/AppRun-x86_64
+ Downloading https://github.com/tauri-apps/binary-releases/releases/download/linuxdeploy/linuxdeploy-x86_64.AppImage
+ Downloading https://raw.githubusercontent.com/tauri-apps/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh
+ Downloading https://raw.githubusercontent.com/tauri-apps/linuxdeploy-plugin-gstreamer/master/linuxdeploy-plugin-gstreamer.sh
+ Downloading https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/continuous/linuxdeploy-plugin-appimage-x86_64.AppImage
+    Bundling Unsloth_0.1.810-beta_amd64.AppImage (<test-home>/studio/src-tauri/target/release/bundle/appimage/Unsloth_0.1.810-beta_amd64.AppImage)
+    Finished 1 bundle at:
+        <test-home>/studio/src-tauri/target/release/bundle/appimage/Unsloth_0.1.810-beta_amd64.AppImage
+

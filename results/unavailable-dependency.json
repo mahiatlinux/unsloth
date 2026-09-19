@@ -1,0 +1,4 @@
+{
+  "error": "App update failed\nBackend recovered. Diagnostics are still available.\nDebian package installation failed (exit status: 1): Debian package installation failed (exit status: 100): E: Unable to satisfy dependencies. Reached two conflicting assignments: 1. unsloth:amd64=0.1.811-beta is selected as an upgrade 2. unsloth:amd64=0.1.811-beta Depends unsloth-nonexistent-e2e-dependency (= 0.0.0) but none of the choices are installable: [no choices]",
+  "installed_version": "0.1.810-beta"
+}

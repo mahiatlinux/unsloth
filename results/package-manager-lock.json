@@ -1,0 +1,4 @@
+{
+  "error": "App update failed\nBackend recovered. Diagnostics are still available.\nDebian package installation failed (exit status: 1): Debian package installation failed (exit status: 100): E: Could not get lock /var/lib/dpkg/lock-frontend. It is held by process 42466 (python3) E: Unable to acquire the dpkg frontend lock (/var/lib/dpkg/lock-frontend), is another process using it?",
+  "installed_version": "0.1.810-beta"
+}

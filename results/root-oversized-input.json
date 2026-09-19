@@ -1,0 +1,5 @@
+{
+  "exit_code": 1,
+  "error": "The Debian update is empty or exceeds the 512 MiB limit.",
+  "seconds": 0.4
+}
