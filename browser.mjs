@@ -24,6 +24,7 @@ for (const engine of (process.env.ENGINE ? [process.env.ENGINE] : ['chromium','f
     requests.push(u.href);
     let rows=models.filter(m=>(!u.searchParams.get('author')||m.id.startsWith(u.searchParams.get('author')+'/'))&&(!u.searchParams.get('search')||m.id.toLowerCase().includes(u.searchParams.get('search').toLowerCase())));
     if(u.searchParams.get('search')==='Priority') rows=u.searchParams.get('author')==='unsloth'?[{...models[0],id:'unsloth/Priority-Unsloth-GGUF'}]:Array.from({length:200},(_,i)=>({...models[0],id:`community/Priority-${i}-GGUF`}));
+    if(u.searchParams.get('search')==='SparsePriority') rows=u.searchParams.get('author')==='unsloth'?[...Array.from({length:4},(_,i)=>({...models[0],id:`unsloth/SparsePriority-short-${i}-GGUF`,gguf:{total:4e9,context_length:4096}})),{...models[0],id:'unsloth/SparsePriority-Unsloth-GGUF'}]:Array.from({length:200},(_,i)=>({...models[0],id:`community/SparsePriority-${i}-GGUF`}));
     const range=u.searchParams.get('num_parameters');
     if(range){for(const bound of range.split(',')){const [key,value]=bound.split(':');rows=rows.filter(m=>key==='min'?(m.gguf?.total??m.safetensors.total)>=Number(value):(m.gguf?.total??m.safetensors.total)<=Number(value));}}
     return respond(rows);
@@ -97,6 +98,8 @@ for (const engine of (process.env.ENGINE ? [process.env.ENGINE] : ['chromium','f
   await page.screenshot({path:`${root}/artifacts/${engine}-pinned.png`});
   await search.fill('Priority');
   await page.getByText('Priority-Unsloth-GGUF',{exact:true}).first().waitFor();
+  await search.fill('SparsePriority');
+  await page.getByText('SparsePriority-Unsloth-GGUF',{exact:true}).first().waitFor();
   await page.getByRole('radio',{name:'Datasets',exact:true}).click(); assert.equal(await filters.count(),0);
   await page.getByRole('radio',{name:'Models',exact:true}).click();
   await page.setViewportSize({width:390,height:844});await filters.click();
