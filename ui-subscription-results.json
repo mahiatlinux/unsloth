@@ -1,0 +1,16 @@
+[
+  {
+    "browser": "chromium",
+    "version": "153.0.8010.12",
+    "split_sse_frames": true,
+    "stream_error_preserves_title": true,
+    "status": "pass"
+  },
+  {
+    "browser": "firefox",
+    "version": "155.0",
+    "split_sse_frames": true,
+    "stream_error_preserves_title": true,
+    "status": "pass"
+  }
+]
