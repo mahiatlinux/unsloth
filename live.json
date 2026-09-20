@@ -1,0 +1,24 @@
+{
+  "url": "https://huggingface.co/api/models?author=unsloth&search=Qwen3-8B&num_parameters=min:8000000000,max:9000000000&limit=25&expand=safetensors&expand=gguf",
+  "scanned": 25,
+  "metadataRequests": 19,
+  "matches": [
+    "unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF",
+    "unsloth/Qwen3-8B-128K-GGUF",
+    "unsloth/DeepSeek-R1-0528-Qwen3-8B",
+    "unsloth/DeepSeek-R1-0528-Qwen3-8B-unsloth-bnb-4bit",
+    "unsloth/DeepSeek-R1-0528-Qwen3-8B-bnb-4bit",
+    "unsloth/Qwen3-VL-8B-Instruct",
+    "unsloth/Qwen3-VL-8B-Instruct-unsloth-bnb-4bit",
+    "unsloth/Qwen3-VL-8B-Instruct-bnb-4bit",
+    "unsloth/Qwen3-VL-8B-Thinking",
+    "unsloth/Qwen3-VL-8B-Thinking-unsloth-bnb-4bit",
+    "unsloth/Qwen3-VL-8B-Thinking-bnb-4bit",
+    "unsloth/Qwen3-VL-8B-Thinking-FP8",
+    "unsloth/Qwen3-VL-8B-Instruct-FP8",
+    "unsloth/Qwen3-VL-8B-Thinking-GGUF",
+    "unsloth/Qwen3-VL-8B-Instruct-GGUF",
+    "unsloth/Qwen3-VL-8B-Instruct-1M-GGUF",
+    "unsloth/Qwen3-VL-8B-Thinking-1M-GGUF"
+  ]
+}

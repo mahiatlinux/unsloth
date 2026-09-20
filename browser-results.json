@@ -1,0 +1,30 @@
+[
+  {
+    "side": "before",
+    "engine": "chromium",
+    "browser": "153.0.8010.12",
+    "errors": [],
+    "listingRequests": 5
+  },
+  {
+    "side": "after",
+    "engine": "chromium",
+    "browser": "153.0.8010.12",
+    "errors": [],
+    "listingRequests": 15
+  },
+  {
+    "side": "before",
+    "engine": "firefox",
+    "browser": "155.0",
+    "errors": [],
+    "listingRequests": 5
+  },
+  {
+    "side": "after",
+    "engine": "firefox",
+    "browser": "155.0",
+    "errors": [],
+    "listingRequests": 15
+  }
+]
