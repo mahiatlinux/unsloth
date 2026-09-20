@@ -1,0 +1,347 @@
+{
+  "environment": {
+    "os": "Linux x86_64",
+    "gpu": "NVIDIA GeForce RTX 5060 Ti 16 GB",
+    "llama_cpp": "b10909 329b6160f CUDA",
+    "context": 4096,
+    "title_seed": 42
+  },
+  "full_chat_runs": [
+    {
+      "model": "ling",
+      "browser": "chromium",
+      "initial_title": "Friendly lunch invite for a colleague",
+      "base_title": "Friendly lunch invite for a colleague",
+      "refreshed_title": "Limit liability to $500 000 and",
+      "message_count": 6,
+      "messages_unchanged": true,
+      "automatic_payload_matches_base": true,
+      "seeded_output_matches_base": true,
+      "auto_title_off_refresh": true,
+      "reload_persisted": true,
+      "page_errors": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Write a short friendly email inviting a colleague to lunch. Use no more than 40 words."
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "Hi [Name],\n\nHope you're having a great week! I'd love to grab lunch with you soon. How about we meet at 12:30 at the new caf\u00e9 on 5th Street? Looking forward to catching up!"
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Now switch topics completely. Help me negotiate a software contract liability cap. Suggest two concise clauses, under 70 words."
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "To protect us both, let's cap total liability at $500,000. This ensures we're not exposed to unlimited risk if we miss delivery timelines. We can also include a cap on indirect damages. Let's discuss this so we can finalize the agreement quickly."
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Focus on the liability cap and indemnification exclusions in that software contract. Give a final concise recommendation, under 60 words."
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "We should limit the total liability cap to $500,000 and explicitly exclude indemnification for indirect damages like lost profits or business interruption. This protects both parties from excessive risk while ensuring we cover direct costs. Let's finalize this clause now to ensure we are fully protected."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "model": "ling",
+      "browser": "firefox",
+      "initial_title": "Lunch invitation for you",
+      "base_title": "Lunch invitation for you",
+      "refreshed_title": "Liability cap and indemnification exclusions for",
+      "message_count": 6,
+      "messages_unchanged": true,
+      "automatic_payload_matches_base": true,
+      "seeded_output_matches_base": true,
+      "auto_title_off_refresh": true,
+      "reload_persisted": true,
+      "page_errors": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Write a short friendly email inviting a colleague to lunch. Use no more than 40 words."
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "Hi there! I\u2019d love to invite you to lunch. Let me know if you\u2019re free this week. We can grab a bite and catch up. Hope you can make it!"
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "To limit financial exposure, I propose a 15% liability cap on project delays. This balances our mutual risks and protects both parties. Let's finalize this clause to ensure clarity and fairness."
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Now switch topics completely. Help me negotiate a software contract liability cap. Suggest two concise clauses, under 70 words."
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Focus on the liability cap and indemnification exclusions in that software contract. Give a final concise recommendation, under 60 words."
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "I recommend a 10% liability cap on direct damages, with explicit exclusions for indirect, consequential, or special damages. Include a mutual indemnification clause where each party covers their own losses. This balances risk and cost for both sides."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "model": "qwen",
+      "browser": "chromium",
+      "initial_title": "Friendly lunch invitation email",
+      "base_title": "Friendly lunch invitation email",
+      "refreshed_title": "Contract liability cap negotiation advice",
+      "message_count": 6,
+      "messages_unchanged": true,
+      "automatic_payload_matches_base": true,
+      "seeded_output_matches_base": true,
+      "auto_title_off_refresh": true,
+      "reload_persisted": true,
+      "page_errors": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Write a short friendly email inviting a colleague to lunch. Use no more than 40 words."
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "Subject: Lunch?\n\nHi! Are you free for lunch tomorrow? I'd love to grab a bite and catch up over some food. Let me know if that works for you, or if you have another day in mind. Looking forward to it!\n\nBest,"
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Now switch topics completely. Help me negotiate a software contract liability cap. Suggest two concise clauses, under 70 words."
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "1. **Mutual Cap:** \"Liabilities shall not exceed the total fees paid or payable in the twelve (12) months preceding the claim.\"\n\n2. **Exclusion Clause:** \"This cap does not apply to indemnification obligations, confidentiality breaches, or liabilities arising from gross negligence, willful misconduct, or personal injury.\""
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "Cap aggregate liability at 12 months of fees to limit exposure. Explicitly exclude indemnification, confidentiality breaches, and gross negligence from this cap. This balances risk: you retain protection for core obligations while capping general performance issues, creating a fair, defensible framework for both parties."
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Focus on the liability cap and indemnification exclusions in that software contract. Give a final concise recommendation, under 60 words."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "model": "qwen",
+      "browser": "firefox",
+      "initial_title": "Friendly lunch invitation email",
+      "base_title": "Friendly lunch invitation email",
+      "refreshed_title": "Contract liability cap negotiation",
+      "message_count": 6,
+      "messages_unchanged": true,
+      "automatic_payload_matches_base": true,
+      "seeded_output_matches_base": true,
+      "auto_title_off_refresh": true,
+      "reload_persisted": true,
+      "page_errors": [],
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Write a short friendly email inviting a colleague to lunch. Use no more than 40 words."
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "Subject: Lunch?\n\nHi [Name],\n\nHope you're having a great day! Would love to grab lunch together sometime this week. Let me know what time works for you. I'm thinking of that new place downtown.\n\nThanks!"
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "**Clause 1: General Cap**\n\"Except for Payment Obligations and Confidentiality Breaches, Vendor\u2019s total Liability shall not exceed one hundred percent (100%) of Fees paid or payable during the twelve (12) months preceding the Event of Default.\"\n\n**Clause 2: Exclusion**\n\"Notwithstanding Section [Liability Cap], this limitation shall not apply to: (a) Indemnification Obligations; (b) Gross Negligence, Willful Misconduct, or Fraud; and (c) Vendor\u2019s Breach of Data Protection obligations.\""
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Now switch topics completely. Help me negotiate a software contract liability cap. Suggest two concise clauses, under 70 words."
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "Focus on the liability cap and indemnification exclusions in that software contract. Give a final concise recommendation, under 60 words."
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "Cap general liability at 12 months' fees to limit exposure. Explicitly exclude indemnification, gross negligence, willful misconduct, fraud, and data breaches from this cap. This structure balances risk management with standard market expectations, ensuring Vendor remains accountable for severe breaches while protecting you from unlimited consequential damages."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "additional_automatic_ab": {
+    "ling": [
+      {
+        "userText": "Explain one way to speed up a slow Python CSV parser, in under 50 words.",
+        "assistantText": "Use the `csv` module with `dialect` and read in batches.",
+        "base": "Use the csv module with dialect",
+        "head": "Use the csv module with dialect"
+      },
+      {
+        "userText": "Sugiere un plan de ahorro mensual sencillo en menos de 50 palabras.",
+        "assistantText": "Establece un presupuesto fijo. Ahorra el 10% de tus ingresos cada mes. Automatiza tus transferencias a una cuenta de ahorros. Reduce gastos innecesarios. Revisa tus gastos semanalmente. Usa una app de seguimiento financiero.",
+        "base": "Establece un presupuesto fijo y ahorra",
+        "head": "Establece un presupuesto fijo y ahorra"
+      },
+      {
+        "userText": "Plan a rainy afternoon picnic alternative for two children in under 50 words.",
+        "assistantText": "Rainy afternoon picnic alternative for two children: Create a cozy indoor picnic by setting up a blanket on the floor with colorful toys and books. Serve hot cocoa and simple finger foods like crackers and fruit. Use colorful paper plates and cups for a fun, messy experience.",
+        "base": "Indoor picnic for two children with",
+        "head": "Indoor picnic for two children with"
+      }
+    ],
+    "qwen": [
+      {
+        "userText": "Explain one way to speed up a slow Python CSV parser, in under 50 words.",
+        "assistantText": "Replace the default `csv` module with `pandas.read_csv()`. It uses optimized C extensions and vectorized operations, dramatically reducing parsing time for large files while providing direct access to DataFrames for faster downstream processing.",
+        "base": "Speeding up Python CSV parsing",
+        "head": "Speeding up Python CSV parsing"
+      },
+      {
+        "userText": "Sugiere un plan de ahorro mensual sencillo en menos de 50 palabras.",
+        "assistantText": "Reserva el 10% de tu ingreso mensual para ahorros antes de gastos. Automatiza la transferencia al inicio del mes y trata ese dinero como un gasto fijo e intocable.",
+        "base": "Plan de ahorro mensual sencillo",
+        "head": "Plan de ahorro mensual sencillo"
+      },
+      {
+        "userText": "Plan a rainy afternoon picnic alternative for two children in under 50 words.",
+        "assistantText": "Indoor picnic! Set up a blanket on the living room floor. Spread out sandwiches, fruit, and juice boxes. Add crayons for drawing. Enjoy cozy snacks together while rain patters against the windows.",
+        "base": "Indoor Picnic Plan For Kids",
+        "head": "Indoor Picnic Plan For Kids"
+      }
+    ]
+  },
+  "comparison": {
+    "title": "Contract liability cap negotiation",
+    "panes": 2,
+    "messagesUnchanged": true,
+    "duplicateClicks": 10,
+    "generationRequests": 1
+  },
+  "conflict": {
+    "model": "Ling-3.0-tiny-Q6_K",
+    "real_model_responses": 1,
+    "refresh_rejected_on_conflict": true,
+    "manual_title_preserved": true,
+    "sibling_title_restored": true
+  }
+}
