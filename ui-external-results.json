@@ -1,0 +1,66 @@
+[
+  {
+    "browser": "chromium",
+    "version": "153.0.8010.12",
+    "provider_type": "openai_codex",
+    "split_sse_frames": true,
+    "stream_error_preserves_title": true,
+    "status": "pass"
+  },
+  {
+    "browser": "chromium",
+    "version": "153.0.8010.12",
+    "provider_type": "openai",
+    "split_sse_frames": true,
+    "stream_error_preserves_title": true,
+    "status": "pass"
+  },
+  {
+    "browser": "chromium",
+    "version": "153.0.8010.12",
+    "provider_type": "anthropic",
+    "split_sse_frames": true,
+    "stream_error_preserves_title": true,
+    "status": "pass"
+  },
+  {
+    "browser": "chromium",
+    "version": "153.0.8010.12",
+    "provider_type": "vllm",
+    "split_sse_frames": true,
+    "stream_error_preserves_title": true,
+    "status": "pass"
+  },
+  {
+    "browser": "firefox",
+    "version": "155.0",
+    "provider_type": "openai_codex",
+    "split_sse_frames": true,
+    "stream_error_preserves_title": true,
+    "status": "pass"
+  },
+  {
+    "browser": "firefox",
+    "version": "155.0",
+    "provider_type": "openai",
+    "split_sse_frames": true,
+    "stream_error_preserves_title": true,
+    "status": "pass"
+  },
+  {
+    "browser": "firefox",
+    "version": "155.0",
+    "provider_type": "anthropic",
+    "split_sse_frames": true,
+    "stream_error_preserves_title": true,
+    "status": "pass"
+  },
+  {
+    "browser": "firefox",
+    "version": "155.0",
+    "provider_type": "vllm",
+    "split_sse_frames": true,
+    "stream_error_preserves_title": true,
+    "status": "pass"
+  }
+]
