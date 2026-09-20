@@ -1,0 +1,18 @@
+[
+  {
+    "browser": "chromium",
+    "version": "153.0.8010.12",
+    "native_timeout": false,
+    "legacy_strings": true,
+    "transcript_bytes": 165,
+    "status": "pass"
+  },
+  {
+    "browser": "firefox",
+    "version": "155.0",
+    "native_timeout": false,
+    "legacy_strings": true,
+    "transcript_bytes": 165,
+    "status": "pass"
+  }
+]
