@@ -1,0 +1,16 @@
+[
+  {
+    "browser": "chromium",
+    "version": "153.0.8010.12",
+    "unsupported_backend_blocked": true,
+    "retry_supported_backend": true,
+    "status": "pass"
+  },
+  {
+    "browser": "firefox",
+    "version": "155.0",
+    "unsupported_backend_blocked": true,
+    "retry_supported_backend": true,
+    "status": "pass"
+  }
+]
