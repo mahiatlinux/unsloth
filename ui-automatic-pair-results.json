@@ -2,33 +2,29 @@
   {
     "browser": "chromium",
     "version": "153.0.8010.12",
-    "remote_write": false,
+    "mode": "pair-conflict",
     "real_runtime_adapter": true,
-    "status": "pass",
-    "model_switch_during_refresh": true
+    "status": "pass"
   },
   {
     "browser": "chromium",
     "version": "153.0.8010.12",
-    "remote_write": true,
+    "mode": "pair-rename",
     "real_runtime_adapter": true,
-    "status": "pass",
-    "model_switch_during_refresh": false
+    "status": "pass"
   },
   {
     "browser": "firefox",
     "version": "155.0",
-    "remote_write": false,
+    "mode": "pair-conflict",
     "real_runtime_adapter": true,
-    "status": "pass",
-    "model_switch_during_refresh": true
+    "status": "pass"
   },
   {
     "browser": "firefox",
     "version": "155.0",
-    "remote_write": true,
+    "mode": "pair-rename",
     "real_runtime_adapter": true,
-    "status": "pass",
-    "model_switch_during_refresh": false
+    "status": "pass"
   }
 ]
