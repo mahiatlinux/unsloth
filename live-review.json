@@ -1,0 +1,6 @@
+{
+  "OpenGVLab/InternVL3-8B": 32768,
+  "Qwen/Qwen2.5-Omni-7B": 32768,
+  "firstFilteredResult": "Qwen/Qwen3-4B",
+  "totalParams": 4022468096
+}
