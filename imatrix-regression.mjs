@@ -1,0 +1,108 @@
+import { chromium, firefox } from 'playwright';
+import fs from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const side=process.argv[2] || 'after';
+const engine=process.argv[3] || 'chromium';
+const port=side==='before'?4179:4180;
+const browser=await ({chromium,firefox}[engine]).launch({headless:true});
+const context=await browser.newContext({viewport:{width:1280,height:1100},reducedMotion:'reduce',colorScheme:'light'});
+await context.addInitScript(()=>{localStorage.setItem('unsloth_auth_token','fixture');localStorage.setItem('unsloth-tour-export','done');});
+const page=await context.newPage();
+const requests=[];
+let rejectExport=false;
+page.on('console',msg=>{if(msg.type()==='error')console.log('CONSOLE',msg.text())});
+page.on('pageerror',e=>console.log('PAGEERROR',e.message));
+await page.route('**/api/**',async route=>{
+ const p=new URL(route.request().url()).pathname; 
+ if(route.request().method()==='POST')requests.push({path:p,body:route.request().postDataJSON()});
+ let body={};
+ if(p==='/api/inference/monitor')body={entries:[]};
+ else if(p.includes('active-downloads'))body={downloads:[]};
+ else if(p==='/api/train/runs')body={runs:[],total:0};
+ else if(p==='/api/chat/threads')body={threads:[]};
+ else if(p==='/api/health')body={status:'ok',device_type:'cuda',chat_only:false};
+ else if(p==='/api/auth/status')body={initialized:true,requires_password_change:false,login_mode:'single',full_access:true};
+ else if(p==='/api/system/hardware')body={export_supported:true,versions:{cuda:'12.8'},gpus:[]};
+ else if(p==='/api/models/checkpoints')body={outputs_dir:'/outputs',models:[]};
+ else if(p==='/api/models/local')body={models_dir:'/models',lmstudio_dirs:[],models:[{id:'/models/merged-model',path:'/models/merged-model',display_name:'merged-model',source:'models_dir'}]};
+ else if(p.includes('remote-code-scan'))body={requires_trust_remote_code:false,unsafe_files:[],findings:[],scan_created_repos:[]};
+ else if(p==='/api/export/status')body={is_exporting:false,model_loaded:false};
+ else if(p.includes('/logs/stream'))return route.fulfill({status:200,contentType:'text/event-stream',body:'event: done\ndata: {}\n\n'});
+ else if(p.endsWith('/export/gguf') && rejectExport)return route.fulfill({status:400,contentType:'application/json',body:JSON.stringify({detail:'Imatrix file not found'})});
+ else if(p.startsWith('/api/export/') && route.request().method()==='POST')body={success:true,message:'ok',details:{output_path:'/models/merged-model-GGUF'}};
+ else if(p.includes('size'))body={fp16_bytes:1200000000,total_params:600000000,source:'config'};
+ else if(p.includes('token'))body={valid:false};
+ else if(p.includes('projects'))body={projects:[]};
+ else if(p.includes('models'))body={models:[]};
+ await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body)});
+});
+await page.goto(`http://127.0.0.1:${port}/export`);
+await page.getByRole('tab',{name:'Local Model',exact:true}).click();
+await page.getByRole('combobox').fill('/models/merged-model');
+await page.getByRole('combobox').press('Tab');
+await page.locator('button[aria-pressed]').filter({hasText:'GGUF / Llama.cpp'}).click();
+await page.getByRole('button',{name:'IQ2_XXS',exact:false}).click();
+const field=page.getByLabel('Local imatrix file (optional)',{exact:true});
+if(side==='after') {
+ await field.fill('/models/calibration data/imatrix.gguf');
+ assert.equal(await field.inputValue(),'/models/calibration data/imatrix.gguf');
+ assert.equal(await page.getByRole('switch',{name:'Importance matrix (imatrix)',exact:true}).isDisabled(),true);
+} else assert.equal(await field.count(),0);
+if(process.argv[4]==='source-change') {
+ await page.getByRole('combobox').fill('/models/different-model');
+ await page.getByRole('combobox').press('Tab');
+ assert.equal(await field.inputValue(),'','a different model must not inherit calibration from the previous model');
+ await field.fill('/models/different-imatrix.gguf');
+}
+
+await page.getByText('Quantization Levels',{exact:true}).scrollIntoViewIfNeeded();
+await page.screenshot({path:`temp/artifacts/${side}-${engine}.png`});
+await page.getByRole('button',{name:'Export Model',exact:true}).click();
+
+await page.getByRole('button',{name:'Start Export',exact:true}).click();
+await page.waitForTimeout(800);
+const ggufRequests=()=>requests.filter(r=>r.path.endsWith('/export/gguf'));
+assert.equal(ggufRequests().length,1);
+assert.equal(ggufRequests()[0].body.imatrix,true);
+assert.equal(ggufRequests()[0].body.imatrix_path,side==='after'?(process.argv[4]==='source-change'?'/models/different-imatrix.gguf':'/models/calibration data/imatrix.gguf'):undefined);
+await page.getByText('Export finished successfully.',{exact:true}).waitFor();
+if(side==='after') {
+ const toggle=page.getByRole('switch',{name:'Importance matrix (imatrix)',exact:true});
+ const run=async(expected,imatrix=true,error=false)=>{
+  await page.getByRole('button',{name:'Done',exact:true}).click();
+  await page.getByRole('button',{name:'Export Model',exact:true}).click();
+  const count=ggufRequests().length;
+  await page.getByRole('button',{name:'Start Export',exact:true}).click();
+  await page.waitForFunction(()=>document.body.innerText.includes('Done'));
+  assert.equal(ggufRequests().length,count+1);
+  assert.equal(ggufRequests().at(-1).body.imatrix_path,expected);
+  assert.equal(ggufRequests().at(-1).body.imatrix,imatrix);
+  if(error)await page.getByText('Imatrix file not found',{exact:false}).waitFor();
+  else await page.getByText('Export finished successfully.',{exact:true}).waitFor();
+ };
+ await field.fill('   ');
+ await run(null);
+ await field.fill('/models/calibration data/imatrix.gguf');
+ await page.getByRole('button',{name:'IQ2_XXS',exact:false}).click();
+ await page.getByRole('button',{name:/^Q4_K_M/}).click();
+ assert.equal(await field.count(),0);
+ await toggle.click();
+ assert.equal(await field.inputValue(),'/models/calibration data/imatrix.gguf');
+ await toggle.click();
+ await run(null,false);
+ await toggle.click();
+ await field.fill(String.raw`C:\models\校准 data\imatrix.dat`);
+ await run(String.raw`C:\models\校准 data\imatrix.dat`);
+ rejectExport=true;
+ await field.fill('/models/missing.gguf');
+ await run('/models/missing.gguf',true,true);
+ await page.screenshot({path:`temp/artifacts/after-${engine}-error.png`});
+ await page.getByRole('button',{name:'Done',exact:true}).click();
+ await page.setViewportSize({width:390,height:844});
+ await field.scrollIntoViewIfNeeded();
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);
+ await page.screenshot({path:`temp/artifacts/after-${engine}-mobile.png`});
+}
+await fs.writeFile(`temp/artifacts/${side}-${engine}-requests.json`,JSON.stringify(ggufRequests(),null,2));
+console.log(JSON.stringify({side,engine,version:browser.version(),exports:ggufRequests().length,result:'pass'}));
+await browser.close();
