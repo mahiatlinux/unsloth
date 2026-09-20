@@ -1,0 +1,34 @@
+[
+  {
+    "browser": "chromium",
+    "version": "153.0.8010.12",
+    "mode": "key-rotation",
+    "real_key_exchange": true,
+    "attempts": 2,
+    "status": "pass"
+  },
+  {
+    "browser": "chromium",
+    "version": "153.0.8010.12",
+    "mode": "key-rotation-always",
+    "real_key_exchange": true,
+    "attempts": 2,
+    "status": "pass"
+  },
+  {
+    "browser": "firefox",
+    "version": "155.0",
+    "mode": "key-rotation",
+    "real_key_exchange": true,
+    "attempts": 2,
+    "status": "pass"
+  },
+  {
+    "browser": "firefox",
+    "version": "155.0",
+    "mode": "key-rotation-always",
+    "real_key_exchange": true,
+    "attempts": 2,
+    "status": "pass"
+  }
+]
