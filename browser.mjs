@@ -51,7 +51,7 @@ for (const engine of (process.env.ENGINE ? [process.env.ENGINE] : ['chromium','f
  const page=await ctx.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')console.log('CONSOLE',m.text())});
  await page.goto(`http://127.0.0.1:${side==='before'?5194:5193}/hub`,{waitUntil:'networkidle'});
  if(await page.getByText('Show Error',{exact:true}).count()) await page.getByText('Show Error',{exact:true}).click();
- 
+
  const search=page.getByPlaceholder('Search all models');
  await search.fill('Atlas');
  await page.getByText('Results for "Atlas"',{exact:true}).waitFor();
