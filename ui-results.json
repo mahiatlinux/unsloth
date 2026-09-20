@@ -1,0 +1,37 @@
+{
+  "platform": "Linux-7.0.0-31-generic-x86_64-with-glibc2.43",
+  "results": [
+    {
+      "browser": "chromium",
+      "version": "153.0.8010.12",
+      "side": "before",
+      "refresh_action_count": 0,
+      "errors": [],
+      "status": "pass"
+    },
+    {
+      "browser": "chromium",
+      "version": "153.0.8010.12",
+      "side": "after",
+      "refresh_action_count": 1,
+      "errors": [],
+      "status": "pass"
+    },
+    {
+      "browser": "firefox",
+      "version": "155.0",
+      "side": "before",
+      "refresh_action_count": 0,
+      "errors": [],
+      "status": "pass"
+    },
+    {
+      "browser": "firefox",
+      "version": "155.0",
+      "side": "after",
+      "refresh_action_count": 1,
+      "errors": [],
+      "status": "pass"
+    }
+  ]
+}
