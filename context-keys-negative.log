@@ -1,0 +1,22 @@
+{"id":"THUDM/chatglm-6b","actual":null,"expected":2048}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ undefined
+- 2048
+
+    at file://<evidence>/live-context-keys.mjs:5:147
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: undefined,
+  expected: 2048,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.8.2
