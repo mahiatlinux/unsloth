@@ -1,7 +1,7 @@
 import { chromium, firefox } from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-const root='/home/masher/unsloth-work/temp/issue-11030';
+const root=process.env.HUB_EVIDENCE_ROOT ?? new URL('.', import.meta.url).pathname;
 const models = [
  ['unsloth/Atlas-4B-GGUF',4e9,32768],['unsloth/Atlas-8B-GGUF',8e9,131072],['unsloth/Atlas-70B-GGUF',70e9,131072],['unsloth/Atlas-short-GGUF',4e9,4096],['community/Atlas-4B-GGUF',4e9,32768],['unsloth/Atlas-checkpoint',4e9,null]
 ].map(([id,total,context])=>({_id:id,id,downloads:1000,likes:50,private:false,gated:false,pipeline_tag:'text-generation',lastModified:'2026-09-01T00:00:00Z',createdAt:'2026-09-01T00:00:00Z',tags:context?['gguf']:['safetensors'],library_name:context?'gguf':'transformers',...(context?{gguf:{total,context_length:context,architecture:'llama'}}:{safetensors:{total,parameters:{BF16:total}}})}));
@@ -25,6 +25,7 @@ for (const engine of (process.env.ENGINE ? [process.env.ENGINE] : ['chromium','f
     let rows=models.filter(m=>(!u.searchParams.get('author')||m.id.startsWith(u.searchParams.get('author')+'/'))&&(!u.searchParams.get('search')||m.id.toLowerCase().includes(u.searchParams.get('search').toLowerCase())));
     if(u.searchParams.get('search')==='Priority') rows=u.searchParams.get('author')==='unsloth'?[{...models[0],id:'unsloth/Priority-Unsloth-GGUF'}]:Array.from({length:200},(_,i)=>({...models[0],id:`community/Priority-${i}-GGUF`}));
     if(u.searchParams.get('search')==='SparsePriority') rows=u.searchParams.get('author')==='unsloth'?[...Array.from({length:4},(_,i)=>({...models[0],id:`unsloth/SparsePriority-short-${i}-GGUF`,gguf:{total:4e9,context_length:4096}})),{...models[0],id:'unsloth/SparsePriority-Unsloth-GGUF'}]:Array.from({length:200},(_,i)=>({...models[0],id:`community/SparsePriority-${i}-GGUF`}));
+    if(!u.searchParams.get('search') && u.searchParams.has('num_parameters')) rows=u.searchParams.get('author')==='unsloth'?[{...models[0],id:'unsloth/Browse-Unsloth-GGUF'}]:Array.from({length:200},(_,i)=>({...models[0],id:`community/Browse-${i}-GGUF`}));
     const range=u.searchParams.get('num_parameters');
     if(range){for(const bound of range.split(',')){const [key,value]=bound.split(':');rows=rows.filter(m=>key==='min'?(m.gguf?.total??m.safetensors.total)>=Number(value):(m.gguf?.total??m.safetensors.total)<=Number(value));}}
     return respond(rows);
@@ -100,6 +101,9 @@ for (const engine of (process.env.ENGINE ? [process.env.ENGINE] : ['chromium','f
   await page.getByText('Priority-Unsloth-GGUF',{exact:true}).first().waitFor();
   await search.fill('SparsePriority');
   await page.getByText('SparsePriority-Unsloth-GGUF',{exact:true}).first().waitFor();
+  await search.fill('');
+  await filters.click();await page.getByLabel('Maximum parameters (billions)',{exact:true}).fill('8');await page.getByLabel('Minimum context length (tokens)',{exact:true}).fill('32768');await page.getByRole('button',{name:'Apply filters'}).click();
+  await page.getByText('Browse-Unsloth-GGUF',{exact:true}).first().waitFor();
   await page.getByRole('radio',{name:'Datasets',exact:true}).click(); assert.equal(await filters.count(),0);
   await page.getByRole('radio',{name:'Models',exact:true}).click();
   await page.setViewportSize({width:390,height:844});await filters.click();
