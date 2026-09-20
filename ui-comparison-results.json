@@ -1,0 +1,26 @@
+[
+  {
+    "browser": "chromium",
+    "version": "153.0.8010.12",
+    "mode": "pair-conflict",
+    "status": "pass"
+  },
+  {
+    "browser": "chromium",
+    "version": "153.0.8010.12",
+    "mode": "pair-rename",
+    "status": "pass"
+  },
+  {
+    "browser": "firefox",
+    "version": "155.0",
+    "mode": "pair-conflict",
+    "status": "pass"
+  },
+  {
+    "browser": "firefox",
+    "version": "155.0",
+    "mode": "pair-rename",
+    "status": "pass"
+  }
+]
