@@ -1,0 +1,66 @@
+{
+  "expect": "Before: Custom connections have no API type selector. After: the selector offers Chat Completions and Responses, persists through save/reload/edit, and resets for a new connection.",
+  "facts": [
+    {
+      "browser": "chromium",
+      "version": "153.0.8010.12",
+      "side": "before",
+      "selector": false,
+      "save_reload": true,
+      "edit_protocol": false
+    },
+    {
+      "browser": "chromium",
+      "version": "153.0.8010.12",
+      "side": "after",
+      "selector": true,
+      "save_reload": true,
+      "edit_protocol": true
+    },
+    {
+      "browser": "firefox",
+      "version": "155.0",
+      "side": "before",
+      "selector": false,
+      "save_reload": true,
+      "edit_protocol": false
+    },
+    {
+      "browser": "firefox",
+      "version": "155.0",
+      "side": "after",
+      "selector": true,
+      "save_reload": true,
+      "edit_protocol": true
+    }
+  ],
+  "base_sha": "04c9951b4",
+  "head_sha": "4904cf31f3e6f18a8b9199f85a75055b25e5bb38",
+  "os": "Linux",
+  "architecture": "x86_64",
+  "viewport": {
+    "width": 1440,
+    "height": 1100
+  },
+  "backend_tests": 140,
+  "frontend_tests": 25,
+  "typecheck": "passed",
+  "build": "passed",
+  "provider": "local HTTP test gateway, not OpenCode",
+  "http_checks": [
+    "base: chat/completions returns provider 500",
+    "head: responses returns streamed text",
+    "explicit temperature and top_p preserved",
+    "omitted temperature and top_p omitted upstream",
+    "function call and function result followup translated"
+  ],
+  "ui_checks": [
+    "create",
+    "save",
+    "reload",
+    "edit protocol",
+    "reset new form",
+    "keyboard selector",
+    "responsive layout"
+  ]
+}
