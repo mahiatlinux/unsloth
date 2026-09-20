@@ -1,0 +1,30 @@
+[
+  {
+    "browser": "chromium",
+    "version": "153.0.8010.12",
+    "remote_write": false,
+    "real_runtime_adapter": true,
+    "status": "pass"
+  },
+  {
+    "browser": "chromium",
+    "version": "153.0.8010.12",
+    "remote_write": true,
+    "real_runtime_adapter": true,
+    "status": "pass"
+  },
+  {
+    "browser": "firefox",
+    "version": "155.0",
+    "remote_write": false,
+    "real_runtime_adapter": true,
+    "status": "pass"
+  },
+  {
+    "browser": "firefox",
+    "version": "155.0",
+    "remote_write": true,
+    "real_runtime_adapter": true,
+    "status": "pass"
+  }
+]
