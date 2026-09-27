@@ -1,0 +1,49 @@
+name: Windows UI desktop build (disposable)
+# Builds the Linux desktop app from this branch so its UI can be tried locally.
+
+on:
+  push:
+    branches: ["windows-ui-desktop-build-ci-*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-release:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Linux native deps for Tauri / WebKit2GTK
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev libxdo-dev libssl-dev patchelf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Pinned Tauri CLI
+        run: npm install --save-dev --prefix studio @tauri-apps/cli@2.10.1 --no-fund --no-audit
+      - name: Frontend deps
+        working-directory: studio/frontend
+        run: npm ci --no-fund --no-audit
+      - name: Tauri release build (deb, no updater artifacts)
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ""
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
+        run: npx --prefix studio tauri build --bundles deb --config '{"bundle":{"createUpdaterArtifacts":false}}'
+      - name: Collect
+        run: |
+          mkdir -p out
+          cp studio/src-tauri/target/release/bundle/deb/*.deb out/ || true
+          BIN=$(find studio/src-tauri/target/release -maxdepth 1 -type f -executable | head -1)
+          cp "$BIN" out/
+          git rev-parse HEAD > out/commit.txt
+          ls -la out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unsloth-desktop-linux-x64
+          path: out
