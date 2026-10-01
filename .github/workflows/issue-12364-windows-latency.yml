@@ -46,19 +46,21 @@ jobs:
         run: |
           python -m pip install httpx==0.28.1 fastapi==0.141.1 pydantic==2.13.4 anyio==4.13.0 PyJWT==2.13.0 PyYAML==6.0.3 rich==15.0.0 structlog==26.1.0 huggingface_hub==1.33.0 numpy==2.5.2 python-multipart==0.0.32 cryptography==50.0.1 email-validator==2.3.0 sqlite-vec==0.1.9 colorama==0.4.6 jinja2
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pip install fastmcp==3.4.7 psutil==7.2.2 uvicorn==0.54.0 requests==2.34.2 diceware==1.0.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: "Measure baseline and cached-context counterfactual"
         shell: pwsh
         run: |
-          python probe.py --source baseline --repeats 12
+          python probe.py --source baseline --repeats 12 --full-app
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python probe.py --source baseline --repeats 12 --cached-client-context
+          python probe.py --source baseline --repeats 12 --full-app --cached-client-context
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: "Measure current upstream and cached-context counterfactual"
         shell: pwsh
         run: |
-          python probe.py --source current --repeats 12
+          python probe.py --source current --repeats 12 --full-app
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python probe.py --source current --repeats 12 --cached-client-context
+          python probe.py --source current --repeats 12 --full-app --cached-client-context
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

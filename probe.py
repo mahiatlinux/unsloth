@@ -20,12 +20,18 @@ parser.add_argument("--source", default=str(Path(__file__).parent))
 parser.add_argument("--repeats", type=int, default=8)
 parser.add_argument("--upstream-port", type=int)
 parser.add_argument("--cached-client-context", action="store_true")
+parser.add_argument("--full-app", action="store_true")
 args = parser.parse_args()
 os.environ["UNSLOTH_STUDIO_HOME"] = str(Path(args.source) / "probe-home")
 os.environ["UNSLOTH_STUDIO_DISABLE_DEVICE_PROBE"] = "1"
 os.environ["UNSLOTH_ALLOW_CPU"] = "1"
 os.environ["UNSLOTH_IS_PRESENT"] = "1"
 sys.path.insert(0, str(Path(args.source) / "studio/backend"))
+if args.full_app:
+    os.environ["UNSLOTH_API_ONLY"] = "1"
+    os.environ["UNSLOTH_STUDIO_DISABLE_TORCH_WARM"] = "1"
+    from utils.native_tls import activate_native_tls
+    activate_native_tls()
 import httpx
 from fastapi import FastAPI
 from core.inference import llama_cpp
@@ -108,9 +114,20 @@ backend._model_path = "probe.gguf"
 backend._context_length = 4096
 backend._effective_parallel_slots = 4
 inference._llama_cpp_backend = backend
-app = FastAPI()
-app.include_router(inference.router, prefix="/v1")
-app.dependency_overrides[get_current_subject] = lambda: "tester"
+request_headers = {}
+if args.full_app:
+    import secrets
+    import main
+    from auth import storage
+    if not storage.get_user_and_secret(storage.DEFAULT_ADMIN_USERNAME):
+        storage.create_initial_user(storage.DEFAULT_ADMIN_USERNAME, secrets.token_hex(20), secrets.token_hex(32))
+    key, _ = storage.create_api_key(storage.DEFAULT_ADMIN_USERNAME, "isolated latency investigation")
+    request_headers = {"Authorization": "Bearer " + key}
+    app = main.app
+else:
+    app = FastAPI()
+    app.include_router(inference.router, prefix="/v1")
+    app.dependency_overrides[get_current_subject] = lambda: "tester"
 
 async def run():
     result = {}
@@ -136,9 +153,16 @@ async def run():
             samples = []
             for i in range(args.repeats + 1):
                 t = time.perf_counter()
-                response = await client.post(path, json=payload)
+                response = await client.post(path, json=payload, headers=request_headers)
                 elapsed = (time.perf_counter() - t) * 1000
                 assert response.status_code == 200, (label, response.status_code, response.text)
+                if not args.upstream_port:
+                    if label == "count":
+                        assert response.json()["input_tokens"] == 15, response.text
+                    elif label == "chat_nonstream":
+                        assert response.json()["choices"][0]["message"]["content"] == "Hello", response.text
+                    else:
+                        assert 'Hello' in response.text and 'data: [DONE]' in response.text, response.text
                 if i:
                     samples.append(elapsed)
                 else:
@@ -166,6 +190,7 @@ try:
         results = asyncio.run(run())
     print(json.dumps({"source": args.source, "python": sys.version, "openssl": ssl.OPENSSL_VERSION,
                       "httpx": httpx.__version__, "cached_client_context": args.cached_client_context,
+                      "full_app": args.full_app, "ssl_context_class": str(ssl.SSLContext),
                       "results": results}, indent=2))
 finally:
     backend._process = None
