@@ -1,0 +1,64 @@
+# Disposable repro workflow. Delete after validation.
+
+name: "Issue 12364 Windows latency investigation"
+
+on:
+  push:
+    branches:
+      - "pr-12364-latency-repro-ci-*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repro:
+    name: "Targeted repro"
+    runs-on: "windows-latest"
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.12.1"
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          repository: unslothai/unsloth
+          ref: 9fce7488bee35102b79f8ef39f9e24b48c03a260
+          path: baseline
+          sparse-checkout: studio
+          persist-credentials: false
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          repository: unslothai/unsloth
+          ref: 1d4727cf2ff54bbdc343662faada9008e77c53e6
+          path: current
+          sparse-checkout: studio
+          persist-credentials: false
+
+      - name: "Install only route import dependencies"
+        shell: pwsh
+        run: |
+          python -m pip install httpx==0.28.1 fastapi==0.141.1 pydantic==2.13.4 anyio==4.13.0 PyJWT==2.13.0 PyYAML==6.0.3 rich==15.0.0 structlog==26.1.0 huggingface_hub==1.33.0 numpy==2.5.2 python-multipart==0.0.32 cryptography==50.0.1 email-validator==2.3.0 sqlite-vec==0.1.9 colorama==0.4.6 jinja2
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: "Measure baseline and cached-context counterfactual"
+        shell: pwsh
+        run: |
+          python probe.py --source baseline --repeats 12
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python probe.py --source baseline --repeats 12 --cached-client-context
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: "Measure current upstream and cached-context counterfactual"
+        shell: pwsh
+        run: |
+          python probe.py --source current --repeats 12
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python probe.py --source current --repeats 12 --cached-client-context
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
