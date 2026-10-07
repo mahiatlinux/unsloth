@@ -62,6 +62,7 @@ jobs:
           printf '%s\n' '{"cells":[],"metadata":{},"nbformat":4,"nbformat_minor":5}' > /tmp/pr12907-serve/Notebook.ipynb
           docker build -q -t pr12907-base /tmp/pr12907-base-image
           docker build -q -t pr12907-head /tmp/pr12907-head-image
+          docker run --rm --entrypoint /opt/unsloth-nb/bin/dpkg --user "$(id -u):$(id -g)" pr12907-head --print-architecture
           python -m http.server 49155 --bind 0.0.0.0 --directory /tmp/pr12907-serve >/tmp/pr12907-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
