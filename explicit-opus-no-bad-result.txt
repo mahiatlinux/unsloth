@@ -1,0 +1,3 @@
+Isolated display: :100
+GStreamer element uritranscodebin not found. Please install it
+{"devices":[{"kind":"audioinput","label":""},{"kind":"videoinput","label":""}],"track":"live","context":"running","mimeTypes":["audio/webm;codecs=opus","audio/ogg;codecs=opus"],"bytes":0,"recorder":"audio/webm;codecs=opus","error":{"name":"NotSupportedError","message":"The MediaRecorder is unsupported on this platform"}}

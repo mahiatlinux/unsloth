@@ -1,0 +1,2 @@
+Isolated display: :100
+{"devices":[{"kind":"audioinput","label":""},{"kind":"videoinput","label":""}],"track":"live","context":"running","mimeTypes":["audio/webm;codecs=opus","audio/ogg;codecs=opus","audio/mp4"],"bytes":48862,"recorder":"audio/webm;codecs=opus"}
