@@ -1,0 +1,36 @@
+name: PR 12912 citation repro
+
+on:
+  push:
+    branches:
+      - ci/pr-12912-shortcut-citation-final
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    name: Node 22 / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+    defaults:
+      run:
+        working-directory: studio/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: studio/frontend/package-lock.json
+      - run: npm ci --ignore-scripts
+      - name: Focused citation and streaming tests
+        run: node --experimental-strip-types --test tests/link-definition-oracle.test.ts tests/streaming-render-schedule.test.ts
+      - run: npm run typecheck
+      - run: npm run build
