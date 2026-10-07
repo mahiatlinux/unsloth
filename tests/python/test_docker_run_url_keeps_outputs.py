@@ -53,7 +53,12 @@ def _run(
 ):
     seen = {}
 
-    def nbconvert(cmd, env = None):
+    def nbconvert(
+        cmd,
+        env = None,
+        preexec_fn = None,
+    ):
+        seen["preexec_fn"] = preexec_fn
         src = cmd[cmd.index("--output") - 1]
         seen["input"] = src
         kernel_cwd = os.path.dirname(os.path.abspath(src))
@@ -188,25 +193,41 @@ def test_an_unmapped_host_identity_is_rejected(runner, tmp_path):
         runner._container_run_ids((1000, 1000), uid_map, gid_map)
 
 
-def test_url_run_uses_host_identity_without_scanning_the_worktree(runner):
-    cmd = ["/opt/unsloth-venv/bin/jupyter", "nbconvert"]
+def test_url_run_changes_only_the_filesystem_identity(runner, monkeypatch, cwd):
+    monkeypatch.setenv("UNSLOTH_RUN_UID", "1234")
+    monkeypatch.setenv("UNSLOTH_RUN_GID", "5678")
+    monkeypatch.setattr(runner, "_container_run_ids", lambda ids: ids)
 
-    assert runner._host_owned_command(cmd, (1234, 5678)) == [
-        "/usr/bin/setpriv",
-        "--reuid=1234",
-        "--regid=5678",
-        "--keep-groups",
-        "--inh-caps=-all,+chown,+dac_override,+fowner",
-        "--ambient-caps=-all,+chown,+dac_override,+fowner",
-        *cmd,
-    ]
+    seen = _run(runner, monkeypatch, ["https://example.invalid/nb/Llama.ipynb"])
+
+    assert callable(seen["preexec_fn"])
 
 
 @pytest.mark.parametrize("host_ids", [None, (0, 0)])
-def test_run_without_a_nonroot_host_identity_needs_no_privilege_wrapper(runner, host_ids):
-    cmd = ["/opt/unsloth-venv/bin/jupyter", "nbconvert"]
+def test_run_without_a_nonroot_mapped_identity_needs_no_owner_callback(runner, host_ids):
+    assert runner._output_owner_preexec(host_ids) is None
 
-    assert runner._host_owned_command(cmd, host_ids) is cmd
+
+def test_output_owner_callback_sets_fs_ids_without_changing_process_ids(runner, monkeypatch):
+    class Setter:
+        def __init__(self, initial):
+            self.current = initial
+
+        def __call__(self, value):
+            previous = self.current
+            if value != (1 << 32) - 1:
+                self.current = value
+            return previous
+
+    libc = type("LibC", (), {})()
+    libc.setfsuid = Setter(0)
+    libc.setfsgid = Setter(0)
+    monkeypatch.setattr(runner.ctypes, "CDLL", lambda *_a, **_k: libc)
+
+    runner._output_owner_preexec((1234, 5678))()
+
+    assert libc.setfsuid.current == 1234
+    assert libc.setfsgid.current == 5678
 
 
 def _run_sh_argv(tmp_path, *command):

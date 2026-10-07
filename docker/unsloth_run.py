@@ -4,7 +4,7 @@
 
 """execute notebooks headlessly with one transformers version active per kernel."""
 
-import argparse, json, os, re, shutil, stat, subprocess, sys, tempfile, urllib.parse, urllib.request
+import argparse, ctypes, json, os, re, shutil, stat, subprocess, sys, tempfile, urllib.parse, urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 try:
@@ -201,21 +201,28 @@ def _container_run_ids(
     return _mapped_container_id(uid, uid_map), _mapped_container_id(gid, gid_map)
 
 
-def _host_owned_command(cmd, run_ids):
-    """run notebook code as the bind mount owner while retaining install permissions."""
+def _output_owner_preexec(run_ids):
+    """set only the kernel identity used for filesystem access and new-file ownership."""
     if run_ids is None or run_ids == (0, 0):
-        return cmd
+        return None
     uid, gid = run_ids
-    capabilities = "-all,+chown,+dac_override,+fowner"
-    return [
-        "/usr/bin/setpriv",
-        f"--reuid={uid}",
-        f"--regid={gid}",
-        "--keep-groups",
-        f"--inh-caps={capabilities}",
-        f"--ambient-caps={capabilities}",
-        *cmd,
-    ]
+    libc = ctypes.CDLL(None, use_errno = True)
+    setters = []
+    for name, value in (("setfsgid", gid), ("setfsuid", uid)):
+        setter = getattr(libc, name)
+        setter.argtypes = [ctypes.c_uint]
+        setter.restype = ctypes.c_int
+        setters.append((name, value, setter))
+
+    def set_fs_ids():
+        invalid_id = ctypes.c_uint(-1).value
+        for name, value, setter in setters:
+            setter(value)
+            if setter(invalid_id) != value:
+                error = ctypes.get_errno() or 1
+                raise OSError(error, f"{name}({value}) failed")
+
+    return set_fs_ids
 
 
 def main():
@@ -305,7 +312,11 @@ def main():
         os.path.basename(args.notebook.split("?")[0]) if args.out else os.path.basename(src_path),
     )
     try:
-        rc = subprocess.call(_host_owned_command(cmd, run_ids), env = env)
+        call_kwargs = {"env": env}
+        owner_preexec = _output_owner_preexec(run_ids)
+        if owner_preexec is not None:
+            call_kwargs["preexec_fn"] = owner_preexec
+        rc = subprocess.call(cmd, **call_kwargs)
         if rc == 0 and publish_from is not None:
             _stage_metadata(publish_from, out_path, run_ids)
             try:
