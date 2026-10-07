@@ -166,7 +166,7 @@ def _host_owned_command(cmd, host_ids):
     if host_ids is None or host_ids == (0, 0):
         return cmd
     uid, gid = host_ids
-    capabilities = "+chown,+dac_override,+fowner"
+    capabilities = "-all,+chown,+dac_override,+fowner"
     return [
         "/usr/bin/setpriv",
         f"--reuid={uid}",
