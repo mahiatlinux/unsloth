@@ -41,8 +41,9 @@ jobs:
           set -euo pipefail
           BASE=0aaea8b585b080a590bfa632d37d5d563064327f
           git fetch --no-tags --depth=1 https://github.com/unslothai/unsloth.git "$BASE"
-          rm -rf /tmp/pr12907-base-image /tmp/pr12907-head-image /tmp/pr12907-serve /tmp/pr12907-base-case /tmp/pr12907-head-case /tmp/pr12907-group-case /tmp/pr12907-local-case /tmp/pr12907-home
+          sudo rm -rf /tmp/pr12907-base-image /tmp/pr12907-head-image /tmp/pr12907-serve /tmp/pr12907-base-case /tmp/pr12907-head-case /tmp/pr12907-group-case /tmp/pr12907-shared-case /tmp/pr12907-local-case /tmp/pr12907-home
           mkdir -p /tmp/pr12907-base-image /tmp/pr12907-head-image /tmp/pr12907-serve /tmp/pr12907-base-case /tmp/pr12907-head-case /tmp/pr12907-group-case /tmp/pr12907-local-case /tmp/pr12907-home
+          sudo install -d -m 1777 -o root -g root /tmp/pr12907-shared-case
           git show "${BASE}:docker/unsloth_run.py" > /tmp/pr12907-base-image/unsloth_run.py
           git show "${BASE}:docker/unsloth_nb_compat.py" > /tmp/pr12907-base-image/unsloth_nb_compat.py
           git show "${BASE}:docker/run.sh" > /tmp/pr12907-base-run.sh
@@ -77,6 +78,10 @@ jobs:
           test "$(stat -c %u /tmp/pr12907-head-case/Notebook.ipynb)" = "$(stat -c %u /tmp/pr12907-head-case)"
           test "$(stat -c %u /tmp/pr12907-head-case/lora_model)" = "$(stat -c %u /tmp/pr12907-head-case)"
           test "$(stat -c %u /tmp/pr12907-head-case/lora_model/adapter_model.safetensors)" = "$(stat -c %u /tmp/pr12907-head-case)"
+          test "$(stat -c %u /tmp/pr12907-shared-case)" = 0
+          ( cd /tmp/pr12907-shared-case && env "${COMMON[@]}" UNSLOTH_IMAGE=pr12907-head bash "$GITHUB_WORKSPACE/docker/run.sh" unsloth-run "$URL" )
+          test "$(stat -c %u /tmp/pr12907-shared-case/Notebook.ipynb)" = "$(id -u)"
+          test "$(stat -c %u /tmp/pr12907-shared-case/lora_model)" = "$(id -u)"
           docker run --rm --group-add 4321 \
             -e "UNSLOTH_RUN_UID=$(id -u)" -e "UNSLOTH_RUN_GID=$(id -g)" \
             -v /tmp/pr12907-group-case:/workspace/host -w /workspace/host \
