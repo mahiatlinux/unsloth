@@ -71,6 +71,8 @@ jobs:
           test -f /tmp/pr12907-head-case/lora_model/adapter_model.safetensors
           test "$(cat /tmp/pr12907-head-case/kernel-pwd.txt)" = /workspace/host
           test "$(stat -c %u /tmp/pr12907-head-case/Notebook.ipynb)" = "$(stat -c %u /tmp/pr12907-head-case)"
+          test "$(stat -c %u /tmp/pr12907-head-case/lora_model)" = "$(stat -c %u /tmp/pr12907-head-case)"
+          test "$(stat -c %u /tmp/pr12907-head-case/lora_model/adapter_model.safetensors)" = "$(stat -c %u /tmp/pr12907-head-case)"
           cp /tmp/pr12907-serve/Notebook.ipynb /tmp/pr12907-local-case/Notebook.ipynb
           ( cd /tmp/pr12907-local-case && env "${COMMON[@]}" UNSLOTH_IMAGE=pr12907-head bash "$GITHUB_WORKSPACE/docker/run.sh" unsloth-run /workspace/host/Notebook.ipynb ) | tee /tmp/pr12907-local.log
           grep -Fx /workspace /tmp/pr12907-local.log
