@@ -33,7 +33,7 @@ jobs:
       - name: "Run focused and regression tests"
         shell: bash
         run: |
-          python -m pytest -q --tb=short tests/python/test_docker_run_url_keeps_outputs.py tests/python/test_docker_run_output_publish.py tests/python/test_docker_run_pin_scan.py tests/python/test_docker_nb_compat_pre_run_cell.py tests/python/test_docker_nb_view_ownership.py
+          python -m pytest -q --tb=short tests/python/test_docker_run_url_keeps_outputs.py tests/python/test_docker_run_output_publish.py tests/python/test_docker_run_pin_scan.py tests/python/test_docker_nb_compat_pre_run_cell.py tests/python/test_docker_nb_view_ownership.py tests/python/test_unsloth_pip_shim.py::test_host_owned_notebook_pip_restores_root
 
       - name: "Run real Docker A/B integration"
         shell: bash
@@ -48,13 +48,16 @@ jobs:
           git show "${BASE}:docker/unsloth_nb_compat.py" > /tmp/pr12907-base-image/unsloth_nb_compat.py
           git show "${BASE}:docker/run.sh" > /tmp/pr12907-base-run.sh
           chmod +x /tmp/pr12907-base-run.sh
-          cp docker/unsloth_run.py docker/unsloth_nb_compat.py /tmp/pr12907-head-image/
+          cp docker/unsloth_run.py docker/unsloth_nb_compat.py docker/unsloth_pip_shim.py docker/unsloth_root_shim.py /tmp/pr12907-head-image/
+          cp docker/unsloth_pip_shim.py docker/unsloth_root_shim.py /tmp/pr12907-base-image/
           for ctx in /tmp/pr12907-base-image /tmp/pr12907-head-image; do
-            printf '%s\n' '#!/bin/sh' 'set -eu' 'id -u | tee kernel-uid.txt' 'id -G | tee kernel-groups.txt' 'pwd | tee kernel-pwd.txt' 'mkdir -p lora_model' 'printf kept > lora_model/adapter_model.safetensors' 'printf installed > /opt/unsloth-venv/notebook-installed' 'printf cached > /root/notebook-home-write' 'printf package > /usr/local/notebook-system-install' > "$ctx/jupyter-stub"
+            printf '%s\n' '#!/bin/sh' 'set -eu' 'id -u | tee kernel-uid.txt' 'id -G | tee kernel-groups.txt' 'pwd | tee kernel-pwd.txt' 'mkdir -p lora_model' 'printf kept > lora_model/adapter_model.safetensors' 'printf installed > /opt/unsloth-venv/notebook-installed' 'printf cached > /root/notebook-home-write' 'pip --version' 'apt-get install -y pr12907-probe' 'sudo -E sh -c '\''test "$(id -u)" = 0; printf sudo > /usr/local/notebook-sudo-install'\''' > "$ctx/jupyter-stub"
+            printf '%s\n' '#!/bin/sh' 'set -eu' 'test "$(id -u)" = 0' 'test "$*" = "install -y pr12907-probe"' 'printf apt > /usr/local/notebook-system-install' > "$ctx/apt-get-stub"
+            printf '%s\n' '#!/bin/sh' 'set -eu' 'test "$(id -u)" = 0' 'test "$*" = "--version"' 'printf pip > /usr/local/notebook-pip-install' > "$ctx/pip-real-stub"
             printf '%s\n' '#!/bin/sh' 'set -eu' 'test "$(id -u)" = 0' 'touch /root/entrypoint-was-root' 'exec "$@"' > "$ctx/entrypoint-stub"
             chmod +x "$ctx/jupyter-stub"
             chmod +x "$ctx/entrypoint-stub"
-            printf '%s\n' 'FROM python:3.11.15-slim-bookworm' 'WORKDIR /workspace' 'COPY unsloth_run.py unsloth_nb_compat.py /usr/local/bin/' 'COPY jupyter-stub /opt/unsloth-venv/bin/jupyter' 'COPY entrypoint-stub /usr/local/bin/entrypoint-stub' 'RUN ln -s /usr/local/bin/python /opt/unsloth-venv/bin/python && chmod +x /usr/local/bin/unsloth_run.py /opt/unsloth-venv/bin/jupyter && ln -s /usr/local/bin/unsloth_run.py /usr/local/bin/unsloth-run' 'ENTRYPOINT ["/usr/local/bin/entrypoint-stub"]' > "$ctx/Dockerfile"
+            printf '%s\n' 'FROM python:3.11.15-slim-bookworm' 'WORKDIR /workspace' 'COPY unsloth_run.py unsloth_nb_compat.py /usr/local/bin/' 'COPY unsloth_pip_shim.py unsloth_root_shim.py /opt/unsloth-nb/' 'COPY jupyter-stub pip-real-stub /opt/unsloth-venv/bin/' 'COPY apt-get-stub /usr/bin/apt-get' 'COPY entrypoint-stub /usr/local/bin/entrypoint-stub' 'RUN ln -s /usr/local/bin/python /opt/unsloth-venv/bin/python && chmod +x /usr/local/bin/unsloth_run.py /opt/unsloth-nb/*.py /opt/unsloth-venv/bin/* /usr/bin/apt-get && mkdir -p /opt/unsloth-nb/bin && for t in pip pip3 uv; do ln -s /opt/unsloth-nb/unsloth_pip_shim.py /opt/unsloth-nb/bin/$t; done && for t in apt apt-get dpkg sudo; do ln -s /opt/unsloth-nb/unsloth_root_shim.py /opt/unsloth-nb/bin/$t; done && ln -s /usr/local/bin/unsloth_run.py /usr/local/bin/unsloth-run' 'ENV PATH=/opt/unsloth-nb/bin:/opt/unsloth-venv/bin:/usr/local/bin:/usr/bin:/bin' 'ENTRYPOINT ["/usr/local/bin/entrypoint-stub"]' > "$ctx/Dockerfile"
           done
           printf '%s\n' '{"cells":[],"metadata":{},"nbformat":4,"nbformat_minor":5}' > /tmp/pr12907-serve/Notebook.ipynb
           docker build -q -t pr12907-base /tmp/pr12907-base-image
@@ -73,7 +76,7 @@ jobs:
           test -f /tmp/pr12907-head-case/Notebook.ipynb
           test -f /tmp/pr12907-head-case/lora_model/adapter_model.safetensors
           test "$(cat /tmp/pr12907-head-case/kernel-pwd.txt)" = /workspace/host
-          test "$(cat /tmp/pr12907-head-case/kernel-uid.txt)" = 0
+          test "$(cat /tmp/pr12907-head-case/kernel-uid.txt)" = "$(id -u)"
           test "$(stat -c %u /tmp/pr12907-head-case/Notebook.ipynb)" = "$(stat -c %u /tmp/pr12907-head-case)"
           test "$(stat -c %u /tmp/pr12907-head-case/lora_model)" = "$(stat -c %u /tmp/pr12907-head-case)"
           test "$(stat -c %u /tmp/pr12907-head-case/lora_model/adapter_model.safetensors)" = "$(stat -c %u /tmp/pr12907-head-case)"
@@ -90,4 +93,4 @@ jobs:
           ( cd /tmp/pr12907-local-case && env "${COMMON[@]}" UNSLOTH_IMAGE=pr12907-head bash "$GITHUB_WORKSPACE/docker/run.sh" unsloth-run /workspace/host/Notebook.ipynb ) | tee /tmp/pr12907-local.log
           grep -Fx /workspace /tmp/pr12907-local.log
           test ! -e /tmp/pr12907-local-case/kernel-pwd.txt
-          printf '%s\n' 'PASS: base discards URL outputs; head persists them with host ownership; local runs retain /workspace'
+          printf '%s\n' 'PASS: base discards URL outputs; head persists host-owned outputs while pip, apt-get, and sudo retain install privileges; local runs retain /workspace'

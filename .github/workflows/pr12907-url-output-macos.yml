@@ -35,4 +35,4 @@ jobs:
         shell: bash
         run: |
           /bin/bash -n docker/run.sh
-          python -m pytest -q --tb=short tests/python/test_docker_run_url_keeps_outputs.py tests/python/test_docker_run_output_publish.py
+          python -m pytest -q --tb=short tests/python/test_docker_run_url_keeps_outputs.py tests/python/test_docker_run_output_publish.py tests/python/test_unsloth_pip_shim.py::test_host_owned_notebook_pip_restores_root
