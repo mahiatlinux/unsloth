@@ -50,8 +50,10 @@ jobs:
           cp docker/unsloth_run.py docker/unsloth_nb_compat.py /tmp/pr12907-head-image/
           for ctx in /tmp/pr12907-base-image /tmp/pr12907-head-image; do
             printf '%s\n' '#!/bin/sh' 'set -eu' 'pwd | tee kernel-pwd.txt' 'mkdir -p lora_model' 'printf kept > lora_model/adapter_model.safetensors' > "$ctx/jupyter-stub"
+            printf '%s\n' '#!/bin/sh' 'set -eu' 'test "$(id -u)" = 0' 'touch /root/entrypoint-was-root' 'exec "$@"' > "$ctx/entrypoint-stub"
             chmod +x "$ctx/jupyter-stub"
-            printf '%s\n' 'FROM python:3.11.15-slim-bookworm' 'WORKDIR /workspace' 'COPY unsloth_run.py unsloth_nb_compat.py /usr/local/bin/' 'COPY jupyter-stub /opt/unsloth-venv/bin/jupyter' 'RUN ln -s /usr/local/bin/python /opt/unsloth-venv/bin/python && chmod +x /usr/local/bin/unsloth_run.py /opt/unsloth-venv/bin/jupyter && ln -s /usr/local/bin/unsloth_run.py /usr/local/bin/unsloth-run' > "$ctx/Dockerfile"
+            chmod +x "$ctx/entrypoint-stub"
+            printf '%s\n' 'FROM python:3.11.15-slim-bookworm' 'WORKDIR /workspace' 'COPY unsloth_run.py unsloth_nb_compat.py /usr/local/bin/' 'COPY jupyter-stub /opt/unsloth-venv/bin/jupyter' 'COPY entrypoint-stub /usr/local/bin/entrypoint-stub' 'RUN ln -s /usr/local/bin/python /opt/unsloth-venv/bin/python && chmod +x /usr/local/bin/unsloth_run.py /opt/unsloth-venv/bin/jupyter && ln -s /usr/local/bin/unsloth_run.py /usr/local/bin/unsloth-run' 'ENTRYPOINT ["/usr/local/bin/entrypoint-stub"]' > "$ctx/Dockerfile"
           done
           printf '%s\n' '{"cells":[],"metadata":{},"nbformat":4,"nbformat_minor":5}' > /tmp/pr12907-serve/Notebook.ipynb
           docker build -q -t pr12907-base /tmp/pr12907-base-image
