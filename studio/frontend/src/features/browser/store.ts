@@ -285,16 +285,16 @@ type BrowserState = {
   closePanel: () => void;
   togglePanel: () => void;
   newTab: () => void;
-  /** A new tab just after `tabId`, as its menu's New tab to the right opens. */
+  /** inserts the menu's New tab to the right immediately after `tabId`. */
   newTabAfter: (tabId: string) => void;
-  /** A copy of the tab and its history, just after it. */
+  /** inserts a copy and its history immediately after the source tab. */
   duplicateTab: (tabId: string) => void;
-  /** Opens a pinned page in a tab of its own, or shows the tab already showing it. */
+  /** opens a dedicated tab or reuses one already showing the pinned page. */
   openPinned: (pinnedId: string, url: string, title: string) => void;
   setTabPinned: (tabId: string, pinnedId: string | null) => void;
   renamingTabId: string | null;
   setRenamingTab: (tabId: string | null) => void;
-  /** A name for the tab, or null for the page's own title. */
+  /** null restores the page's own title. */
   renameTab: (tabId: string, title: string | null) => void;
   setMuted: (tabId: string, muted: boolean) => void;
   closeOtherTabs: (tabId: string) => void;

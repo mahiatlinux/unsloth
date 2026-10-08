@@ -311,7 +311,7 @@ export function nativeAction(tabId: string, action: "back" | "forward" | "reload
   void call("browser_view_action", { tabId, action }).catch(() => undefined);
 }
 
-/** Gives key focus back to the panel's webview. */
+/** gives key focus back to the panel's webview. */
 export function focusPanel(tabId: string): Promise<void> {
   if (!views.has(tabId)) return Promise.resolve();
   return call("browser_view_action", { tabId, action: "blur" }).catch(() => undefined);
@@ -333,7 +333,7 @@ export function hasNativeView(tabId: string): boolean {
   return views.has(tabId);
 }
 
-/** Last shown bounds of `tabId`'s view, in window coordinates. */
+/** last shown bounds of `tabId`'s view, in window coordinates. */
 export function nativeViewBounds(tabId: string): Bounds | null {
   return viewBounds.get(tabId) ?? null;
 }
@@ -556,7 +556,7 @@ async function applyView(desired: Desired): Promise<void> {
     }
   } catch (cause) {
     if (stale()) return;
-    // A refused navigation leaves the previous page visible, so retain that page's provenance.
+    // a refused navigation leaves the previous page visible, so retain its provenance.
     if (changingPage && views.get(tabId) === loaded) {
       if (previousTemporary === undefined) temporaryPages.delete(tabId);
       else temporaryPages.set(tabId, previousTemporary);
@@ -569,8 +569,7 @@ async function applyView(desired: Desired): Promise<void> {
   recency = [...recency.filter((id) => id !== tabId), tabId];
 }
 
-// One call in flight, across mounts; meanwhile only the newest state waits, so a drag can't queue
-// a backlog of stale bounds for the native view to replay.
+// serialize calls and keep only the newest pending state to avoid replaying stale drag bounds.
 let running = false;
 let pending: { desired: Desired } | null = null;
 
