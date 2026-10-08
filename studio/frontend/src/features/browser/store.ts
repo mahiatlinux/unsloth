@@ -187,10 +187,12 @@ export const MAX_TAB_TITLE_CHARS = 120;
 
 // A copy of each entry, so the copy keeps its own cached pages and native view.
 function copyTab(tab: BrowserTab): BrowserTab {
+  const temporary = useChatRuntimeStore.getState().incognito;
   return {
     ...createTab({ kind: "newtab" }),
     history: tab.history.map((entry) => {
       const copy = { ...entry };
+      if (copy.kind === "web" && temporary) copy.temporary = true;
       // The original keeps its key; a copy going Back must not claim it.
       if (copy.kind === "file") delete copy.openKey;
       // A form result is not sent again unasked just because the tab was copied.

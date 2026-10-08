@@ -72,6 +72,23 @@ test("a page opened beside a temporary chat stays out of history when it loads a
   assert.equal(useBrowserHistoryStore.getState().history.length, 1);
 });
 
+test("a tab copied into a temporary chat stays out of history after the chat turns normal", () => {
+  const history = useBrowserHistoryStore.getState();
+  history.clearHistory();
+  useChatRuntimeStore.getState().setIncognito(false);
+  useBrowserStore.getState().openUrl("https://copied.example/", { newTab: true });
+  const originalId = useBrowserStore.getState().activeTabId;
+  assert.ok(originalId);
+  useChatRuntimeStore.getState().setIncognito(true);
+  useBrowserStore.getState().duplicateTab(originalId);
+  const copied = useBrowserStore.getState().tabs.find((item) => item.id === useBrowserStore.getState().activeTabId);
+  const entry = copied ? currentEntry(copied) : null;
+  useChatRuntimeStore.getState().setIncognito(false);
+  assert.equal(entry?.kind === "web" && entry.temporary, true);
+  history.recordVisit("https://copied.example/", "Copied", entry?.kind === "web" ? entry.temporary : false);
+  assert.deepEqual(useBrowserHistoryStore.getState().history, []);
+});
+
 test("with download history off, downloads are not listed", () => {
   const history = useBrowserHistoryStore.getState();
   history.clearDownloads();
@@ -92,6 +109,18 @@ test("files downloaded beside a temporary chat are not listed", () => {
   useChatRuntimeStore.getState().setIncognito(false);
   history.recordDownload(download);
   assert.equal(useBrowserHistoryStore.getState().downloads.length, 1);
+});
+
+test("download history keeps the chat mode from when the download began", () => {
+  const history = useBrowserHistoryStore.getState();
+  history.clearDownloads();
+  useChatRuntimeStore.getState().setIncognito(false);
+  history.recordDownload(download, true);
+  assert.deepEqual(useBrowserHistoryStore.getState().downloads, []);
+  useChatRuntimeStore.getState().setIncognito(true);
+  history.recordDownload({ ...download, name: "normal.pdf" }, false);
+  assert.equal(useBrowserHistoryStore.getState().downloads.length, 1);
+  useChatRuntimeStore.getState().setIncognito(false);
 });
 
 test("shortening how long history is kept drops older visits at once", () => {
@@ -501,6 +530,63 @@ test("a download whose click has expired waits for Save rather than skip the sav
   prefs.setAskWhereToSave(false);
   prefs.setAskBeforeDownloading(true);
   delete (globalThis as { showSaveFilePicker?: unknown }).showSaveFilePicker;
+});
+
+test("a delayed browser save keeps the chat mode from when saving began", async () => {
+  const { saveBrowserDownload } = await import("../src/features/browser/downloads.ts");
+  const history = useBrowserHistoryStore.getState();
+  const prefs = useBrowserPrefsStore.getState();
+  let finish: (() => void) | undefined;
+  Object.assign(globalThis, {
+    showSaveFilePicker: async ({ suggestedName }: { suggestedName: string }) => ({
+      name: suggestedName,
+      createWritable: async () => ({
+        write: async () => new Promise<void>((resolve) => void (finish = resolve)),
+        close: async () => {},
+      }),
+    }),
+  });
+  Object.defineProperty(globalThis, "navigator", { value: { userActivation: { isActive: true } }, configurable: true });
+  prefs.setAskWhereToSave(true);
+  prefs.setAskBeforeDownloading(false);
+  history.clearDownloads();
+  const blob = new Blob(["x"]);
+  try {
+    useChatRuntimeStore.getState().setIncognito(true);
+    const temporary = saveBrowserDownload({
+      blob,
+      name: "temporary.zip",
+      contentType: "application/zip",
+      url: "https://a.example/temporary.zip",
+    });
+    for (let i = 0; i < 20 && !finish; i++) await new Promise((resolve) => setTimeout(resolve, 0));
+    const finishTemporary = finish as (() => void) | undefined;
+    assert.ok(finishTemporary);
+    useChatRuntimeStore.getState().setIncognito(false);
+    finishTemporary();
+    await temporary;
+    assert.deepEqual(useBrowserHistoryStore.getState().downloads, []);
+
+    finish = undefined;
+    const normal = saveBrowserDownload({
+      blob,
+      name: "normal.zip",
+      contentType: "application/zip",
+      url: "https://a.example/normal.zip",
+    });
+    for (let i = 0; i < 20 && !finish; i++) await new Promise((resolve) => setTimeout(resolve, 0));
+    const finishNormal = finish as (() => void) | undefined;
+    assert.ok(finishNormal);
+    useChatRuntimeStore.getState().setIncognito(true);
+    finishNormal();
+    await normal;
+    assert.equal(useBrowserHistoryStore.getState().downloads.length, 1);
+  } finally {
+    useChatRuntimeStore.getState().setIncognito(false);
+    prefs.setAskWhereToSave(false);
+    prefs.setAskBeforeDownloading(true);
+    delete (globalThis as { showSaveFilePicker?: unknown }).showSaveFilePicker;
+  }
 });
 
 test("a file a page sends the tab to is asked about for that page, not the file's site", async () => {

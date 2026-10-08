@@ -566,6 +566,7 @@ fn settle<R: Runtime>(app: &AppHandle<R>, id: &str) {
                 &entry.tab_id,
                 &entry.url,
                 &path,
+                Some(id.to_string()),
                 Some(download_id),
                 marked,
             ),
@@ -575,6 +576,7 @@ fn settle<R: Runtime>(app: &AppHandle<R>, id: &str) {
                 &entry.tab_id,
                 &entry.url,
                 &entry.name,
+                Some(id.to_string()),
             ),
         }
     });

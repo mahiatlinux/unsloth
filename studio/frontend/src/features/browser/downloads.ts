@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright 2026-present the Unsloth AI Inc. team. All rights reserved. See /studio/LICENSE.AGPL-3.0
 
+import { useChatRuntimeStore } from "@/features/chat";
 import { getLocale, translate } from "@/i18n";
 import { isTauri } from "@/lib/api-base";
 import { DownloadCancelledError, downloadFile, isDownloadCancelled } from "@/lib/native-files";
@@ -13,7 +14,14 @@ import { useBrowserHistoryStore } from "./history-store";
 import { type SavedNativeDownload, saveNativeDownload } from "./native-downloads";
 import { useBrowserPrefsStore } from "./prefs-store";
 
-export type BrowserDownload = { blob: Blob; name: string; contentType: string; url: string | null; site?: string };
+export type BrowserDownload = {
+  blob: Blob;
+  name: string;
+  contentType: string;
+  url: string | null;
+  site?: string;
+  temporary?: boolean;
+};
 
 type SaveHandle = {
   name: string;
@@ -59,6 +67,7 @@ function approved(url: string | null, name: string, site?: string): Promise<bool
 
 /** Website files wait for approval first. `target`: a location already picked, null for none; omitted, the dialog opens when Settings asks. */
 export async function saveBrowserDownload(download: BrowserDownload, target?: SaveHandle | null): Promise<void> {
+  const temporary = download.temporary ?? useChatRuntimeStore.getState().incognito;
   if (target === undefined) {
     if (!(await approved(download.url, download.name, download.site))) return;
     // A save dialog needs a fresh click; a late approval waits for a click on Save instead.
@@ -67,16 +76,20 @@ export async function saveBrowserDownload(download: BrowserDownload, target?: Sa
       toast(translate("browser.downloadPrompt.ready", { name: safeDownloadName(download.name) }, locale), {
         action: {
           label: translate("browser.downloadPrompt.save", {}, locale),
-          onClick: () => void writeDownload(download, undefined),
+          onClick: () => void writeDownload(download, undefined, temporary),
         },
       });
       return;
     }
   }
-  await writeDownload(download, target);
+  await writeDownload(download, target, temporary);
 }
 
-async function writeDownload(download: BrowserDownload, target: SaveHandle | null | undefined): Promise<void> {
+async function writeDownload(
+  download: BrowserDownload,
+  target: SaveHandle | null | undefined,
+  temporary: boolean,
+): Promise<void> {
   const { blob, contentType, url } = download;
   const name = safeDownloadName(download.name);
   let saved: SavedNativeDownload | null = null;
@@ -100,13 +113,16 @@ async function writeDownload(download: BrowserDownload, target: SaveHandle | nul
     if (!isDownloadCancelled(error)) toast.error(error instanceof Error ? error.message : String(error));
     return;
   }
-  useBrowserHistoryStore.getState().recordDownload({
-    name: saved?.name || picked?.name || name,
-    url,
-    size: blob.size,
-    contentType,
-    nativeId: saved?.id,
-  });
+  useBrowserHistoryStore.getState().recordDownload(
+    {
+      name: saved?.name || picked?.name || name,
+      url,
+      size: blob.size,
+      contentType,
+      nativeId: saved?.id,
+    },
+    temporary,
+  );
   if (saved?.marked === false) {
     toast.warning(translate("browser.native.notMarked", { name: saved.name || name }, getLocale()));
   }
@@ -116,9 +132,15 @@ async function writeDownload(download: BrowserDownload, target: SaveHandle | nul
 const RESOLVE_BEFORE_ASK_MS = 1000;
 
 /** A fetched link as a file: the server's name, or the page as .html. */
-function linkDownload(page: BrowserPage, url: string): BrowserDownload {
+function linkDownload(page: BrowserPage, url: string, temporary: boolean): BrowserDownload {
   if (page.kind === "raw") {
-    return { blob: page.blob, name: page.fileName ?? fileNameFromUrl(page.url), contentType: page.contentType, url };
+    return {
+      blob: page.blob,
+      name: page.fileName ?? fileNameFromUrl(page.url),
+      contentType: page.contentType,
+      url,
+      temporary,
+    };
   }
   const name = fileNameFromUrl(page.url);
   return {
@@ -126,13 +148,15 @@ function linkDownload(page: BrowserPage, url: string): BrowserDownload {
     name: /\.html?$/i.test(name) ? name : `${name}.html`,
     contentType: "text/html",
     url,
+    temporary,
   };
 }
 
 /** Save what a link points at, fetched through the panel's proxy so any site works. */
 export async function saveLinkAs(url: string): Promise<void> {
+  const temporary = useChatRuntimeStore.getState().incognito;
   const controller = new AbortController();
-  const pending = fetchBrowserPage({ url }, controller.signal).then((page) => linkDownload(page, url));
+  const pending = fetchBrowserPage({ url }, controller.signal).then((page) => linkDownload(page, url, temporary));
   // The dialog needs the menu click, which a slow fetch outlasts: ask with the resolved name
   // when the fetch is quick, else with the URL's.
   let target: SaveHandle | null | undefined;

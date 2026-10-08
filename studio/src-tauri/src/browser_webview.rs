@@ -237,6 +237,8 @@ enum BrowserEvent {
         size: Option<u64>,
         done: bool,
         success: bool,
+        /// correlates the prompt with completion so frontend context survives async delivery.
+        request_id: Option<String>,
         /// A finished download's handle for Download history (browser_downloads.rs).
         download_id: Option<String>,
         /// Marked as from the internet: false if that failed (the panel warns), None where nothing marks.
@@ -538,6 +540,7 @@ pub(crate) fn emit_download_done<R: Runtime>(
     tab_id: &str,
     url: &Url,
     path: &Path,
+    request_id: Option<String>,
     download_id: Option<String>,
     marked: Option<bool>,
 ) {
@@ -554,6 +557,7 @@ pub(crate) fn emit_download_done<R: Runtime>(
             size: std::fs::metadata(path).ok().map(|m| m.len()),
             done: true,
             success: true,
+            request_id,
             download_id,
             marked,
         },
@@ -565,6 +569,7 @@ pub(crate) fn emit_download_failed<R: Runtime>(
     tab_id: &str,
     url: &Url,
     name: &str,
+    request_id: Option<String>,
 ) {
     emit(
         app,
@@ -576,6 +581,7 @@ pub(crate) fn emit_download_failed<R: Runtime>(
             size: None,
             done: true,
             success: false,
+            request_id,
             download_id: None,
             marked: None,
         },
@@ -1044,7 +1050,7 @@ fn create_view<R: Runtime>(
                             .file_name()
                             .map(|name| name.to_string_lossy().into_owned())
                             .unwrap_or_default();
-                        emit_download_failed(app, &download_tab, &url, &name);
+                        emit_download_failed(app, &download_tab, &url, &name, None);
                         return false;
                     }
                     let Some((id, staging)) = crate::browser_downloads::staging_dir(app) else {
@@ -1070,7 +1076,7 @@ fn create_view<R: Runtime>(
                                     .file_name()
                                     .map(|name| name.to_string_lossy().into_owned())
                                     .unwrap_or_default();
-                                emit_download_failed(app, &download_tab, &url, &name);
+                                emit_download_failed(app, &download_tab, &url, &name, None);
                             }
                             return false;
                         }
