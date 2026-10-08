@@ -250,7 +250,12 @@ function WebPage({
     const show = (page: BrowserPage) => {
       if (page.kind === "raw") {
         const name = page.fileName ?? fileNameFromUrl(page.url);
-        setPageDownload(tab.id, { blob: page.blob, name, contentType: page.contentType });
+        setPageDownload(tab.id, {
+          blob: page.blob,
+          name,
+          contentType: page.contentType,
+          temporary: entry.temporary,
+        });
         fitZoomToPage(tab.id, true);
         updateTab(tab.id, {
           loading: false,

@@ -244,6 +244,10 @@ enum BrowserEvent {
         /// false if the internet mark failed so the panel can warn; None when no mark applies.
         marked: Option<bool>,
     },
+    DownloadCancelled {
+        tab_id: String,
+        request_id: String,
+    },
     DownloadPrompt {
         tab_id: String,
         url: String,
@@ -584,6 +588,20 @@ pub(crate) fn emit_download_failed<R: Runtime>(
             request_id,
             download_id: None,
             marked: None,
+        },
+    );
+}
+
+pub(crate) fn emit_download_cancelled<R: Runtime>(
+    app: &AppHandle<R>,
+    tab_id: &str,
+    request_id: &str,
+) {
+    emit(
+        app,
+        BrowserEvent::DownloadCancelled {
+            tab_id: tab_id.to_string(),
+            request_id: request_id.to_string(),
         },
     );
 }
@@ -2103,6 +2121,15 @@ mod tests {
         assert_eq!(
             event,
             serde_json::json!({ "kind": "history", "tabId": "t1", "canGoBack": true, "canGoForward": false, "icon": null })
+        );
+        let cancelled = serde_json::to_value(BrowserEvent::DownloadCancelled {
+            tab_id: "t1".into(),
+            request_id: "d1".into(),
+        })
+        .unwrap();
+        assert_eq!(
+            cancelled,
+            serde_json::json!({ "kind": "downloadCancelled", "tabId": "t1", "requestId": "d1" })
         );
         let bounds: ViewBounds = serde_json::from_value(serde_json::json!({
             "x": 1, "y": 2, "width": 3, "height": 4, "viewportWidth": 5

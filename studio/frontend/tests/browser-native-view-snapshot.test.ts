@@ -314,3 +314,60 @@ test("native download completion keeps the chat mode from its prompt", async () 
     stop();
   }
 });
+
+test("cancelling a native save retires its captured chat context", async () => {
+  useBrowserStore.getState().openUrl("https://download.example/", { newTab: true });
+  const stop = startNativeViews();
+  try {
+    await frame();
+    const tabId = useBrowserStore.getState().activeTabId as string;
+    const g = globalThis as {
+      nativeDownloadAllowed?: boolean;
+      nativeViewListener?: (event: { payload: unknown }) => void;
+      nativeViewSeen?: unknown[];
+    };
+    g.nativeViewSeen = [];
+    g.nativeDownloadAllowed = true;
+    useChatRuntimeStore.getState().setIncognito(true);
+    g.nativeViewListener?.({
+      payload: {
+        kind: "downloadPrompt",
+        tabId,
+        url: "https://download.example/cancelled.zip",
+        site: "https://download.example/",
+        name: "cancelled.zip",
+        id: "cancelled-download",
+      },
+    });
+    await settle();
+    useChatRuntimeStore.getState().setIncognito(false);
+    g.nativeViewListener?.({
+      payload: { kind: "downloadCancelled", tabId, requestId: "cancelled-download" },
+    });
+    // A late terminal event is not expected, but makes the retired context observable here.
+    g.nativeViewListener?.({
+      payload: {
+        kind: "download",
+        tabId,
+        url: "https://download.example/cancelled.zip",
+        name: "cancelled.zip",
+        path: null,
+        size: 3,
+        done: true,
+        success: true,
+        requestId: "cancelled-download",
+        downloadId: "native-cancelled",
+        marked: true,
+      },
+    });
+    assert.deepEqual(g.nativeViewSeen, [
+      { level: "info", message: "browser.native.downloading" },
+      { level: "history", message: "native-cancelled" },
+      { level: "success", message: "browser.native.downloaded" },
+    ]);
+  } finally {
+    delete (globalThis as { nativeDownloadAllowed?: boolean }).nativeDownloadAllowed;
+    useChatRuntimeStore.getState().setIncognito(false);
+    stop();
+  }
+});

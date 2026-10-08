@@ -55,6 +55,7 @@ type NativeEvent =
       /** false when the file could not be marked as downloaded from the internet; null where nothing marks. */
       marked?: boolean | null;
     }
+  | { kind: "downloadCancelled"; tabId: string; requestId: string }
   | { kind: "downloadPrompt"; tabId: string; url: string; site: string; name: string; id: string };
 
 type Bounds = { x: number; y: number; width: number; height: number; viewportWidth: number };
@@ -154,6 +155,12 @@ function onNativeEvent(event: NativeEvent): void {
   const tab = store.tabs.find((candidate) => candidate.id === event.tabId);
   if (event.kind === "downloadPrompt") {
     onDownloadPrompt(event, tab);
+    return;
+  }
+  if (event.kind === "downloadCancelled") {
+    const context = downloadContexts.get(event.requestId);
+    if (context?.expires) clearTimeout(context.expires);
+    downloadContexts.delete(event.requestId);
     return;
   }
   // downloads can finish after their tab closes or navigates and still belong in history.

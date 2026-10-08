@@ -218,6 +218,24 @@ test("a fetched file shows at 100% and the next page returns to the default zoom
   useBrowserPrefsStore.getState().setDefaultZoom(1);
 });
 
+test("a fetched file keeps temporary provenance for a later toolbar download", async () => {
+  const { pageDownload, setPageDownload } = await import("../src/features/browser/store.ts");
+  useChatRuntimeStore.getState().setIncognito(true);
+  useBrowserStore.getState().openUrl("https://example.com/private.pdf", { newTab: true });
+  const tabId = useBrowserStore.getState().activeTabId ?? "";
+  const tab = useBrowserStore.getState().tabs.find((candidate) => candidate.id === tabId);
+  const entry = tab ? currentEntry(tab) : null;
+  setPageDownload(tabId, {
+    blob: new Blob(["%PDF"]),
+    name: "private.pdf",
+    contentType: "application/pdf",
+    temporary: entry?.kind === "web" ? entry.temporary : undefined,
+  });
+  useChatRuntimeStore.getState().setIncognito(false);
+  assert.equal(pageDownload(tabId)?.temporary, true);
+  setPageDownload(tabId, null);
+});
+
 test("expired visits take their sites' icons with them", () => {
   const now = Date.now();
   useBrowserPrefsStore.getState().setHistoryRetentionDays(0);

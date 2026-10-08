@@ -100,7 +100,7 @@ export function browserFile(fileId: string): Blob | undefined {
   return files.get(fileId);
 }
 
-type PageDownload = { blob: Blob; name: string; contentType: string };
+type PageDownload = { blob: Blob; name: string; contentType: string; temporary?: boolean };
 const pageDownloads = new Map<string, PageDownload>();
 
 export function setPageDownload(tabId: string, download: PageDownload | null): void {
