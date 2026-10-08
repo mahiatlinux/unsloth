@@ -66,9 +66,9 @@ const views = new Map<string, number>();
 const openedTabs = new Set<string>();
 // exceeds the backend's unanswered-prompt timeout.
 const DOWNLOAD_PROMPT_CONTEXT_MS = 11 * 60_000;
-const DOWNLOAD_TRANSFER_CONTEXT_MS = 24 * 60 * 60_000;
 type DownloadContext = { temporary: boolean; expires: ReturnType<typeof setTimeout> | null };
 const downloadContexts = new Map<string, DownloadContext>();
+const temporaryPages = new Map<string, boolean>();
 let recency: string[] = [];
 const zooms = new Map<string, number>();
 const icons = new Map<string, string>();
@@ -99,7 +99,7 @@ function keepReachedPage(tabId: string): void {
   const tab = store.tabs.find((candidate) => candidate.id === tabId);
   const shown = pages.get(tabId);
   if (!tab || !shown?.url || currentEntry(tab).kind !== "web" || shown.url === currentEntryUrl(tab)) return;
-  store.navigate(tabId, { url: shown.url }, { replace: false });
+  store.navigate(tabId, { url: shown.url, temporary: temporaryPages.get(tabId) }, { replace: false });
   store.updateTab(tabId, { title: shown.title, favicon: shown.favicon, loading: false });
 }
 
@@ -110,6 +110,7 @@ function closeView(tabId: string): void {
   zooms.delete(tabId);
   icons.delete(tabId);
   pages.delete(tabId);
+  temporaryPages.delete(tabId);
   recency = recency.filter((id) => id !== tabId);
   void call("browser_view_close", { tabId }).catch(() => undefined);
 }
@@ -141,9 +142,7 @@ function onDownloadPrompt(event: Extract<NativeEvent, { kind: "downloadPrompt" }
       const context = downloadContexts.get(id);
       if (context?.expires) clearTimeout(context.expires);
       if (!allow) downloadContexts.delete(id);
-      else if (context) {
-        context.expires = setTimeout(() => downloadContexts.delete(id), DOWNLOAD_TRANSFER_CONTEXT_MS);
-      }
+      else if (context) context.expires = null;
       await decideNativeDownload(id, allow, useBrowserPrefsStore.getState().askWhereToSave);
       if (allow) toast(t("browser.native.downloading", { name }));
     })
@@ -168,16 +167,27 @@ function onNativeEvent(event: NativeEvent): void {
   if (entry.kind !== "web") return;
   const history = useBrowserHistoryStore.getState();
   switch (event.kind) {
-    case "load":
+    case "load": {
+      if (event.loading) {
+        const temporary =
+          temporaryPages.get(tab.id) || useChatRuntimeStore.getState().incognito || Boolean(entry.temporary);
+        temporaryPages.set(tab.id, temporary);
+      }
+      const temporary = temporaryPages.get(tab.id) ?? Boolean(entry.temporary);
       store.updateTab(tab.id, { loading: event.loading, displayUrl: event.url, ...leftOpenedPage(tab, event.url) });
       page(tab.id).url = event.url;
       remember(tab.id, event.url);
-      if (!event.loading) history.recordVisit(event.url, tab.title, entry.temporary);
+      if (!event.loading) history.recordVisit(event.url, tab.title, temporary);
       break;
+    }
     case "title":
       store.updateTab(tab.id, { title: event.title });
       page(tab.id).title = event.title;
-      history.recordVisit(tab.displayUrl ?? currentEntryUrl(tab), event.title, entry.temporary);
+      history.recordVisit(
+        tab.displayUrl ?? currentEntryUrl(tab),
+        event.title,
+        temporaryPages.get(tab.id) ?? entry.temporary,
+      );
       break;
     case "url":
       store.updateTab(tab.id, { displayUrl: event.url, ...leftOpenedPage(tab, event.url) });
@@ -362,7 +372,7 @@ function visibleRect(element: HTMLElement): DOMRect | null {
 }
 
 type Desired =
-  | { tabId: string; url: string; entry: number; zoom: number; bounds: Bounds }
+  | { tabId: string; url: string; entry: number; temporary: boolean; zoom: number; bounds: Bounds }
   | { tabId: string; covered: true }
   | null;
 
@@ -395,6 +405,7 @@ function desiredView(): Desired {
     tabId: tab.id,
     url: entry.url,
     entry: entryKey(entry),
+    temporary: Boolean(entry.temporary),
     zoom: tab.zoom,
     bounds: {
       x: Math.round(rect.left),
@@ -499,7 +510,7 @@ async function applyView(desired: Desired): Promise<void> {
     await call("browser_view_show", { tabId: null });
     return;
   }
-  const { tabId, url, entry, zoom, bounds } = desired;
+  const { tabId, url, entry, temporary, zoom, bounds } = desired;
   const existed = views.has(tabId);
   const loaded = views.get(tabId);
   const resumed = resume.get(tabId);
@@ -511,6 +522,7 @@ async function applyView(desired: Desired): Promise<void> {
   };
   try {
     openedTabs.add(tabId);
+    if (!existed || loaded !== entry) temporaryPages.set(tabId, temporary);
     await call("browser_view_show", { tabId, url: resumed?.entry === entry ? resumed.url : url, bounds });
     if (stale()) return;
     clearSnapshot();
@@ -571,6 +583,7 @@ onNativeViewsClosed(() => {
   zooms.clear();
   icons.clear();
   pages.clear();
+  temporaryPages.clear();
   resume.clear();
   recency = [];
   epoch += 1;
