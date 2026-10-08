@@ -93,7 +93,7 @@ export type OpenFileInput = {
   key?: string;
 };
 
-// Blobs live outside the store; documents can be 50 MB.
+// blobs live outside the store because documents can be 50 MB.
 const files = new Map<string, Blob>();
 
 export function browserFile(fileId: string): Blob | undefined {

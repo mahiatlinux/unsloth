@@ -344,7 +344,7 @@ test("cancelling a native save retires its captured chat context", async () => {
     g.nativeViewListener?.({
       payload: { kind: "downloadCancelled", tabId, requestId: "cancelled-download" },
     });
-    // A late terminal event is not expected, but makes the retired context observable here.
+    // a late terminal event is unexpected but exposes the retired context.
     g.nativeViewListener?.({
       payload: {
         kind: "download",

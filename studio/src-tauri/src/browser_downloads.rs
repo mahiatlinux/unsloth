@@ -534,7 +534,7 @@ fn decide(
     Ok(())
 }
 
-/// Once answered and finished, move the download out of staging or drop it.
+/// waits for both decision and completion before moving the staged download or dropping it.
 fn settle<R: Runtime>(app: &AppHandle<R>, id: &str) {
     let entry = {
         let state = app.state::<BrowserDownloads>();
