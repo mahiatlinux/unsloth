@@ -262,6 +262,62 @@ test("native navigation keeps temporary history private after the chat mode chan
   }
 });
 
+test("native downloads inherit a temporary page navigation after chat mode changes", async () => {
+  useBrowserStore.getState().openUrl("https://normal.example/", { newTab: true });
+  const stop = startNativeViews();
+  try {
+    await frame();
+    const tabId = useBrowserStore.getState().activeTabId as string;
+    const g = globalThis as {
+      nativeDownloadAllowed?: boolean;
+      nativeViewListener?: (event: { payload: unknown }) => void;
+      nativeViewSeen?: unknown[];
+    };
+    g.nativeViewSeen = [];
+    g.nativeDownloadAllowed = true;
+    useChatRuntimeStore.getState().setIncognito(true);
+    g.nativeViewListener?.({
+      payload: { kind: "load", tabId, url: "https://private.example/", loading: true },
+    });
+    useChatRuntimeStore.getState().setIncognito(false);
+    g.nativeViewListener?.({
+      payload: {
+        kind: "downloadPrompt",
+        tabId,
+        url: "https://private.example/private.zip",
+        site: "https://private.example/",
+        name: "private.zip",
+        id: "private-page-download",
+      },
+    });
+    await settle();
+    g.nativeViewListener?.({
+      payload: {
+        kind: "download",
+        tabId,
+        url: "https://private.example/private.zip",
+        name: "private.zip",
+        path: null,
+        size: 3,
+        done: true,
+        success: true,
+        requestId: "private-page-download",
+        downloadId: "native-private-page",
+        marked: true,
+      },
+    });
+    assert.deepEqual(g.nativeViewSeen, [
+      { level: "info", message: "browser.native.downloading" },
+      { level: "history", message: "native-private-page", temporary: true },
+      { level: "success", message: "browser.native.downloaded" },
+    ]);
+  } finally {
+    delete (globalThis as { nativeDownloadAllowed?: boolean }).nativeDownloadAllowed;
+    useChatRuntimeStore.getState().setIncognito(false);
+    stop();
+  }
+});
+
 test("native download completion keeps the chat mode from its prompt", async () => {
   useBrowserStore.getState().openUrl("https://download.example/", { newTab: true });
   const stop = startNativeViews();

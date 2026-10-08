@@ -132,7 +132,10 @@ function onDownloadPrompt(event: Extract<NativeEvent, { kind: "downloadPrompt" }
   const entry = tab ? currentEntry(tab) : null;
   const expires = setTimeout(() => downloadContexts.delete(id), DOWNLOAD_PROMPT_CONTEXT_MS);
   downloadContexts.set(id, {
-    temporary: useChatRuntimeStore.getState().incognito || Boolean(entry?.kind === "web" && entry.temporary),
+    temporary:
+      Boolean(temporaryPages.get(event.tabId)) ||
+      useChatRuntimeStore.getState().incognito ||
+      Boolean(entry?.kind === "web" && entry.temporary),
     expires,
   });
   // bind approval to the initiating site; blob URLs inherit their creator, with the opener or address as fallback.
