@@ -284,16 +284,16 @@ function WebPage({
     }
     const controller = new AbortController();
     updateTab(tab.id, { loading: true });
-    fetchBrowserPage({ url, method, body }, controller.signal)
+    fetchBrowserPage({ url, method, body, errorPage: true }, controller.signal)
       .then((page) => {
         cachePage(entry, page);
         setState({ status: "ready", page });
         show(page);
-        // only fresh unsupported files auto-download, avoiding repeat prompts when revisiting tabs.
+        // unsupported files download only on fresh loads, so revisiting the tab does not prompt again.
         if (page.kind === "raw") {
           const name = page.fileName ?? fileNameFromUrl(page.url);
           if (!canShowFile(name, page.contentType)) {
-            // approve against the sender or requested URL, never a redirect controlled by another site.
+            // use the sender or requested address, not the redirect target, so another site's permission cannot apply.
             void saveBrowserDownload({
               blob: page.blob,
               name,
