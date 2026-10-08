@@ -93,7 +93,7 @@ function error(value: unknown): string {
   return value instanceof Error ? value.message : String(value);
 }
 
-// The view's history closes with it: keep the page it reached as a tab entry, for Back.
+// preserve the reached page so Back can restore it after the view's own history closes.
 function keepReachedPage(tabId: string): void {
   const store = useBrowserStore.getState();
   const tab = store.tabs.find((candidate) => candidate.id === tabId);
@@ -573,7 +573,7 @@ function apply(desired: Desired): void {
   pump();
 }
 
-// A clear closed every page: forget them, keeping where each tab got to, and show them again.
+// a clear closes every page, so retain each tab's location before recreating its view.
 let epoch = 0;
 onNativeViewsClosed(() => {
   for (const tabId of [...views.keys()]) keepReachedPage(tabId);

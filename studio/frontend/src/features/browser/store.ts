@@ -309,14 +309,14 @@ type BrowserState = {
     request: { url: string; method?: "GET" | "POST"; body?: string; from?: string; temporary?: boolean },
     options?: { replace?: boolean },
   ) => void;
-  /** A page-sent entry that became a download: back to that page and out of history, unless the tab moved on. */
+  /** removes a page-sent download entry when the tab has not moved on. */
   leaveDownload: (tabId: string, entry: BrowserEntry) => void;
   goBack: (tabId: string) => void;
   goForward: (tabId: string) => void;
   reload: (tabId: string) => void;
   activateTab: (tabId: string) => void;
   closeTab: (tabId: string) => void;
-  /** Moves a tab to `index` in the strip, as dragging it there does. */
+  /** interprets `index` as the target position in the tab strip. */
   moveTab: (tabId: string, index: number) => void;
   updateTab: (
     tabId: string,

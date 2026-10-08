@@ -217,7 +217,7 @@ test("a finished download is listed and reported after its tab closed, and warns
     g.nativeViewListener?.({ payload: { ...done, downloadId: "d1", marked: true } });
     g.nativeViewListener?.({ payload: { ...done, downloadId: "d2", marked: false } });
     g.nativeViewListener?.({ payload: { ...done, downloadId: "d3", marked: null } });
-    // A tab this page never opened: the account signed in before the last reload (an account switch) started it.
+    // this page never opened the tab; a prior account started it before the last reload.
     g.nativeViewListener?.({ payload: { ...done, tabId: "tab-before-reload", downloadId: "d4", marked: true } });
     assert.deepEqual(seen, [
       { level: "history", message: "d1" },
