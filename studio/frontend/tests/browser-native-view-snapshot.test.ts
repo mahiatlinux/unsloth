@@ -91,14 +91,17 @@ let captureDone: ((bytes: ArrayBuffer) => void) | null = null;
   calls.push({ command, args });
   if (command === "browser_capture")
     return new Promise((resolve) => (captureDone = resolve));
+  if (command === "browser_view_navigate" && (globalThis as { rejectNativeNavigation?: boolean }).rejectNativeNavigation) {
+    return Promise.reject(new Error("refused for test"));
+  }
   return Promise.resolve();
 };
 
 register("./helpers/browser-store-resolver.mjs", import.meta.url);
 register("./helpers/native-view-resolver.mjs", import.meta.url);
-const { useBrowserStore } = await import("../src/features/browser/store.ts");
+const { currentEntry, useBrowserStore } = await import("../src/features/browser/store.ts");
 const { useChatRuntimeStore } = await import("@/features/chat");
-const { startNativeViews } = await import(
+const { returnToNativePage, startNativeViews } = await import(
   "../src/features/browser/native-view.ts"
 );
 
@@ -257,6 +260,62 @@ test("native navigation keeps temporary history private after the chat mode chan
       { level: "visit", message: "https://private.example/", temporary: true },
     ]);
   } finally {
+    useChatRuntimeStore.getState().setIncognito(false);
+    stop();
+  }
+});
+
+test("a native child tab inherits retained temporary page provenance", async () => {
+  useBrowserStore.getState().openUrl("https://normal-parent.example/", { newTab: true });
+  const stop = startNativeViews();
+  try {
+    await frame();
+    const tabId = useBrowserStore.getState().activeTabId as string;
+    const g = globalThis as { nativeViewListener?: (event: { payload: unknown }) => void };
+    useChatRuntimeStore.getState().setIncognito(true);
+    g.nativeViewListener?.({
+      payload: { kind: "load", tabId, url: "https://private-parent.example/", loading: true },
+    });
+    useChatRuntimeStore.getState().setIncognito(false);
+    g.nativeViewListener?.({
+      payload: { kind: "newTab", tabId, url: "https://private-child.example/" },
+    });
+    const child = useBrowserStore
+      .getState()
+      .tabs.find((candidate) => candidate.id === useBrowserStore.getState().activeTabId);
+    const childEntry = child ? currentEntry(child) : null;
+    assert.equal(childEntry?.kind === "web" && childEntry.temporary, true);
+  } finally {
+    useChatRuntimeStore.getState().setIncognito(false);
+    stop();
+  }
+});
+
+test("a failed native navigation restores the displayed page's temporary provenance", async () => {
+  useBrowserStore.getState().openUrl("https://normal-before-private.example/", { newTab: true });
+  const stop = startNativeViews();
+  try {
+    await frame();
+    const tabId = useBrowserStore.getState().activeTabId as string;
+    const g = globalThis as {
+      nativeViewListener?: (event: { payload: unknown }) => void;
+      rejectNativeNavigation?: boolean;
+    };
+    useChatRuntimeStore.getState().setIncognito(true);
+    g.nativeViewListener?.({
+      payload: { kind: "load", tabId, url: "https://private-shown.example/", loading: true },
+    });
+    useChatRuntimeStore.getState().setIncognito(false);
+    g.rejectNativeNavigation = true;
+    useBrowserStore.getState().navigate(tabId, { url: "https://refused.example/" });
+    await frame();
+    g.rejectNativeNavigation = false;
+    assert.equal(returnToNativePage(tabId), true);
+    const tab = useBrowserStore.getState().tabs.find((candidate) => candidate.id === tabId);
+    const entry = tab ? currentEntry(tab) : null;
+    assert.equal(entry?.kind === "web" && entry.temporary, true);
+  } finally {
+    (globalThis as { rejectNativeNavigation?: boolean }).rejectNativeNavigation = undefined;
     useChatRuntimeStore.getState().setIncognito(false);
     stop();
   }

@@ -223,14 +223,16 @@ function onNativeEvent(event: NativeEvent): void {
     }
     case "newTab": {
       const now = Date.now();
+      const temporary = temporaryPages.get(tab.id) ?? Boolean(entry.temporary);
+      const open = () => store.openUrl(event.url, { newTab: true, from: shownUrl(tab), temporary });
       newTabTimes = newTabTimes.filter((time) => now - time < NEW_TAB_WINDOW_MS);
       if (newTabTimes.length < NEW_TABS_PER_WINDOW) {
         newTabTimes.push(now);
-        store.openUrl(event.url, { newTab: true, from: shownUrl(tab) });
+        open();
       } else {
         prompt(t("browser.native.externalPrompt", { host: hostOf(shownUrl(tab)), url: event.url }), {
           label: t("browser.native.open"),
-          onClick: () => store.openUrl(event.url, { newTab: true, from: shownUrl(tab) }),
+          onClick: open,
         });
       }
       break;
@@ -320,7 +322,7 @@ export function returnToNativePage(tabId: string): boolean {
   const store = useBrowserStore.getState();
   const tab = store.tabs.find((candidate) => candidate.id === tabId);
   if (!shown?.url || !tab?.nativeError || !views.has(tabId)) return false;
-  store.navigate(tabId, { url: shown.url }, { replace: true });
+  store.navigate(tabId, { url: shown.url, temporary: temporaryPages.get(tabId) }, { replace: true });
   const back = useBrowserStore.getState().tabs.find((candidate) => candidate.id === tabId);
   if (back) views.set(tabId, entryKey(currentEntry(back)));
   store.updateTab(tabId, { title: shown.title, favicon: shown.favicon, loading: false, displayUrl: shown.url });
@@ -523,6 +525,8 @@ async function applyView(desired: Desired): Promise<void> {
   const { tabId, url, entry, temporary, zoom, bounds } = desired;
   const existed = views.has(tabId);
   const loaded = views.get(tabId);
+  const previousTemporary = temporaryPages.get(tabId);
+  const changingPage = existed && loaded !== entry;
   const resumed = resume.get(tabId);
   const started = generation;
   const stale = () => {
@@ -552,6 +556,11 @@ async function applyView(desired: Desired): Promise<void> {
     }
   } catch (cause) {
     if (stale()) return;
+    // A refused navigation leaves the previous page visible, so retain that page's provenance.
+    if (changingPage && views.get(tabId) === loaded) {
+      if (previousTemporary === undefined) temporaryPages.delete(tabId);
+      else temporaryPages.set(tabId, previousTemporary);
+    }
     useBrowserStore.getState().updateTab(tabId, {
       loading: false,
       nativeError: /public web/i.test(error(cause)) ? t("browser.native.blocked") : error(cause),

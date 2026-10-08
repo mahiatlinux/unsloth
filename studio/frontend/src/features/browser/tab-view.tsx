@@ -77,7 +77,10 @@ function useFrameMessages(tabId: string, origin: string | null) {
       const store = useBrowserStore.getState();
       switch (message.type) {
         case "navigate": {
-          const from = pageAddress(store.tabs.find((candidate) => candidate.id === tabId));
+          const tab = store.tabs.find((candidate) => candidate.id === tabId);
+          const entry = tab ? currentEntry(tab) : null;
+          const from = pageAddress(tab);
+          const temporary = entry?.kind === "web" ? entry.temporary : undefined;
           if (message.newTab) {
             store.openUrl(message.url, {
               newTab: true,
@@ -85,9 +88,14 @@ function useFrameMessages(tabId: string, origin: string | null) {
               method: message.method,
               body: message.body,
               from,
+              temporary,
             });
           } else {
-            store.navigate(tabId, { url: message.url, method: message.method, body: message.body, from }, { replace: message.replace });
+            store.navigate(
+              tabId,
+              { url: message.url, method: message.method, body: message.body, from, temporary },
+              { replace: message.replace },
+            );
           }
           break;
         }

@@ -301,7 +301,14 @@ type BrowserState = {
   closeTabsToRight: (tabId: string) => void;
   openUrl: (
     url: string,
-    options?: { newTab?: boolean; background?: boolean; method?: "GET" | "POST"; body?: string; from?: string },
+    options?: {
+      newTab?: boolean;
+      background?: boolean;
+      method?: "GET" | "POST";
+      body?: string;
+      from?: string;
+      temporary?: boolean;
+    },
   ) => void;
   openFile: (input: OpenFileInput) => void;
   navigate: (
@@ -494,19 +501,25 @@ export const useBrowserStore = create<BrowserState>((set, get) => {
     openUrl: (url, options) => {
       if (!isWeb(url)) return;
       if (options?.method === "POST") {
-        openTab(createTab(webEntry(url, "POST", options.body ?? "", options.from)), options.background);
+        openTab(
+          createTab(webEntry(url, "POST", options.body ?? "", options.from, options.temporary)),
+          options.background,
+        );
         return;
       }
       const target = unwrapRedirect(url);
       const openKey = `url:${target}`;
       const { activeTabId } = get();
       if (options?.newTab === false && activeTabId) {
-        get().navigate(activeTabId, { url: target, from: options.from });
+        get().navigate(activeTabId, { url: target, from: options.from, temporary: options.temporary });
         set((state) => ({ open: true, openSequence: state.openSequence + 1 }));
         return;
       }
       if (options?.newTab === undefined && focusExisting(openKey)) return;
-      openTab(createTab(webEntry(target, undefined, undefined, options?.from), openKey), options?.background);
+      openTab(
+        createTab(webEntry(target, undefined, undefined, options?.from, options?.temporary), openKey),
+        options?.background,
+      );
     },
     openFile: ({ blob, name, contentType, plainText, key }) => {
       const openKey = key ? `file:${key}` : null;

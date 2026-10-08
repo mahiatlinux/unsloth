@@ -89,6 +89,14 @@ test("a tab copied into a temporary chat stays out of history after the chat tur
   assert.deepEqual(useBrowserHistoryStore.getState().history, []);
 });
 
+test("an explicitly temporary page keeps that provenance after the chat turns normal", () => {
+  useChatRuntimeStore.getState().setIncognito(false);
+  useBrowserStore.getState().openUrl("https://child.example/", { newTab: true, temporary: true });
+  const tab = useBrowserStore.getState().tabs.find((item) => item.id === useBrowserStore.getState().activeTabId);
+  const entry = tab ? currentEntry(tab) : null;
+  assert.equal(entry?.kind === "web" && entry.temporary, true);
+});
+
 test("with download history off, downloads are not listed", () => {
   const history = useBrowserHistoryStore.getState();
   history.clearDownloads();
