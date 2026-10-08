@@ -100,7 +100,7 @@ function useFrameMessages(tabId: string, origin: string | null) {
           const tab = store.tabs.find((candidate) => candidate.id === tabId);
           const entry = tab ? currentEntry(tab) : null;
           const favicon = safeFavicon(message.favicon);
-          // Kept by site, so Recents, History and Suggested show it once the tab is gone.
+          // persist site icons for Recents, History, and Suggested after the tab closes.
           if (favicon && tab && entry?.kind === "web") {
             useBrowserHistoryStore.getState().recordIcon(hostOf(tab.displayUrl ?? entry.url), favicon, entry.temporary);
           }
@@ -110,7 +110,7 @@ function useFrameMessages(tabId: string, origin: string | null) {
               if (icon && now && currentEntry(now) === entry) useBrowserStore.getState().updateTab(tabId, { favicon: icon });
             });
           }
-          // POST results can't be revisited, so they stay out of history.
+          // POST results cannot be revisited and stay out of history.
           if (tab && entry?.kind === "web" && entry.method !== "POST") {
             useBrowserHistoryStore.getState().recordVisit(tab.displayUrl ?? entry.url, message.title, entry.temporary);
           }
@@ -123,7 +123,7 @@ function useFrameMessages(tabId: string, origin: string | null) {
           if (message.title) store.updateTab(tabId, { title: message.title });
           break;
         case "url":
-          // Same origin only, or a page could spoof the address bar.
+          // require the loaded origin to prevent address-bar spoofing.
           if (origin && sameOrigin(message.url, origin)) store.updateTab(tabId, { displayUrl: message.url });
           break;
         case "reload":
@@ -289,11 +289,11 @@ function WebPage({
         cachePage(entry, page);
         setState({ status: "ready", page });
         show(page);
-        // A file the panel can't show downloads, as in a browser; fresh loads only, so returning to the tab doesn't ask again.
+        // only fresh unsupported files auto-download, avoiding repeat prompts when revisiting tabs.
         if (page.kind === "raw") {
           const name = page.fileName ?? fileNameFromUrl(page.url);
           if (!canShowFile(name, page.contentType)) {
-            // The sending page, else the address asked for (not the redirect target), so another site's "allow" can't cover it.
+            // approve against the sender or requested URL, never a redirect controlled by another site.
             void saveBrowserDownload({
               blob: page.blob,
               name,

@@ -65,12 +65,12 @@ function approved(url: string | null, name: string, site?: string): Promise<bool
   return url && isWebUrl(url) ? approveDownload(url, name, site ?? url) : Promise.resolve(true);
 }
 
-/** Website files wait for approval first. `target`: a location already picked, null for none; omitted, the dialog opens when Settings asks. */
+/** waits for website approval; target is preselected, null disables picking, and undefined follows Settings. */
 export async function saveBrowserDownload(download: BrowserDownload, target?: SaveHandle | null): Promise<void> {
   const temporary = download.temporary ?? useChatRuntimeStore.getState().incognito;
   if (target === undefined) {
     if (!(await approved(download.url, download.name, download.site))) return;
-    // A save dialog needs a fresh click; a late approval waits for a click on Save instead.
+    // late approval loses the user gesture, so Save supplies a fresh click.
     if (saveNeedsClick()) {
       const locale = getLocale();
       toast(translate("browser.downloadPrompt.ready", { name: safeDownloadName(download.name) }, locale), {
@@ -96,7 +96,7 @@ async function writeDownload(
   let picked: SaveHandle | null = null;
   try {
     if (isTauri) {
-      // The app keeps the path so Download history can reveal it.
+      // retain the native path so Download history can reveal the file.
       saved = await saveNativeDownload(blob, name, useBrowserPrefsStore.getState().askWhereToSave, url);
       if (!saved) return;
     } else {
@@ -128,10 +128,10 @@ async function writeDownload(
   }
 }
 
-// Well inside the ~5 s a click lets a page open the save dialog.
+// stays within the roughly five-second save-dialog gesture window.
 const RESOLVE_BEFORE_ASK_MS = 1000;
 
-/** A fetched link as a file: the server's name, or the page as .html. */
+/** uses the server filename for files and .html for pages. */
 function linkDownload(page: BrowserPage, url: string, temporary: boolean): BrowserDownload {
   if (page.kind === "raw") {
     return {
@@ -152,13 +152,12 @@ function linkDownload(page: BrowserPage, url: string, temporary: boolean): Brows
   };
 }
 
-/** Save what a link points at, fetched through the panel's proxy so any site works. */
+/** fetches through the panel proxy for cross-site support. */
 export async function saveLinkAs(url: string): Promise<void> {
   const temporary = useChatRuntimeStore.getState().incognito;
   const controller = new AbortController();
   const pending = fetchBrowserPage({ url }, controller.signal).then((page) => linkDownload(page, url, temporary));
-  // The dialog needs the menu click, which a slow fetch outlasts: ask with the resolved name
-  // when the fetch is quick, else with the URL's.
+  // a slow fetch outlasts the menu gesture, so use its filename only when resolution is quick.
   let target: SaveHandle | null | undefined;
   let asked: string | undefined;
   if (asksWhereToSave()) {
@@ -169,7 +168,7 @@ export async function saveLinkAs(url: string): Promise<void> {
       ),
       new Promise<null>((resolve) => setTimeout(() => resolve(null), RESOLVE_BEFORE_ASK_MS)),
     ]);
-    // A link that already failed has nothing to save: report it without asking for a name.
+    // avoid asking for a filename when the fetch has already failed.
     if (quick && "error" in quick) throw quick.error;
     const name = quick?.download.name ?? fileNameFromUrl(url);
     asked = name;

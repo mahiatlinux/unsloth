@@ -224,7 +224,7 @@ enum BrowserEvent {
         tab_id: String,
         url: String,
     },
-    /// A link only another app opens (mailto:); the panel asks first.
+    /// a link only another app opens (mailto:); the panel asks first.
     External {
         tab_id: String,
         url: String,
@@ -239,15 +239,15 @@ enum BrowserEvent {
         success: bool,
         /// correlates the prompt with completion so frontend context survives async delivery.
         request_id: Option<String>,
-        /// A finished download's handle for Download history (browser_downloads.rs).
+        /// finished download handle for Download history (browser_downloads.rs).
         download_id: Option<String>,
-        /// Marked as from the internet: false if that failed (the panel warns), None where nothing marks.
+        /// false if the internet mark failed so the panel can warn; None when no mark applies.
         marked: Option<bool>,
     },
     DownloadPrompt {
         tab_id: String,
         url: String,
-        /// Page showing when the download started (the site a remembered answer is for); "" before the view showed one.
+        /// page at download start, used to scope remembered answers; empty before first view.
         site: String,
         name: String,
         id: String,
@@ -1059,8 +1059,7 @@ fn create_view<R: Runtime>(
                     let path = {
                         let state = app.state::<BrowserViews>();
                         let mut inner = state.inner.lock().unwrap();
-                        // macOS reports no path when a download finishes, so two of one URL at
-                        // once couldn't be told apart: one at a time.
+                        // macOS omits paths, so concurrent downloads of one URL are ambiguous.
                         let busy =
                             cfg!(target_os = "macos") && inner.downloads.contains_key(url.as_str());
                         let in_flight = inner.downloads.values().map(Vec::len).sum();

@@ -16,9 +16,9 @@ export type BrowserEntry =
       url: string;
       method?: "GET" | "POST";
       body?: string;
-      /** The page that sent the tab here (link, form, script, refresh); a file here downloads on its behalf. */
+      /** source page used for delegated download approval. */
       from?: string;
-      /** Opened beside a temporary chat, so it stays out of history. */
+      /** suppresses history for entries opened beside a temporary chat. */
       temporary?: true;
     }
   | {
@@ -26,9 +26,9 @@ export type BrowserEntry =
       fileId: string;
       name: string;
       contentType: string;
-      /** Show as text even if named .html (text extracted from a document). */
+      /** forces document-derived .html files to display as text. */
       plainText?: boolean;
-      /** The tab's openKey while this entry shows, so Back restores it. */
+      /** tab openKey used to restore this entry with Back. */
       openKey?: string;
     };
 
@@ -173,7 +173,6 @@ function createTab(entry: BrowserEntry, openKey: string | null = null): BrowserT
     loading: false,
     reloadKey: 0,
     openKey,
-    // Files open fitted; the default zoom is for web pages.
     zoom: entry.kind === "file" ? 1 : defaultZoom(),
     nativeHistory: null,
     nativeError: null,
@@ -185,7 +184,7 @@ function createTab(entry: BrowserEntry, openKey: string | null = null): BrowserT
 
 export const MAX_TAB_TITLE_CHARS = 120;
 
-// A copy of each entry, so the copy keeps its own cached pages and native view.
+// copy entries so cached pages and native views remain tab-local.
 function copyTab(tab: BrowserTab): BrowserTab {
   const temporary = useChatRuntimeStore.getState().incognito;
   return {
@@ -193,9 +192,9 @@ function copyTab(tab: BrowserTab): BrowserTab {
     history: tab.history.map((entry) => {
       const copy = { ...entry };
       if (copy.kind === "web" && temporary) copy.temporary = true;
-      // The original keeps its key; a copy going Back must not claim it.
+      // preserve the original file key so Back in the copy cannot claim it.
       if (copy.kind === "file") delete copy.openKey;
-      // A form result is not sent again unasked just because the tab was copied.
+      // copied POST results require confirmation before resubmission.
       if (entry.kind === "web" && entry.method === "POST") sentPosts.add(copy);
       return copy;
     }),
@@ -219,13 +218,13 @@ function webEntry(url: string, method?: "GET" | "POST", body?: string, from?: st
   return from ? { ...entry, from } : entry;
 }
 
-// Pending file refreshes per tab, run in order, and the blobs they will compare.
+// serialize file refreshes per tab and retain their comparison blobs.
 const refreshes = new Map<string, Promise<void>>();
 const queuedFiles = new Set<string>();
 
 const COMPARE_CHUNK_BYTES = 1024 * 1024;
 
-// In slices, a word at a time: a 50 MB file never holds the UI thread or both copies whole.
+// chunked comparison avoids blocking the UI or holding two 50 MB copies.
 async function sameBytes(a: Blob | undefined, b: Blob): Promise<boolean> {
   if (!a || a.size !== b.size) return false;
   for (let start = 0; start < b.size; start += COMPARE_CHUNK_BYTES) {

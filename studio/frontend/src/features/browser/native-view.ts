@@ -52,7 +52,7 @@ type NativeEvent =
       success: boolean;
       requestId: string | null;
       downloadId: string | null;
-      /** False when the file couldn't be marked as downloaded from the internet; null where nothing marks. */
+      /** false when the file could not be marked as downloaded from the internet; null where nothing marks. */
       marked?: boolean | null;
     }
   | { kind: "downloadPrompt"; tabId: string; url: string; site: string; name: string; id: string };
@@ -62,10 +62,9 @@ type Bounds = { x: number; y: number; width: number; height: number; viewportWid
 const t = (key: TranslationKey, values?: InterpolationValues) => translate(key, values, getLocale());
 
 const views = new Map<string, number>();
-// Tabs this page has opened a view for. A download from any other tab started under the account
-// signed in before the last reload (an account switch reloads), so it isn't this account's to list.
+// downloads from unopened tabs predate the current account's last reload and do not belong in its history.
 const openedTabs = new Set<string>();
-// slightly longer than the backend's unanswered-prompt timeout.
+// exceeds the backend's unanswered-prompt timeout.
 const DOWNLOAD_PROMPT_CONTEXT_MS = 11 * 60_000;
 const DOWNLOAD_TRANSFER_CONTEXT_MS = 24 * 60 * 60_000;
 type DownloadContext = { temporary: boolean; expires: ReturnType<typeof setTimeout> | null };
@@ -73,15 +72,15 @@ const downloadContexts = new Map<string, DownloadContext>();
 let recency: string[] = [];
 const zooms = new Map<string, number>();
 const icons = new Map<string, string>();
-// What each view really shows, to return to after a refused address.
+// cached page state restores a refused address.
 const pages = new Map<string, { url: string; title: string; favicon: string | null }>();
-// Where a closed view's page had got to, so it reopens there rather than at the entry's address.
+// last closed-view location, used to reopen it instead of its entry address.
 const resume = new Map<string, { entry: number; url: string }>();
 let newTabTimes: number[] = [];
-// The view on screen, as last shown; menus and dialogs over the page hide it.
+// currently shown view; menus and dialogs hide it.
 let shownView: string | null = null;
 const shownWaiters = new Set<() => void>();
-// Bumped when the panel unmounts, so a call still in flight leaves the closed views alone.
+// invalidates in-flight calls when the panel unmounts.
 let generation = 0;
 
 function page(tabId: string) {
@@ -125,7 +124,7 @@ function listenOnce(): void {
   );
 }
 
-/** Always answered: an unanswered download would sit in staging until the app quits. */
+/** always answer prompts because unanswered downloads remain staged until exit. */
 function onDownloadPrompt(event: Extract<NativeEvent, { kind: "downloadPrompt" }>, tab: BrowserTab | undefined): void {
   const { id, url, site, name } = event;
   const entry = tab ? currentEntry(tab) : null;
@@ -134,7 +133,7 @@ function onDownloadPrompt(event: Extract<NativeEvent, { kind: "downloadPrompt" }
     temporary: useChatRuntimeStore.getState().incognito || Boolean(entry?.kind === "web" && entry.temporary),
     expires,
   });
-  // The site asking is the page that started it, taken then (a later site's answer must not cover it); blob: counts as its creator. With no web origin yet, the opener or the address asked for.
+  // bind approval to the initiating site; blob URLs inherit their creator, with the opener or address as fallback.
   const asking = downloadSiteOf(site) ? site : entry?.kind === "web" ? entry.from || entry.url : "";
   const decided = entry?.kind === "web" ? approveDownload(url, name, asking) : Promise.resolve(false);
   void decided
@@ -158,7 +157,7 @@ function onNativeEvent(event: NativeEvent): void {
     onDownloadPrompt(event, tab);
     return;
   }
-  // A download outlives its page: it often lands after the tab closed or moved on, and still belongs in history.
+  // downloads can finish after their tab closes or navigates and still belong in history.
   if (event.kind === "download") {
     if (openedTabs.has(event.tabId)) onDownload(event);
     else if (event.requestId) downloadContexts.delete(event.requestId);
@@ -190,7 +189,7 @@ function onNativeEvent(event: NativeEvent): void {
       if (tab.nativeHistory?.back !== next.back || tab.nativeHistory?.forward !== next.forward) {
         store.updateTab(tab.id, { nativeHistory: next });
       }
-      // Through the backend, so a page can't point Studio at a local address.
+      // route through the backend so pages cannot point Studio at a local address.
       if (event.icon && icons.get(tab.id) !== event.icon) {
         const icon = event.icon;
         icons.set(tab.id, icon);
@@ -251,7 +250,7 @@ function onDownload(event: Extract<NativeEvent, { kind: "download" }>): void {
   }
 }
 
-// Pages can ask in a loop: one prompt on screen, replaced at most once a second.
+// rate-limit pages to one visible prompt, replaced at most once per second.
 const PROMPT_ID = "browser-native-prompt";
 const PROMPT_INTERVAL_MS = 1000;
 let lastPrompt = Number.NEGATIVE_INFINITY;

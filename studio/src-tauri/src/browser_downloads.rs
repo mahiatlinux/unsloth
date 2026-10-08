@@ -582,7 +582,7 @@ fn settle<R: Runtime>(app: &AppHandle<R>, id: &str) {
     });
 }
 
-/// None if the save dialog was cancelled.
+/// none if the save dialog was cancelled.
 async fn deliver<R: Runtime>(
     app: &AppHandle<R>,
     entry: &Pending,
