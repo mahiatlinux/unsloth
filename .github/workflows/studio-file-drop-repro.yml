@@ -46,3 +46,18 @@ jobs:
         run: |
           cargo test --locked native_intents::tests -- --nocapture
           cargo build --locked
+      - name: Build native transport probe from the real intake handler
+        run: |
+          python -m pip install PySide6 pyautogui pillow
+          python .github/repro/prepare-native-probe.py
+          cargo build --locked --manifest-path studio/src-tauri/Cargo.toml
+      - name: Real OS file drag and native authorization
+        run: python .github/repro/run-native-probe.py
+      - name: Native drag evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: native-drag-${{ matrix.os }}
+          path: native-drop-evidence
+          retention-days: 3
+          if-no-files-found: ignore
