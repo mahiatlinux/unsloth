@@ -6,6 +6,9 @@ on:
   push:
     branches:
       - "pr-13897-filename-repro-ci*"
+  pull_request:
+    branches:
+      - "main"
   workflow_dispatch:
 
 permissions:
