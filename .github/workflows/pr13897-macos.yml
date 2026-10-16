@@ -42,5 +42,5 @@ jobs:
         shell: bash
         run: |
           cd studio/backend
-          python -m pytest -q --tb=short tests/test_gguf_variants_local_resolution.py tests/test_audio_cpp_models.py -k 'audio_page_local_filename_pick_uses_audio_cpp or pickers_exact_filename or filename_selector or exact_filename or loose_file_variant or literal_backslash_filename or exact_filename_spelling'
+          python -m pytest -q --tb=short tests/test_gguf_variants_local_resolution.py tests/test_audio_cpp_models.py -k 'audio_page_local_filename_pick_uses_audio_cpp or filename_variant_matches_a_windows_local_primary or pickers_exact_filename or filename_selector or exact_filename or loose_file_variant or literal_backslash_filename or exact_filename_spelling'
 

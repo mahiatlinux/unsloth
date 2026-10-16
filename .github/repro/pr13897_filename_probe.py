@@ -10,6 +10,7 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "studio" / "backend"))
 
 from utils.models.model_config import _find_local_gguf_by_variant
+from core.inference.audio_cpp_models import AudioCppVariant, RepoFile, match_variant
 
 
 with tempfile.TemporaryDirectory() as raw_root:
@@ -36,5 +37,13 @@ with tempfile.TemporaryDirectory() as raw_root:
     if not upper.samefile(lower):
         selected = _find_local_gguf_by_variant(str(root), lower.name)
         assert selected == str(lower), (selected, lower)
+
+filename = "model-Q8_0.gguf"
+windows_variant = AudioCppVariant(
+    "Q8_0",
+    (RepoFile(filename),),
+    rf"C:\models\english\{filename}",
+)
+assert match_variant((windows_variant,), f"english/{filename}") is windows_variant
 
 print("PR 13897 filename identity probe passed")
